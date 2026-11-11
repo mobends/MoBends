@@ -131,6 +131,27 @@ definition names `EntitySkeleton`, which the wither skeleton isn't (both extend 
       on its feet as the skeleton does, at its bigger size, and the Settings menu lists it with its
       own switch. The skeleton, the stray and the wither (the boss) are unchanged.
 
+### #434: Fixes from reviewing KUMO's TypeScript port
+
+Needs the first `core` release after 2.0.0-alpha.3. On `main` KUMO checks a function's `string` and
+`choice` arguments where it's called, starts a scope's memories and a node's clock over properly,
+keeps machines alive and updated while their nodes fade out, runs a transition's lists in the order
+the format gives, and fixes the leg IK when a leg points straight away from its target. All of it is
+in `core`; no asset changes. `core` adds `INodeState.resetClock` (a no-op by default), which this
+branch doesn't need to implement.
+
+- [ ] Bump `core_version` (gradle.properties) to that release.
+- [ ] Bring `misc/kumo-format.md` up to `main`'s in four places (this branch's copy differs elsewhere,
+      so don't copy the whole file): *Functions* (what a `string` or `choice` argument says is checked
+      at each call), *Connections* (a connection into a machine whose scope exists leaves it first),
+      *Every frame* (the `exit` lists before the `do`, innermost first, and machines entered from the
+      outermost in), and *Definitions and statements* (a scope created again keeps nothing of its
+      previous entry).
+- [ ] Run the animation lab. Its goldens shouldn't change (`main`'s didn't); if one does, check with
+      `compare` that it's one of the fixes above before re-recording it.
+- [ ] Check in the game that the player and the mobs animate as before, the sword combo and anything
+      else in a machine included, and the legs on stairs and ledges.
+
 ## Other tasks
 
 - [ ] Make `field` resolve every vanilla field in production. The generated accessors
