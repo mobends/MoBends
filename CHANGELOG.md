@@ -27,7 +27,9 @@ The first Mo' Bends for Minecraft 1.21.1, on Fabric and NeoForge. It animates wh
 does on 1.12.2: players, zombies (husks and drowned too), skeletons, zombie villagers, zombified
 piglins, creepers, villagers, witches, iron golems, spiders (cave spiders too), squids (glow squids
 too) and wolves, with their armour, held items, capes, elytras, sword and arrow trails, and the
-supporters' accessories. 1.12.2 stays on 2.0.0-alpha.2.
+supporters' accessories. 2.0.0-alpha.3 for 1.12.2 came out after, built on the same engine; its
+changes are in the [`forge-1.12`](https://github.com/mobends/MoBends/blob/forge-1.12/CHANGELOG.md)
+branch's CHANGELOG.md.
 
 ### Added
 
