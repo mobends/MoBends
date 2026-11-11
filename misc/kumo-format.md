@@ -98,7 +98,8 @@ node is in *Choosing the node*.
   `core:vanilla`. `core:pose` takes the pose stack and what goes with it (`pose`, `enterPose`,
   `snapOnEnter`, `smoothing`); the other two pose nothing and take `{}`. The bones `enterPose`
   poses start from there when the node is entered; what it poses relatively (`pre`, `post`) builds
-  on the layers below, as the node's own items do.
+  on the layers below, as the node's own items do, and an axis an `override` translate in it leaves
+  out starts from what the layers below have, as it would in `pose`.
 * `@define` and `@on` are the node's definitions and statement lists (see *Definitions and
   statements*): `node.` names, and what runs when the node is entered, every frame it is posed
   and when it is left.

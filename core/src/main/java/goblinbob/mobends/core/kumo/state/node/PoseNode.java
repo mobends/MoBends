@@ -424,6 +424,20 @@ public class PoseNode implements INodeState
             {
                 BoneTarget entered = enterPose.get(slot);
                 BoneTarget target = pose.get(slot);
+                // The axes an override entry leaves out keep what the layers beneath have: the entry
+                // was posed when the node started, before there was anything to read.
+                if (entered.hasVector && !entered.vectorAdditive && hasNaN(entered.vector))
+                {
+                    Vec3f beneath = new Vec3f();
+                    if (pose.getBelow() != null) pose.getBelow().vectorSoFar(slot, beneath);
+                    fillNaN(entered.vector, beneath);
+                }
+                if (entered.hasOffset && !entered.offsetAdditive && hasNaN(entered.offset))
+                {
+                    Vec3f beneath = new Vec3f();
+                    if (pose.getBelow() != null) pose.getBelow().offsetSoFar(slot, beneath);
+                    fillNaN(entered.offset, beneath);
+                }
                 if (entered.hasRotation || entered.hasPre || entered.hasPost)
                 {
                     if (target.hasRotation || target.hasPre || target.hasPost)
@@ -509,6 +523,19 @@ public class PoseNode implements INodeState
     private static boolean isUnsmoothed(Vec3f smoothing)
     {
         return Float.isNaN(smoothing.x) && Float.isNaN(smoothing.y) && Float.isNaN(smoothing.z);
+    }
+
+    private static boolean hasNaN(Vec3f v)
+    {
+        return Float.isNaN(v.x) || Float.isNaN(v.y) || Float.isNaN(v.z);
+    }
+
+    /** Puts every axis of {@code v} that is NaN at {@code from}'s. */
+    private static void fillNaN(Vec3f v, Vec3f from)
+    {
+        if (Float.isNaN(v.x)) v.x = from.x;
+        if (Float.isNaN(v.y)) v.y = from.y;
+        if (Float.isNaN(v.z)) v.z = from.z;
     }
 
     @Override
