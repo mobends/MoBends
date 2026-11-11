@@ -289,7 +289,9 @@ A layer's `mirror` rule says when its mirrored items mirror, and which bones pai
 
 While the rule's `@when` holds, an item with `@mirror` or `@swapSides` runs on a reflection of the
 pose built so far, and its result is reflected back. Reflecting twice gives back the original, so
-the item's composition rules don't change. An item that sets either without a rule on its layer
+the item's composition rules don't change. What it reads of the layers below is reflected with it:
+a weighted clip blends from the layers below's mirror image, as it would blend from them
+unmirrored. An item that sets either without a rule on its layer
 is a load error.
 
 | | paired bones swap | Y and Z rotations, X offset negated |

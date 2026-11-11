@@ -77,6 +77,12 @@ public class Pose
         this.below = below;
     }
 
+    /** Whether this is a base pose, with the rest pose beneath it (see {@link #base}). */
+    public boolean isBase()
+    {
+        return base;
+    }
+
     /** The pose this one goes on top of, or null (see {@link #setBelow}). */
     public Pose getBelow()
     {
