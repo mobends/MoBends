@@ -25,6 +25,9 @@ public interface PoseWriter
     /** The bone's offset as the items before this one left it. */
     void offsetSoFar(int bone, Vec3f dest);
 
+    /** The bone's scale as the items before this one left it (one where nothing has written it). */
+    void scaleSoFar(int bone, Vec3f dest);
+
     /** The position of one of the entity's own bones ({@code root}, {@code center}) as the items before this one left it. */
     void vectorSoFar(int bone, Vec3f dest);
 

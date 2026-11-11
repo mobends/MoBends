@@ -139,6 +139,12 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredS
     }
 
     @Override
+    public void scaleSoFar(int bone, Vec3f dest)
+    {
+        pose.scaleSoFar(bone, dest);
+    }
+
+    @Override
     public void vectorSoFar(int bone, Vec3f dest)
     {
         pose.vectorSoFar(bone, dest);

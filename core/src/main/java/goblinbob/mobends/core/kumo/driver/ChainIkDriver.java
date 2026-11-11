@@ -25,7 +25,8 @@ import goblinbob.mobends.core.math.vector.Vec3f;
  * by {@code -bodyYaw} about the entity's position, the root bone (moved, then turned), the center
  * bone (moved, then turned about its pivot), then vanilla's own (its turn by {@code bodyYaw}
  * cancels the first; the model drawn flipped in Y and Z, its origin 1.501 blocks above the
- * entity's), then the chain's parents. {@link ChainIk} solves it there.
+ * entity's), then the chain's parents (each moved, turned, then scaled). {@link ChainIk} solves it
+ * there, and what the end misses by goes back out through the parents to say it in blocks.
  */
 public final class ChainIkDriver implements DriverEvaluator
 {
@@ -61,7 +62,7 @@ public final class ChainIkDriver implements DriverEvaluator
     private final Quaternion scratch = new Quaternion();
     private final Vec3f vector = new Vec3f();
     private final double[] root = new double[4], center = new double[4], pivot = new double[3];
-    private final double[][] parentRotations;
+    private final double[][] parentRotations, parentScales;
     private final double[][] segments, chainDirections, fallbacks, rotations, posedSoFar;
 
     private ChainIkDriver(ChainIkTemplate template, DriverBindArgs args, int count) throws MalformedKumoTemplateException
@@ -149,6 +150,7 @@ public final class ChainIkDriver implements DriverEvaluator
         units = template.unitsPerBlock;
         scale = template.modelScale;
         parentRotations = new double[parentCount][4];
+        parentScales = new double[parentCount][3];
         segments = new double[count][];
         chainDirections = new double[count][];
         fallbacks = new double[count][];
@@ -202,11 +204,15 @@ public final class ChainIkDriver implements DriverEvaluator
         {
             pose.rotationSoFar(parentBones[i], quaternion);
             toDoubles(quaternion, parentRotations[i]);
+            pose.scaleSoFar(parentBones[i], vector);
+            parentScales[i][0] = invertible(vector.x);
+            parentScales[i][1] = invertible(vector.y);
+            parentScales[i][2] = invertible(vector.z);
             pose.offsetSoFar(parentBones[i], vector);
-            point = ChainIk.rotateInverse(parentRotations[i], new double[] {
+            point = unscaled(i, ChainIk.rotateInverse(parentRotations[i], new double[] {
                     point[0] - parentPivots[i][0] - vector.x,
                     point[1] - parentPivots[i][1] - vector.y,
-                    point[2] - parentPivots[i][2] - vector.z});
+                    point[2] - parentPivots[i][2] - vector.z}));
         }
         pose.offsetSoFar(bones[0], vector);
         final double[] target = {point[0] - pivots[0][0] - vector.x, point[1] - pivots[0][1] - vector.y, point[2] - pivots[0][2] - vector.z};
@@ -242,7 +248,7 @@ public final class ChainIkDriver implements DriverEvaluator
         final double shortfall = ChainIk.solve(segments, bends, chainDirections, fallbacks, target, rotations);
         if (stretch != null)
         {
-            stretch.set(context, (float) (shortfall * scale / units));
+            stretch.set(context, (float) (shortfall * throughParents(target) * scale / units));
         }
         if (w <= 0)
         {
@@ -296,11 +302,57 @@ public final class ChainIkDriver implements DriverEvaluator
         d = ChainIk.rotateInverse(center, ChainIk.rotateInverse(root, d));
         d[1] = -d[1];
         d[2] = -d[2];
-        for (double[] parent : parentRotations)
+        for (int i = 0; i < parentRotations.length; i++)
         {
-            d = ChainIk.rotateInverse(parent, d);
+            d = unscaled(i, ChainIk.rotateInverse(parentRotations[i], d));
         }
         return d;
+    }
+
+    /** A vector in parent {@code i}'s frame, scaled back as the parent scales what it carries. */
+    private double[] unscaled(int i, double[] v)
+    {
+        final double[] s = parentScales[i];
+        return new double[] {v[0] / s[0], v[1] / s[1], v[2] / s[2]};
+    }
+
+    /**
+     * How many model units one unit of the chain's frame is along the way the solved end misses
+     * {@code target} by: the parents' scales, as they are drawn (one where nothing scales them).
+     */
+    private double throughParents(double[] target)
+    {
+        // Where the end is, from the first pivot.
+        double[] at = segments[segments.length - 1];
+        for (int i = segments.length - 1; i > 0; i--)
+        {
+            final double[] turned = ChainIk.rotate(rotations[i], at);
+            at = new double[] {segments[i - 1][0] + turned[0], segments[i - 1][1] + turned[1], segments[i - 1][2] + turned[2]};
+        }
+        at = ChainIk.rotate(rotations[0], at);
+        double[] miss = {target[0] - at[0], target[1] - at[1], target[2] - at[2]};
+        final double missed = length(miss);
+        if (missed < 1e-9)
+        {
+            return 1;
+        }
+        for (int i = parentRotations.length - 1; i >= 0; i--)
+        {
+            final double[] s = parentScales[i];
+            miss = ChainIk.rotate(parentRotations[i], new double[] {miss[0] * s[0], miss[1] * s[1], miss[2] * s[2]});
+        }
+        return length(miss) / missed;
+    }
+
+    /** A scale that can be undone: a part scaled to nothing on an axis is taken to be scaled to almost nothing. */
+    private static double invertible(float scale)
+    {
+        return Math.abs(scale) < 1e-6F ? Math.copySign(1e-6, scale) : scale;
+    }
+
+    private static double length(double[] v)
+    {
+        return Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
     }
 
     private static void toDoubles(Quaternion q, double[] dest)
