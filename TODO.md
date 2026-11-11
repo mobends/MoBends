@@ -185,6 +185,20 @@ branch doesn't need to implement.
 - [ ] Check in the game that the player and the mobs animate as before, the sword combo and anything
       else in a machine included, and the legs on stairs and ledges.
 
+### #450: Chain IK follows its parents' scale
+
+Needs the first `core` release after 2.0.0-alpha.3. On `main` `core:two_bone_ik` and
+`core:three_bone_ik` follow the scale of the bones in `parents`: a chain on a scaled body reaches
+its target, and `stretch` stays in blocks. All of it is in `core`. `core` adds
+`PoseWriter.scaleSoFar`, which this branch doesn't implement anywhere.
+
+- [ ] Bump `core_version` (gradle.properties) to that release.
+- [ ] Bring `misc/kumo-format.md`'s *Reaching into the world* up to `main`'s: `parents` are followed
+      moved, turned and scaled, and the chain's own bones are assumed to have no scale (this
+      branch's copy differs elsewhere, so don't copy the whole file).
+- [ ] Run the animation lab. Its goldens shouldn't change (`main`'s didn't).
+- [ ] Check in the game that the iron golem still grabs the ledge and climbs.
+
 ## Other tasks
 
 - [ ] Make `field` resolve every vanilla field in production. The generated accessors
