@@ -1,5 +1,26 @@
 # Changelog
 
+## 2.0.0-alpha.3
+
+Built on the same engine as 2.0.0-alpha.3 for Minecraft 1.21.1 (`mobends-core` 2.0.0-alpha.3).
+
+### Added
+
+- Animators and model definitions can tell the Minecraft versions apart with
+  `core:minecraft_version` (`{"core:minecraft_version": [">", "1.12.2"]}`), and model definitions
+  can change with them through `@variants`: a list of an `@when` and the fields it merges into the
+  definition when that holds. One pack can then fit 1.12.2 and the later versions alike.
+- A box's face in a model definition can be mirrored with `"flip": true`.
+
+### Changed
+
+- The wolf matches vanilla: its head, legs and tail sit and turn where vanilla's do, a pup's head
+  is where vanilla puts it, and its mouth follows the head.
+- The first-person hand is always vanilla's arm and sleeve, posed as vanilla poses them, never
+  bent.
+- Breaking: the `renderer.firstPersonRest` key of model definitions is gone, with the bent
+  first-person hand it posed.
+
 ## 2.0.0-alpha.2
 
 ### Added
