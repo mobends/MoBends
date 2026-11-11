@@ -42,12 +42,13 @@ Modules implement `IModule` with `preInit()` and `onRefresh()`. Active modules:
 ## Addon Extension Point
 
 Third-party addons implement `IAddon`:
-- `registerContent(AddonAnimationRegistry)` — register entity benders, KUMO operations (see
+- `registerContent(AddonAnimationRegistry)` — register entity benders written in Java, KUMO operations (see
   [animation.md](animation.md), *Operations in Java*), the selector-safe ones among them, which
   type files' selectors read, and drivers. An addon registered before the client core exists has its content registered as
   soon as it does; registering after the first animator has loaded is refused
 - `onRenderTick`, `onClientTick`, `onRefresh` — lifecycle callbacks
 
-`DefaultAddon` (standard module) registers the entity benders written in code. The mobs made from
-model definitions come from the type files in `bends/types/`. Everything else a mob needs (its animator, its type,
+`DefaultAddon` (standard module) registers Mo' Bends' drivers, components and layers. Every mob it
+animates, the player included, comes from a type file in `bends/types/` that names its model
+definition. Everything else a mob needs (its animator, its type,
 extensions) is assets; see [content.md](content.md).

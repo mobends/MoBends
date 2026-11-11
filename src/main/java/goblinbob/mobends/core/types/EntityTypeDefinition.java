@@ -50,6 +50,14 @@ public class EntityTypeDefinition
      */
     public String model;
 
+    /**
+     * Optional: {@code true} makes the model the default model of the entities of the class its
+     * definition names, and of its subclasses (as an addon's bender is), and the type applies to the
+     * entities it's the default model of; it then has no {@link #selector}. Mo' Bends' own mobs are
+     * given so ({@code mobends:zombie} the husk too).
+     */
+    public boolean defaultModel;
+
     /** Optional: the animator asset. Absent: the model's own animator. */
     public String animator;
 
@@ -80,6 +88,17 @@ public class EntityTypeDefinition
         {
             throw new MalformedKumoTemplateException("A type needs an 'id'.");
         }
+        if (defaultModel)
+        {
+            if (model == null || VANILLA_MODEL.equals(model))
+            {
+                throw new MalformedKumoTemplateException("The type '" + id + "' is a default model ('defaultModel'), so it needs a 'model'.");
+            }
+            if (selector != null)
+            {
+                throw new MalformedKumoTemplateException("The type '" + id + "' is a default model ('defaultModel'): it applies to the entities it's the default model of, so it has no 'selector'.");
+            }
+        }
         OptionTemplate.validate(options, "the type '" + id + "'");
     }
 
@@ -88,10 +107,13 @@ public class EntityTypeDefinition
         return model != null && model.endsWith(".json");
     }
 
-    /** The number of conditions of the selector, for precedence (see {@link SelectorExpression#countConditions}). */
+    /**
+     * The number of conditions of the selector, for precedence (see {@link SelectorExpression#countConditions});
+     * a default model's type has one, "this is the entity's default model", as an addon bender's built-in type.
+     */
     public int specificity()
     {
-        return SelectorExpression.countConditions(selector);
+        return defaultModel ? 1 : SelectorExpression.countConditions(selector);
     }
 
 }

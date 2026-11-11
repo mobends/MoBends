@@ -39,7 +39,7 @@ public class DanceExtensionTest
     @Test
     void theExtensionsTargetTheCowAndTheChicken() throws Exception
     {
-        // A defined mob's built-in type is "mobends-" + its entity's registry name.
+        // A shipped mob's type id is its model's key: "mobends:" + its entity's registry name.
         assertEquals("mobends:cow", extension("cow").type);
         assertEquals("mobends:chicken", extension("chicken").type);
         assertEquals(extension("cow").animator, extension("chicken").animator, "one dance for both");

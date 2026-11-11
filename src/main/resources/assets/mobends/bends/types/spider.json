@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends:spider",
+  "model": "mobends:bends/models/spider.json",
+  "defaultModel": true
+}

@@ -56,8 +56,8 @@ public class ExtensionsTest
 
         ExtensionDefinition wave = ExtensionDefinition.parse(new String(Files.readAllBytes(EXAMPLE.resolve("extensions/wave.json")), StandardCharsets.UTF_8));
         assertEquals("mobends_wave:wave", wave.id);
-        // A built-in type's id is its model's key: the registering mod and the name it gave the model
-        // (the player's definition, "player"), or else the entity's id.
+        // Mo' Bends' types' ids are their models' keys: the definition's namespace and its key (the
+        // player's definition, "player"), or else the entity's id.
         assertEquals("mobends:player", wave.type);
         assertEquals("mobends:player", EntityKind.PLAYER.benderKey);
     }

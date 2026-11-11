@@ -16,9 +16,19 @@ formats are in [`misc/kumo-format.md`](../misc/kumo-format.md); this page is how
 
 A *type* decides which model and animator an entity gets, while its selector holds (an
 expression over the entity type, the player's name or UUID, the skin variant, and whatever
-selector-safe operations addons register: see `misc/kumo-format.md`, *Selectors*). Every entity bender registered in code also
-gets a built-in type; the mobs made from model definitions get theirs from the type files in
-`assets/mobends/bends/types/`. A type file adds or overrides.
+selector-safe operations addons register: see `misc/kumo-format.md`, *Selectors*). Every mob
+Mo' Bends animates gets its type from a type file in `assets/mobends/bends/types/`; another mod's
+or a pack's type file adds or overrides (the same id). A bender an addon registers in Java
+(`registerNewEntity`, `registerEntity`) gets a built-in type.
+
+A type file can make its model the **default model** of the entities of the class its definition
+names, and of its subclasses (`"defaultModel": true`, with no selector), as 1.X's benders were. The
+player, the zombie, the skeleton, the zombie villager, the zombie pigman, the squid, the spider and
+the wolf are, so the zombie's also bends the husk and the spider's the cave spider. A type without
+a `model` gives an entity its default model. `EntityTypeRegistry` reads every type file and makes
+every model one names by path before it builds any type, so a type naming a model by key
+(`mobends:zombie`) finds it whatever order the packs were read in; the default models are then
+taken in the order of their types' ids, before addons' Java benders.
 
 When several types match an entity, the winner is picked by (`TypeOrder`):
 1. the user's rank (Settings → *Order*, stored in the client config),
@@ -54,9 +64,7 @@ builds:
 * `DefinedMutator` — copies each vanilla part's boxes into bends parts, splits them
   (`BoxSplitter`), applies rest rotations, and replaces every field or array slot that held the
   vanilla part, found by identity so it works in an obfuscated game;
-* `DefinedRenderer`, made by `DefinedBenders` for every model definition a type file names, and
-  for those an addon registers as the default model of their entity class
-  (`AddonAnimationRegistry.registerDefinedEntity`; every mob Mo' Bends animates is one).
+* `DefinedRenderer`, made by `DefinedBenders` for every model definition a type file names.
 
 A definition also declares its *components* (the sword trail, held-item orientations, the cape's
 ripple), the renderer *layers* that replace vanilla's unanimated ones (armour, held items, head,

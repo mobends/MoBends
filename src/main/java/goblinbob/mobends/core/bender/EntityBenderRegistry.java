@@ -23,8 +23,11 @@ public class EntityBenderRegistry
     /** Every bender by key, in registration order. */
     private final Map<String, EntityBender<?>> benders = new LinkedHashMap<>();
 
-    /** The benders registered by addons: each is the default model of its entity class. */
+    /** The benders registered by addons in Java: each is the default model of its entity class. */
     private final List<EntityBender<?>> defaultBenders = new ArrayList<>();
+
+    /** The benders of the types marked {@code defaultModel}, by the types' ids: each is the default model of its entity class too. */
+    private final List<EntityBender<?>> typeDefaultBenders = new ArrayList<>();
 
     private final Map<Class<?>, Optional<EntityBender<?>>> defaultBenderByClass = new HashMap<>();
 
@@ -56,7 +59,7 @@ public class EntityBenderRegistry
         clearCache();
     }
 
-    /** Registers a bender of an addon: the default model of every entity of its class. */
+    /** Registers a bender an addon made in Java: the default model of every entity of its class. */
     public void registerBender(EntityBender<?> entityBender)
     {
         Core.LOG.info(String.format("Registering %s", entityBender.getKey()));
@@ -82,9 +85,22 @@ public class EntityBenderRegistry
         }
     }
 
+    /**
+     * The benders of the types marked {@code defaultModel} (see {@link #getDefaultBender}), set by
+     * the types as they load.
+     */
+    public void setTypeDefaultBenders(List<EntityBender<?>> benders)
+    {
+        typeDefaultBenders.clear();
+        typeDefaultBenders.addAll(benders);
+        defaultBenderByClass.clear();
+    }
+
     /** Removes the benders made by types, putting their renderers back to vanilla. */
     public void removeTypeBenders()
     {
+        typeDefaultBenders.clear();
+        defaultBenderByClass.clear();
         Iterator<EntityBender<?>> it = benders.values().iterator();
         while (it.hasNext())
         {
@@ -110,6 +126,7 @@ public class EntityBenderRegistry
         return benders.values();
     }
 
+    /** The benders addons registered in Java (see {@link #registerBender}). */
     public Collection<EntityBender<?>> getDefaultBenders()
     {
         return defaultBenders;
@@ -124,6 +141,8 @@ public class EntityBenderRegistry
     /** The benders whose displayed name contains {@code query} (all of them for null), by key. */
     public List<EntityBender<?>> search(@Nullable String query)
     {
+        // The type files bring most benders.
+        EntityTypeRegistry.INSTANCE.ensureLoaded();
         List<EntityBender<?>> benderList = new ArrayList<>(benders.values());
         if (query != null)
         {
@@ -135,18 +154,22 @@ public class EntityBenderRegistry
     }
 
     /**
-     * The model an entity of this class has by default: the addon bender registered for exactly this
-     * class, or else the first one registered for a superclass.
+     * The model an entity of this class has by default: of the benders of the {@code defaultModel}
+     * types (by type id), then those addons registered in Java, the one for exactly this class, or
+     * else the first one for a superclass.
      */
     @Nullable
     public EntityBender<?> getDefaultBender(Class<?> entityClass)
     {
+        EntityTypeRegistry.INSTANCE.ensureLoaded();
         return defaultBenderByClass.computeIfAbsent(entityClass, c -> {
-            for (EntityBender<?> entityBender : defaultBenders)
+            List<EntityBender<?>> all = new ArrayList<>(typeDefaultBenders);
+            all.addAll(defaultBenders);
+            for (EntityBender<?> entityBender : all)
                 if (entityBender.entityClass.equals(c))
                     return Optional.of(entityBender);
 
-            for (EntityBender<?> entityBender : defaultBenders)
+            for (EntityBender<?> entityBender : all)
                 if (entityBender.entityClass.isAssignableFrom(c))
                     return Optional.of(entityBender);
 

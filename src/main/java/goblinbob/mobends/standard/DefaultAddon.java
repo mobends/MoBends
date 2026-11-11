@@ -37,17 +37,8 @@ public class DefaultAddon implements IAddon
 	@Override
 	public void registerContent(AddonAnimationRegistry registry)
 	{
-		// These mobs are their model definitions (bends/models/).
-		registry.registerDefinedEntity("player");
-		registry.registerDefinedEntity("zombie");
-		registry.registerDefinedEntity("skeleton");
-		registry.registerDefinedEntity("zombie_villager");
-		registry.registerDefinedEntity("pig_zombie");
-		registry.registerDefinedEntity("squid");
-		registry.registerDefinedEntity("spider");
-		registry.registerDefinedEntity("wolf");
-
-		// Mobs described as data (cows, pigs, villagers, ...) come from the type files in bends/types/.
+		// The mobs themselves are data: the type files in bends/types/ give each its model definition
+		// (bends/models/).
 
 		registry.registerDriver("cape", CapeDriver::create, CapeDriver.Template.class);
 		registry.registerDriver("sword_trail", SwordTrailDriver::create, SwordTrailDriver.Template.class);

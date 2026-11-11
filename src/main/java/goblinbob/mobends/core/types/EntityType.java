@@ -32,6 +32,8 @@ public class EntityType implements TypeOrder.Ranked
     /** The model, or null for the entity's default model (or for vanilla). */
     @Nullable
     private final EntityBender<?> model;
+    /** Whether the model is the default model of its entity class ({@code "defaultModel": true}). */
+    private final boolean defaultModel;
     private final boolean vanilla;
     @Nullable
     private final ResourceLocation animator;
@@ -46,9 +48,10 @@ public class EntityType implements TypeOrder.Ranked
     private final Map<EntityBender<?>, EntityTypeRegistry.Selection> selections = new HashMap<>();
     private final EntityTypeRegistry.Selection vanillaSelection = new EntityTypeRegistry.Selection(this, null, null);
 
-    EntityType(String id, String source, @Nullable ISelectorCondition selector, int specificity,
-               @Nullable EntityBender<?> model, boolean vanilla, @Nullable ResourceLocation animator, boolean builtIn, OptionSet options)
+    EntityType(String id, String source, @Nullable ISelectorCondition selector, int specificity, @Nullable EntityBender<?> model,
+               boolean defaultModel, boolean vanilla, @Nullable ResourceLocation animator, boolean builtIn, OptionSet options)
     {
+        this.defaultModel = defaultModel;
         this.options = options;
         this.id = id;
         this.source = source;
@@ -60,11 +63,11 @@ public class EntityType implements TypeOrder.Ranked
         this.builtIn = builtIn;
     }
 
-    /** The type every addon bender gets: its model for the entities it's the default model of. */
+    /** The type every bender an addon registers in Java gets: its model for the entities it's the default model of. */
     static EntityType builtIn(EntityBender<?> bender)
     {
         ISelectorCondition isDefaultModel = entity -> EntityBenderRegistry.instance.getDefaultBender(entity.getClass()) == bender;
-        return new EntityType(bender.getKey(), "built in", isDefaultModel, 1, bender, false, null, true, OptionSet.EMPTY);
+        return new EntityType(bender.getKey(), "built in", isDefaultModel, 1, bender, false, false, null, true, OptionSet.EMPTY);
     }
 
     @Override
@@ -99,6 +102,12 @@ public class EntityType implements TypeOrder.Ranked
     public boolean isBuiltIn()
     {
         return builtIn;
+    }
+
+    /** Whether the type's model is the default model of its entity class. */
+    public boolean isDefaultModel()
+    {
+        return defaultModel;
     }
 
     public boolean isVanilla()

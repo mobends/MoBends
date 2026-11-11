@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends:zombie_pigman",
+  "model": "mobends:bends/models/pig_zombie.json",
+  "defaultModel": true
+}

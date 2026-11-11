@@ -17,6 +17,7 @@ import net.minecraft.util.ResourceLocation;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,9 +26,11 @@ import java.util.Set;
 import java.util.logging.Level;
 
 /**
- * Every entity type: one built in for each addon bender, and one for each type file found in
- * {@code assets/<namespace>/bends/types/} of every mod and resource pack. Decides which type
- * animates an entity (see {@code misc/kumo-format.md}, "Entity types and selectors").
+ * Every entity type: one built in for each bender an addon registers in Java, and one for each type
+ * file found in {@code assets/<namespace>/bends/types/} of every mod and resource pack, Mo' Bends'
+ * own mobs included. Decides which type animates an entity (see {@code misc/kumo-format.md},
+ * "Entity types and selectors"), and which models are the default models of their entity class
+ * (the types marked {@code defaultModel}).
  */
 public class EntityTypeRegistry
 {
@@ -134,7 +137,12 @@ public class EntityTypeRegistry
         }
     }
 
-    /** (Re)loads every type: the built-in ones of the registered benders, then the type files. */
+    /**
+     * (Re)loads every type: the built-in ones of the registered benders, then the type files. The
+     * type files are read first, the bender of every model one names by path made, and only then
+     * are the types built: a type naming a model by key finds it whichever type file named its
+     * definition, before or after it.
+     */
     public void reload()
     {
         loaded = true;
@@ -149,6 +157,7 @@ public class EntityTypeRegistry
         }
 
         ResourcePackPolicy policy = AnimationPolicy.INSTANCE.current();
+        List<TypeFiles.Read> read = new ArrayList<>();
         for (TypeFileDiscovery.TypeFile file : TypeFileDiscovery.discover("types"))
         {
             if (!file.trusted && policy == ResourcePackPolicy.DENY)
@@ -158,10 +167,10 @@ public class EntityTypeRegistry
             }
             try
             {
-                EntityType type = TypeFiles.loadType(file, config, policy);
+                TypeFiles.Read type = TypeFiles.read(file, config, policy);
                 if (type != null)
                 {
-                    add(type);
+                    read.add(type);
                 }
             }
             catch (Exception | StackOverflowError e)
@@ -169,6 +178,33 @@ public class EntityTypeRegistry
                 Core.LOG.log(Level.SEVERE, "Could not load the type " + file.source, e);
             }
         }
+        for (TypeFiles.Read type : read)
+        {
+            try
+            {
+                add(TypeFiles.build(type));
+            }
+            catch (Exception | StackOverflowError e)
+            {
+                Core.LOG.log(Level.SEVERE, "Could not load the type " + type.file.source, e);
+            }
+        }
+        // By id, so which one is an entity's default model never depends on the order packs were read in.
+        List<EntityType> defaultModelTypes = new ArrayList<>();
+        for (EntityType type : types.values())
+        {
+            if (type.isDefaultModel() && type.getModel() != null)
+            {
+                defaultModelTypes.add(type);
+            }
+        }
+        defaultModelTypes.sort(Comparator.comparing(EntityType::getId));
+        List<EntityBender<?>> defaultModels = new ArrayList<>();
+        for (EntityType type : defaultModelTypes)
+        {
+            defaultModels.add(type.getModel());
+        }
+        benders.setTypeDefaultBenders(defaultModels);
 
         if (config != null)
         {
