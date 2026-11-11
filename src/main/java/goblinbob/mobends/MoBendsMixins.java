@@ -49,6 +49,7 @@ public final class MoBendsMixins implements IMixinConfigPlugin {
         "PlayerItemInHandLayerMixin",
         "PlayerModelMixin",
         "PlayerRendererMixin",
+        "StuckInBodyLayerMixin",
         "SubmitNodeCollectionMixin",
         "WitchItemLayerMixin",
         "WolfRendererMixin"
