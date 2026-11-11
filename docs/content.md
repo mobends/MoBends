@@ -18,8 +18,7 @@ A *type* decides which model and animator an entity gets, while its selector hol
 expression over the entity type, the player's name or UUID, the skin variant, and whatever
 selector-safe operations addons register: see `misc/kumo-format.md`, *Selectors*). Every mob
 Mo' Bends animates gets its type from a type file in `assets/mobends/bends/types/`; another mod's
-or a pack's type file adds or overrides (the same id). A bender an addon registers in Java
-(`registerNewEntity`, `registerEntity`) gets a built-in type.
+or a pack's type file adds or overrides (the same id). No mob is registered in code.
 
 A type file can make its model the **default model** of the entities of the class its definition
 names, and of its subclasses (`"defaultModel": true`, with no selector), as 1.X's benders were. The
@@ -28,7 +27,7 @@ the wolf are, so the zombie's also bends the husk and the spider's the cave spid
 a `model` gives an entity its default model. `EntityTypeRegistry` reads every type file and makes
 every model one names by path before it builds any type, so a type naming a model by key
 (`mobends:zombie`) finds it whatever order the packs were read in; the default models are then
-taken in the order of their types' ids, before addons' Java benders.
+taken in the order of their types' ids.
 
 When several types match an entity, the winner is picked by (`TypeOrder`):
 1. the user's rank (Settings → *Order*, stored in the client config),

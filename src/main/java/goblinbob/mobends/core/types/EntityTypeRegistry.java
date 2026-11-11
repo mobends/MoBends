@@ -26,9 +26,8 @@ import java.util.Set;
 import java.util.logging.Level;
 
 /**
- * Every entity type: one built in for each bender an addon registers in Java, and one for each type
- * file found in {@code assets/<namespace>/bends/types/} of every mod and resource pack, Mo' Bends'
- * own mobs included. Decides which type animates an entity (see {@code misc/kumo-format.md},
+ * Every entity type, one for each type file found in {@code assets/<namespace>/bends/types/} of
+ * every mod and resource pack, Mo' Bends' own mobs included. Decides which type animates an entity (see {@code misc/kumo-format.md},
  * "Entity types and selectors"), and which models are the default models of their entity class
  * (the types marked {@code defaultModel}).
  */
@@ -138,8 +137,7 @@ public class EntityTypeRegistry
     }
 
     /**
-     * (Re)loads every type: the built-in ones of the registered benders, then the type files. The
-     * type files are read first, the bender of every model one names by path made, and only then
+     * (Re)loads every type, from the type files. They are read first, the bender of every model one names by path made, and only then
      * are the types built: a type naming a model by key finds it whichever type file named its
      * definition, before or after it.
      */
@@ -150,11 +148,6 @@ public class EntityTypeRegistry
         EntityBenderRegistry benders = EntityBenderRegistry.instance;
         benders.removeTypeBenders();
         types.clear();
-
-        for (EntityBender<?> bender : benders.getDefaultBenders())
-        {
-            add(EntityType.builtIn(bender));
-        }
 
         ResourcePackPolicy policy = AnimationPolicy.INSTANCE.current();
         List<TypeFiles.Read> read = new ArrayList<>();
@@ -204,7 +197,7 @@ public class EntityTypeRegistry
         {
             defaultModels.add(type.getModel());
         }
-        benders.setTypeDefaultBenders(defaultModels);
+        benders.setDefaultBenders(defaultModels);
 
         if (config != null)
         {

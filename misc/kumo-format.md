@@ -985,7 +985,7 @@ loads, and an animator shared by several mobs or extensions never makes them sha
 | `label` | optional: a language key (packs can ship their own `.lang` files); absent, or not translated, the menu shows the key, or else the name |
 
 * **Who reads what.** A type's animator reads the options of its model definition and of its type
-  file (Mo' Bends' own types declare none: their model definitions' alone; an addon's Java bender's built-in type has no file); the two can't declare one
+  file (Mo' Bends' own types declare none: their model definitions' alone); the two can't declare one
   name. An extension's animator reads only its extension file's. Reading an option nothing
   declares is an error when the animator loads, as for an `entity.` name.
 * **Read only.** A `set` statement or a driver writing an option is an error, and an option is no
@@ -1192,7 +1192,7 @@ the class its definition's `entity` names, and of its subclasses: the default mo
 entity's exact class, or else the first for a superclass (the zombie's covers the husk, not the
 zombie villager, which has its own). They are taken in the order of their types' ids, worked out
 after every type file is read, so which one an entity gets never depends on the order packs were
-read in; then come the benders addons register in Java (below). To give a mob another default
+read in. To give a mob another default
 model, a pack replaces its type (the same id). Mo' Bends' own mobs that 1.X animated in code (the
 player, the zombie, ...) are default models; the creeper, the villager, the witch and the iron
 golem are given by an ordinary selector.
@@ -1204,10 +1204,6 @@ definition's namespace, and its `key` or else the entity's id (`mobends:player`,
 by path, read before or after its own: every type file is read, and every model one names by path
 made, before any key is looked up. Mo' Bends gives each of its types its model's key as id, so
 extensions, ranks, switches and options name a mob the same way.
-
-Every bender an addon registers in Java (`registerNewEntity`, `registerEntity`) also gets a
-**built-in type**, with its key as id, whose one condition is "this is the entity's default
-model" (it counts 1), as a `defaultModel` type's.
 
 ## Selectors
 
@@ -1251,8 +1247,7 @@ sorted by these keys, most significant first (`TypeOrder`):
    other than `and`, `or`, `not` and `if` counts 1, whatever it means; `and` counts the sum of
    its conditions, `or` the fewest of any of its conditions (it only holds as narrowly as its
    broadest branch), `not` 1, and `if` its condition plus the fewer of its two branches'. A
-   constant counts 0, and so does a type without a selector; a `defaultModel` type and a built-in
-   type count 1.
+   constant counts 0, and so does a type without a selector; a `defaultModel` type counts 1.
 3. **id**, plain lexical order, earlier first; the final tie breaker, so the result never depends
    on load order.
 
@@ -1342,7 +1337,7 @@ own animation and with other packs' extensions. Extension files are found like t
 |---|---|
 | `formatVersion` | `2` |
 | `id` | identifies the extension (ranks are stored by it); two with one id: the one from the higher-priority pack wins, with a warning (as for types) |
-| `type` | the id of the type it extends: a type file's `id` (Mo' Bends' are their models' keys: `mobends:player`, `mobends:zombie`, ...), or a built-in type's, which is its bender's key |
+| `type` | the id of the type it extends, a type file's `id`; Mo' Bends' are their models' keys (`mobends:player`, `mobends:zombie`, ...) |
 | `animator` | an animator whose layers go on top of the type's animator (or, for a type without one, its model's) |
 | `options` | optional: options the user sets in the Mo' Bends menu, which only the extension's animator reads as `option.x` (see *Options*) |
 

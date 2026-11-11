@@ -52,7 +52,7 @@ public class EntityTypeDefinition
 
     /**
      * Optional: {@code true} makes the model the default model of the entities of the class its
-     * definition names, and of its subclasses (as an addon's bender is), and the type applies to the
+     * definition names, and of its subclasses, and the type applies to the
      * entities it's the default model of; it then has no {@link #selector}. Mo' Bends' own mobs are
      * given so ({@code mobends:zombie} the husk too).
      */
@@ -109,7 +109,7 @@ public class EntityTypeDefinition
 
     /**
      * The number of conditions of the selector, for precedence (see {@link SelectorExpression#countConditions});
-     * a default model's type has one, "this is the entity's default model", as an addon bender's built-in type.
+     * a default model's type has one, "this is the entity's default model".
      */
     public int specificity()
     {

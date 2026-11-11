@@ -1,6 +1,5 @@
 package goblinbob.mobends.core.bender;
 
-import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
@@ -23,11 +22,8 @@ public class EntityBenderRegistry
     /** Every bender by key, in registration order. */
     private final Map<String, EntityBender<?>> benders = new LinkedHashMap<>();
 
-    /** The benders registered by addons in Java: each is the default model of its entity class. */
+    /** The benders of the types marked {@code defaultModel}, by the types' ids: each is the default model of its entity class. */
     private final List<EntityBender<?>> defaultBenders = new ArrayList<>();
-
-    /** The benders of the types marked {@code defaultModel}, by the types' ids: each is the default model of its entity class too. */
-    private final List<EntityBender<?>> typeDefaultBenders = new ArrayList<>();
 
     private final Map<Class<?>, Optional<EntityBender<?>>> defaultBenderByClass = new HashMap<>();
 
@@ -59,23 +55,7 @@ public class EntityBenderRegistry
         clearCache();
     }
 
-    /** Registers a bender an addon made in Java: the default model of every entity of its class. */
-    public void registerBender(EntityBender<?> entityBender)
-    {
-        Core.LOG.info(String.format("Registering %s", entityBender.getKey()));
-        EntityBender<?> previous = benders.put(entityBender.getKey(), entityBender);
-        if (previous != null)
-        {
-            defaultBenders.remove(previous);
-        }
-        defaultBenders.add(entityBender);
-        defaultBenderByClass.clear();
-        // Every addon bender brings a built-in type, and the types may have loaded before it (a
-        // resource reload listener runs as soon as it's registered, before the addons register).
-        EntityTypeRegistry.INSTANCE.markStale();
-    }
-
-    /** Registers a bender a type made from a model definition. It only animates entities of that type. */
+    /** Registers a bender a type made from a model definition. It animates the entities of the types that name it. */
     public void registerTypeBender(EntityBender<?> entityBender, CoreClientConfig config)
     {
         benders.put(entityBender.getKey(), entityBender);
@@ -89,28 +69,23 @@ public class EntityBenderRegistry
      * The benders of the types marked {@code defaultModel} (see {@link #getDefaultBender}), set by
      * the types as they load.
      */
-    public void setTypeDefaultBenders(List<EntityBender<?>> benders)
+    public void setDefaultBenders(List<EntityBender<?>> benders)
     {
-        typeDefaultBenders.clear();
-        typeDefaultBenders.addAll(benders);
+        defaultBenders.clear();
+        defaultBenders.addAll(benders);
         defaultBenderByClass.clear();
     }
 
-    /** Removes the benders made by types, putting their renderers back to vanilla. */
+    /** Removes the benders made by types (every bender), putting their renderers back to vanilla. */
     public void removeTypeBenders()
     {
-        typeDefaultBenders.clear();
+        defaultBenders.clear();
         defaultBenderByClass.clear();
-        Iterator<EntityBender<?>> it = benders.values().iterator();
-        while (it.hasNext())
+        for (EntityBender<?> bender : benders.values())
         {
-            EntityBender<?> bender = it.next();
-            if (!defaultBenders.contains(bender))
-            {
-                bender.refreshMutation();
-                it.remove();
-            }
+            bender.refreshMutation();
         }
+        benders.clear();
     }
 
     public void applyConfiguration(CoreClientConfig config)
@@ -124,12 +99,6 @@ public class EntityBenderRegistry
     public Collection<EntityBender<?>> getRegistered()
     {
         return benders.values();
-    }
-
-    /** The benders addons registered in Java (see {@link #registerBender}). */
-    public Collection<EntityBender<?>> getDefaultBenders()
-    {
-        return defaultBenders;
     }
 
     @Nullable
@@ -155,21 +124,18 @@ public class EntityBenderRegistry
 
     /**
      * The model an entity of this class has by default: of the benders of the {@code defaultModel}
-     * types (by type id), then those addons registered in Java, the one for exactly this class, or
-     * else the first one for a superclass.
+     * types (by type id), the one for exactly this class, or else the first one for a superclass.
      */
     @Nullable
     public EntityBender<?> getDefaultBender(Class<?> entityClass)
     {
         EntityTypeRegistry.INSTANCE.ensureLoaded();
         return defaultBenderByClass.computeIfAbsent(entityClass, c -> {
-            List<EntityBender<?>> all = new ArrayList<>(typeDefaultBenders);
-            all.addAll(defaultBenders);
-            for (EntityBender<?> entityBender : all)
+            for (EntityBender<?> entityBender : defaultBenders)
                 if (entityBender.entityClass.equals(c))
                     return Optional.of(entityBender);
 
-            for (EntityBender<?> entityBender : all)
+            for (EntityBender<?> entityBender : defaultBenders)
                 if (entityBender.entityClass.isAssignableFrom(c))
                     return Optional.of(entityBender);
 

@@ -37,8 +37,7 @@ public class EntityType implements TypeOrder.Ranked
     private final boolean vanilla;
     @Nullable
     private final ResourceLocation animator;
-    private final boolean builtIn;
-    /** The options the type file declares (a built-in type has its model definition's, through the entity's data). */
+    /** The options the type file declares (besides its model definition's, which come through the entity's data). */
     private final OptionSet options;
     private int rank;
     /** The animators of the extensions of this type, in the order their layers go on top, and their options. */
@@ -49,7 +48,7 @@ public class EntityType implements TypeOrder.Ranked
     private final EntityTypeRegistry.Selection vanillaSelection = new EntityTypeRegistry.Selection(this, null, null);
 
     EntityType(String id, String source, @Nullable ISelectorCondition selector, int specificity, @Nullable EntityBender<?> model,
-               boolean defaultModel, boolean vanilla, @Nullable ResourceLocation animator, boolean builtIn, OptionSet options)
+               boolean defaultModel, boolean vanilla, @Nullable ResourceLocation animator, OptionSet options)
     {
         this.defaultModel = defaultModel;
         this.options = options;
@@ -60,14 +59,6 @@ public class EntityType implements TypeOrder.Ranked
         this.model = model;
         this.vanilla = vanilla;
         this.animator = animator;
-        this.builtIn = builtIn;
-    }
-
-    /** The type every bender an addon registers in Java gets: its model for the entities it's the default model of. */
-    static EntityType builtIn(EntityBender<?> bender)
-    {
-        ISelectorCondition isDefaultModel = entity -> EntityBenderRegistry.instance.getDefaultBender(entity.getClass()) == bender;
-        return new EntityType(bender.getKey(), "built in", isDefaultModel, 1, bender, false, false, null, true, OptionSet.EMPTY);
     }
 
     @Override
@@ -76,7 +67,7 @@ public class EntityType implements TypeOrder.Ranked
         return id;
     }
 
-    /** Where the type came from: the pack and the file, or "built in". */
+    /** Where the type came from: the pack and the file. */
     public String getSource()
     {
         return source;
@@ -97,11 +88,6 @@ public class EntityType implements TypeOrder.Ranked
     public int getSpecificity()
     {
         return specificity;
-    }
-
-    public boolean isBuiltIn()
-    {
-        return builtIn;
     }
 
     /** Whether the type's model is the default model of its entity class. */
@@ -127,7 +113,7 @@ public class EntityType implements TypeOrder.Ranked
         return animator;
     }
 
-    /** The options the type file declares; none for a built-in type. */
+    /** The options the type file declares. */
     public OptionSet getOptions()
     {
         return options;

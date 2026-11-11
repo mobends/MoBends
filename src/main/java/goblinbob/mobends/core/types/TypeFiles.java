@@ -115,7 +115,7 @@ final class TypeFiles
         ResourceLocation animator = definition.animator == null ? null : new ResourceLocation(definition.animator);
         OptionSet options = KumoOptions.INSTANCE.declare(definition.id, definition.options);
         return new EntityType(definition.id, read.file.source, selector, definition.specificity(), model, definition.defaultModel, vanilla,
-                animator, false, options);
+                animator, options);
     }
 
     /** The extension an extension file describes, with its rank. */

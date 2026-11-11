@@ -103,7 +103,7 @@ public class EntityTypesTest
         EntityTypeDefinition zombie = EntityTypeDefinition.parse(
                 "{\"formatVersion\": 2, \"id\": \"mobends:zombie\", \"model\": \"mobends:bends/models/zombie.json\", \"defaultModel\": true}");
         assertTrue(zombie.defaultModel);
-        // "This is the entity's default model", as the built-in type of a bender an addon registers.
+        // "This is the entity's default model", as the built-in types of the mobs registered in code were.
         assertEquals(1, zombie.specificity());
         assertTypeRefused("needs a 'model'", "{\"formatVersion\": 2, \"id\": \"x:y\", \"defaultModel\": true}");
         assertTypeRefused("needs a 'model'", "{\"formatVersion\": 2, \"id\": \"x:y\", \"model\": \"vanilla\", \"defaultModel\": true}");

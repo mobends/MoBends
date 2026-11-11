@@ -4,19 +4,12 @@ import goblinbob.mobends.core.kumo.api.KumoDriver;
 import goblinbob.mobends.core.kumo.api.KumoOperation;
 import goblinbob.mobends.core.kumo.api.KumoRegistry;
 import goblinbob.mobends.core.kumo.api.NumberFunctions;
-import goblinbob.mobends.core.bender.DefaultEntityBender;
-import goblinbob.mobends.core.bender.EntityBender;
-import goblinbob.mobends.core.bender.EntityBenderRegistry;
-import goblinbob.mobends.core.client.MutatedRenderer;
 import goblinbob.mobends.core.client.definition.DefinedLayers;
 import goblinbob.mobends.core.data.EntityComponents;
-import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.kumo.driver.DriverRegistry;
 import goblinbob.mobends.core.kumo.driver.IDriverFactory;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
-import goblinbob.mobends.core.mutators.IMutatorFactory;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
@@ -30,56 +23,6 @@ public class AddonAnimationRegistry
     public AddonAnimationRegistry(String modId)
     {
         this.modId = modId;
-    }
-
-    /**
-     * Works like {@link #registerNewEntity(String, String, Class, IEntityDataFactory, IMutatorFactory, MutatedRenderer)},
-     * but the key and unlocalizedName are decided based on how the entity was registered.
-     */
-    public <T extends EntityLivingBase> String registerNewEntity(Class<T> entityClass,
-                                                                 IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
-                                                                 MutatedRenderer<T> renderer)
-    {
-        return registerNewEntity(null, null, entityClass, entityDataFactory, mutatorFactory, renderer);
-    }
-
-    /**
-     * Registers the entity as an animated one. The system will then mutate all entities belonging to the specified
-     * EntityClass, and apply custom animations.
-     *
-     * @param key               A custom key for this entity.
-     * @param unlocalizedName   The language-key to use for this entity's name.
-     * @param entityClass       The entity class that should be animated.
-     * @param entityDataFactory Responsible for creating an entity's data.
-     * @param mutatorFactory    Responsible for creating an entity's mutator.
-     * @param renderer          The renderer that will decide how this entity should be rendered.
-     *
-     * @return The entity's identifier key.
-     */
-    public <T extends EntityLivingBase> String registerNewEntity(String key, String unlocalizedName, Class<T> entityClass,
-                                                                 IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
-                                                                 MutatedRenderer<T> renderer)
-    {
-        EntityBender<T> entityBender = new DefaultEntityBender<T>(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer);
-        return registerEntity(entityBender);
-    }
-
-    /**
-     * Use this in case you want to use a custom sub-type of EntityBender for extended functionality.
-     *
-     * @param entityBender An instance of the EntityBender to put into the system.
-     *
-     * @return The entity's identifier key.
-     */
-    public <T extends EntityLivingBase> String registerEntity(EntityBender<T> entityBender)
-    {
-        String key = entityBender.getKey();
-        if (!key.startsWith(this.modId + ":"))
-        {
-            throw new IllegalArgumentException("The EntityBender's ModID does not match that of the AddonAnimationRegistry.");
-        }
-        EntityBenderRegistry.instance.registerBender(entityBender);
-        return entityBender.getKey();
     }
 
     /**

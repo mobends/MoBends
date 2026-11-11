@@ -15,8 +15,9 @@
 
 ### Removed
 
-- `AddonAnimationRegistry.registerDefinedEntity`: an addon's mobs are type files in its resources.
-  `registerNewEntity` and `registerEntity` (benders written in Java) stay.
+- `AddonAnimationRegistry.registerDefinedEntity`, `registerNewEntity` and `registerEntity`: an addon's
+  mobs are type files and model definitions in its resources, as on the modern versions. Mobs
+  animated by Java benders (1.X's way) and their built-in types are gone.
 
 ## 2.0.0-alpha.3
 
