@@ -20,8 +20,8 @@ import java.util.Map;
  * {@code restRotation}, and that the renderer draws the model as vanilla does, unscaled but for
  * {@link #modelScale}.
  *
- * <p>Out of reach, the chain points at the target as straight as it gets; {@code stretch} says
- * how far it falls short.
+ * <p>Out of reach, the chain points at the target as straight as it gets (or folds as far as it
+ * goes, for a target too near); {@code stretch} says how far its end is from the target.
  */
 public class ChainIkTemplate extends DriverItemTemplate
 {
@@ -61,7 +61,7 @@ public class ChainIkTemplate extends DriverItemTemplate
     /** How much of the way to the IK the bones go, 0..1. At 1 they snap to it, so the end doesn't slide; at 0 the driver writes nothing. */
     public ExpressionTemplate weight;
 
-    /** The states its outputs go to: {@code stretch}, how far the end falls short of the target, in blocks. */
+    /** The states its outputs go to: {@code stretch}, how far the end is from the target, in blocks (0 where it reaches). */
     public Map<String, String> out;
 
     /** The body's yaw (a number, degrees), as the renderer has it. */

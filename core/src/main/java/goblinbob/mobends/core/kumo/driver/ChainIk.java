@@ -43,7 +43,7 @@ public final class ChainIk
             double[] end = add(segments[0], rotateX(segments[1], angle));
             aim(end, protrusion(end, bends[1]), target, directions[1], fallbacks[1], rotations[0]);
             axisAngleX(angle, rotations[1]);
-            return Math.max(0, length(target) - length(end));
+            return length(sub(target, rotate(rotations[0], end)));
         }
         if (segments.length != 3)
         {
