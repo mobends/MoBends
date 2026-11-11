@@ -6,16 +6,20 @@ import goblinbob.mobends.core.client.VanillaDraw;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.configuration.ClientConfig;
 import net.minecraft.client.Minecraft;
-//? if <26.1 {
+//? if >=26.1 {
+/*import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+*///?} else {
 import net.minecraft.client.renderer.MultiBufferSource;
-//?}
 import net.minecraft.client.renderer.RenderType;
+//?}
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -26,6 +30,14 @@ import java.util.WeakHashMap;
  * ({@code ArrowRendererMixin}) unless the config switches it off ({@code showArrowTrails}).
  */
 public final class ArrowTrail {
+    /** An arrow's render state on 26.x, which carries its trail's quads from the arrow to where it's submitted ({@code ArrowRenderStateMixin}). */
+    public interface State {
+        @Nullable
+        float[] mobends$trail();
+
+        void mobends$setTrail(@Nullable float[] vertices);
+    }
+
     public static final int MAX_LENGTH = 10;
     /** How often the trail takes the arrow's place, in ticks. */
     public static final float SPAWN_INTERVAL = 1;
@@ -59,14 +71,33 @@ public final class ArrowTrail {
         }
     }
 
-    // Not drawn on 26.x yet.
-    //? if <26.1 {
+    /**
+     * As {@code arrow} is drawn (26.x: as its render state is filled, {@code ArrowRendererMixin}): moves
+     * its trail on, and gives its quads in the frame the arrow is drawn in (at its place, unturned),
+     * three numbers a corner; null if the config hides the trails.
+     */
+    @Nullable
+    public static float[] advance(AbstractArrow arrow, float partialTicks) {
+        if (!ClientConfig.INSTANCE.showArrowTrails()) {
+            return null;
+        }
+        return TRAILS.computeIfAbsent(arrow, ArrowTrail::new).advance(partialTicks);
+    }
+
+    //? if >=26.1 {
+    /*/^* Submits the quads {@link #advance} gave, in the frame the arrow is drawn in, to be drawn later in the frame. ^/
+    public static void submit(@Nullable float[] vertices, PoseStack poseStack, SubmitNodeCollector collector) {
+        if (vertices != null) {
+            collector.submitCustomGeometry(poseStack, RenderTypes.debugQuads(), (pose, consumer) -> emit(consumer, pose.pose(), vertices));
+        }
+    }
+    *///?} else {
     /** As {@code arrow} is drawn: its trail, in the frame the arrow is drawn in (at its place, unturned). */
     public static void draw(AbstractArrow arrow, float partialTicks, PoseStack poseStack, MultiBufferSource buffers) {
-        if (!ClientConfig.INSTANCE.showArrowTrails()) {
-            return;
+        float[] vertices = advance(arrow, partialTicks);
+        if (vertices != null) {
+            emit(buffers.getBuffer(RenderType.debugQuads()), poseStack.last().pose(), vertices);
         }
-        TRAILS.computeIfAbsent(arrow, ArrowTrail::new).draw(partialTicks, poseStack, buffers);
     }
     //?}
 
@@ -77,9 +108,7 @@ public final class ArrowTrail {
         }
     }
 
-    // Not drawn on 26.x yet.
-    //? if <26.1 {
-    private void draw(float partialTicks, PoseStack poseStack, MultiBufferSource buffers) {
+    private float[] advance(float partialTicks) {
         if (spawnCooldown > 40) {
             // Not drawn for a while (out of sight): starting over.
             spawnCooldown = 0;
@@ -97,8 +126,8 @@ public final class ArrowTrail {
         double ox = Mth.lerp(partialTicks, arrow.xo, arrow.getX());
         double oy = Mth.lerp(partialTicks, arrow.yo, arrow.getY());
         double oz = Mth.lerp(partialTicks, arrow.zo, arrow.getZ());
-        Matrix4f pose = poseStack.last().pose();
-        VertexConsumer consumer = buffers.getBuffer(RenderType.debugQuads());
+        float[] vertices = new float[(MAX_LENGTH - 1) * 2 * 12];
+        int at = 0;
         for (int i = 1; i < MAX_LENGTH; i++) {
             Node node0 = nodes[i - 1];
             Node node1 = nodes[i];
@@ -106,22 +135,32 @@ public final class ArrowTrail {
             float scale1 = i == 1 ? 0 : (MAX_LENGTH - i - 1.0F) / MAX_LENGTH * 0.1F;
             float x0 = (float) (node0.x - ox), y0 = (float) (node0.y - oy), z0 = (float) (node0.z - oz);
             float x1 = (float) (node1.x - ox), y1 = (float) (node1.y - oy), z1 = (float) (node1.z - oz);
-            quad(consumer, pose, x0, y0, z0, node0.right, scale0, x1, y1, z1, node1.right, scale1);
-            quad(consumer, pose, x0, y0, z0, node0.up, scale0, x1, y1, z1, node1.up, scale1);
+            at = quad(vertices, at, x0, y0, z0, node0.right, scale0, x1, y1, z1, node1.right, scale1);
+            at = quad(vertices, at, x0, y0, z0, node0.up, scale0, x1, y1, z1, node1.up, scale1);
         }
-    }
-    //?}
-
-    private static void quad(VertexConsumer consumer, Matrix4f pose, float x0, float y0, float z0, Vector3f side0, float scale0,
-                             float x1, float y1, float z1, Vector3f side1, float scale1) {
-        vertex(consumer, pose, x0 - side0.x * scale0, y0 - side0.y * scale0, z0 - side0.z * scale0);
-        vertex(consumer, pose, x0 + side0.x * scale0, y0 + side0.y * scale0, z0 + side0.z * scale0);
-        vertex(consumer, pose, x1 + side1.x * scale1, y1 + side1.y * scale1, z1 + side1.z * scale1);
-        vertex(consumer, pose, x1 - side1.x * scale1, y1 - side1.y * scale1, z1 - side1.z * scale1);
+        return vertices;
     }
 
-    private static void vertex(VertexConsumer consumer, Matrix4f pose, float x, float y, float z) {
-        VanillaDraw.vertex(consumer, pose, x, y, z, 1.0F, 1.0F, 1.0F, 0.5F);
+    private static int quad(float[] vertices, int at, float x0, float y0, float z0, Vector3f side0, float scale0,
+                            float x1, float y1, float z1, Vector3f side1, float scale1) {
+        at = corner(vertices, at, x0 - side0.x * scale0, y0 - side0.y * scale0, z0 - side0.z * scale0);
+        at = corner(vertices, at, x0 + side0.x * scale0, y0 + side0.y * scale0, z0 + side0.z * scale0);
+        at = corner(vertices, at, x1 + side1.x * scale1, y1 + side1.y * scale1, z1 + side1.z * scale1);
+        return corner(vertices, at, x1 - side1.x * scale1, y1 - side1.y * scale1, z1 - side1.z * scale1);
+    }
+
+    private static int corner(float[] vertices, int at, float x, float y, float z) {
+        vertices[at] = x;
+        vertices[at + 1] = y;
+        vertices[at + 2] = z;
+        return at + 3;
+    }
+
+    /** Writes the quads {@link #advance} gave, white and half see-through, in {@code pose}. */
+    private static void emit(VertexConsumer consumer, Matrix4f pose, float[] vertices) {
+        for (int at = 0; at < vertices.length; at += 3) {
+            VanillaDraw.vertex(consumer, pose, vertices[at], vertices[at + 1], vertices[at + 2], 1.0F, 1.0F, 1.0F, 0.5F);
+        }
     }
 
     /** A place the arrow was, and two directions across its flight there, at right angles. */

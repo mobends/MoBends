@@ -10,7 +10,8 @@
   items, and the Mo' Bends menu opens from its key and the Config button (Mod Menu on Fabric). The
   mobs' own layers follow the bent model too: the wolf's mouth, the iron golem's poppy, the witch's
   potion, the mooshroom's mushroom, the sheep's wool and saddles, and the elytra. Arrows and bee
-  stingers stick in a bent player's bent parts, and supporters wear their accessories.
+  stingers stick in a bent player's bent parts, supporters wear their accessories, and swung
+  swords and flying arrows leave their trails.
 - Wither skeletons are animated, as skeletons are. They were left out when the mobs moved to model
   definitions.
 - Addon API: `INodeState.resetClock`, called before a node's scope is made, and
@@ -61,8 +62,8 @@
 
 ### Not yet
 
-- On 26.3: sword and arrow trails, the cape's ripple, and GeckoLib armour. Babies that 26.3 draws
-  with a model of their own (wolf pups, baby zombies and villagers) don't bend yet.
+- On 26.3: the cape's ripple, and GeckoLib armour. Babies that 26.3 draws with a model of their
+  own (wolf pups, baby zombies and villagers) don't bend yet.
 
 ## 2.0.0-alpha.3
 
