@@ -269,10 +269,15 @@ public final class DefinitionScope
     public void start(ITriggerConditionContext context)
     {
         int[] ints = context.getState().ints;
+        // Every value is forgotten before any memory starts over, since that reads what it is
+        // written on: whatever their order, no definition sees one of the previous entry.
         for (int i = 0; i < compiled.length; i++)
         {
             ints[statusSlot + i] = UNSET;
             ints[frameSlot + i] = -1;
+        }
+        for (int i = 0; i < compiled.length; i++)
+        {
             if (compiled[i].isStateful())
             {
                 compiled[i].restart(context);

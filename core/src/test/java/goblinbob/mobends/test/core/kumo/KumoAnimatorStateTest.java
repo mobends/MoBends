@@ -489,6 +489,41 @@ public class KumoAnimatorStateTest
         assertEquals(1, counted(subject, "n"), 0);
     }
 
+    /**
+     * Node a declares {@code definitions} and runs {@code update} (which may note something in
+     * animator.fired), leaves for b on its third frame and comes straight back: after a's second
+     * entry, the number of frames animator.fired was set in.
+     */
+    private static float firedAfterReentry(String definitions, String update) throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator("{'formatVersion': 2, '@define': {'fired': {'state': 0}}, 'layers': [{'defaultOnEntry': 'a', "
+                + "'nodes': {'a': {'core:pose': {}, '@define': {" + definitions + "}, '@on': {'update': [" + update + "]}, "
+                + "'@connections': [{'when': {'ge': ['nodeTicksElapsed', 2]}, 'then': 'b'}]}, "
+                + "'b': {'core:pose': {}, '@connections': [{'when': true, 'then': 'a'}]}}}, "
+                + "{'defaultOnEntry': 'probe', 'nodes': {'probe': {'core:pose': {'pose': ["
+                + "{'core:rotate': {'bone': 'fired', 'axis': 'x', 'angle': 'animator.fired'}, '@space': 'override'}]}}}}]}");
+        TestSubject subject = new TestSubject("fired");
+        for (int frame = 0; frame < 4; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        assertEquals(Collections.singletonList("a"), animator.getCurrentNodes().subList(0, 1));
+        return counted(subject, "fired");
+    }
+
+    /** Counts the frames {@code condition} holds in, into animator.fired. */
+    private static final String NOTE = "{'@when': '%s', 'set': ['animator.fired', {'add': ['animator.fired', 1]}]}";
+
+    @Test
+    public void aScopeStartsOverWhateverTheOrderOfItsDefinitions() throws MalformedKumoTemplateException
+    {
+        // The flag starts false and is set every frame; the edge, re-entered, starts from false.
+        String edge = "'edge': {'live': {'fell': ['node.flag']}}", flag = "'flag': {'state': false}";
+        String update = String.format(NOTE, "node.edge") + ", {'set': ['node.flag', true]}";
+        assertEquals(0, firedAfterReentry(edge + ", " + flag, update), 0);
+        assertEquals(0, firedAfterReentry(flag + ", " + edge, update), 0);
+    }
+
     @Test
     public void aConstantIsTakenWhenItsScopeIsCreated() throws MalformedKumoTemplateException
     {
