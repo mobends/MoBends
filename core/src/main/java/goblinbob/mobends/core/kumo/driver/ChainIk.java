@@ -43,7 +43,7 @@ public final class ChainIk
             double[] end = add(segments[0], rotateX(segments[1], angle));
             aim(end, protrusion(end, bends[1]), target, directions[1], fallbacks[1], rotations[0]);
             axisAngleX(angle, rotations[1]);
-            return Math.max(0, length(target) - length(end));
+            return length(sub(target, rotate(rotations[0], end)));
         }
         if (segments.length != 3)
         {
@@ -426,7 +426,10 @@ public final class ChainIk
         normalize(dest);
     }
 
-    /** The shortest rotation turning {@code from} onto {@code to}; false (dest untouched) where there is none to make. */
+    /**
+     * The shortest rotation turning {@code from} onto {@code to}; false (dest untouched) where there
+     * is none to make. Opposite ways, it is half a turn about any line across them.
+     */
     private static boolean shortestArc(double[] from, double[] to, double[] dest)
     {
         final double[] a = normalized(from), b = normalized(to);
@@ -435,9 +438,15 @@ public final class ChainIk
             return false;
         }
         final double dot = dot(a, b);
-        if (dot > 1 - 1e-12 || dot < -0.999999)
+        if (dot > 1 - 1e-12)
         {
             return false;
+        }
+        if (dot < -1 + 1e-12)
+        {
+            final double[] axis = perpendicular(a);
+            set(dest, axis[0], axis[1], axis[2], 0);
+            return true;
         }
         final double[] axis = cross(a, b);
         set(dest, axis[0], axis[1], axis[2], 1 + dot);
