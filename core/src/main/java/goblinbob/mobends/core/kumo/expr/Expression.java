@@ -181,6 +181,11 @@ public abstract class Expression
         {
             throw new MalformedKumoTemplateException("An expression can't be null.");
         }
+        FunctionCall.StandIn standIn = FunctionCall.StandIn.of(json);
+        if (standIn != null)
+        {
+            throw new MalformedKumoTemplateException(String.format("A function's %s parameter ('%s') stands only where an operation takes a string.", standIn.kind, standIn.name));
+        }
         if (json.isJsonPrimitive())
         {
             JsonPrimitive primitive = json.getAsJsonPrimitive();
@@ -299,6 +304,44 @@ public abstract class Expression
     {
         String text = json.toString();
         return text.length() > 120 ? text.substring(0, 117) + "..." : text;
+    }
+
+    /**
+     * An expression of {@code type} in place of an operation given a function's string or choice
+     * parameter as its body is checked (see {@link FunctionCall.StandIn}); never evaluated.
+     */
+    static Expression standIn(Type type)
+    {
+        switch (type)
+        {
+            case BOOLEAN:
+                return new BooleanExpression()
+                {
+                    @Override
+                    public boolean test(ITriggerConditionContext context)
+                    {
+                        return false;
+                    }
+                };
+            case DOUBLE:
+                return new DoubleExpression()
+                {
+                    @Override
+                    public double getDouble(ITriggerConditionContext context)
+                    {
+                        return 0;
+                    }
+                };
+            default:
+                return new NumberExpression()
+                {
+                    @Override
+                    public float get(ITriggerConditionContext context)
+                    {
+                        return 0;
+                    }
+                };
+        }
     }
 
     /** An expression whose value is a number. */

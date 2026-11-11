@@ -1,8 +1,10 @@
 package goblinbob.mobends.test.core.kumo;
 
+import goblinbob.mobends.core.kumo.MinecraftVersion;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.math.Quaternion;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -16,6 +18,13 @@ public class FunctionTest
     public static void declareNames()
     {
         TestSubject.declareNames();
+        MinecraftVersion.set("1.21.1");
+    }
+
+    @AfterClass
+    public static void forgetVersion()
+    {
+        MinecraftVersion.unset();
     }
 
     /** The arm's angle about X, in degrees. */
@@ -97,6 +106,57 @@ public class FunctionTest
         subject.variables.put("height", 1D);
         animator.update(subject, 1F);
         assertEquals(30, angle(subject), 1e-3);
+    }
+
+    /** 10 where {@code condition} holds, 0 where it doesn't. */
+    private static String ifThen(String condition)
+    {
+        return "{'if': [" + condition + ", 10, 0]}";
+    }
+
+    @Test
+    public void aStringArgumentIsCheckedWhereTheFunctionIsCalled() throws MalformedKumoTemplateException
+    {
+        // The body loads though it writes no version: what the calls pass is checked, at each call.
+        String since = "{'since': {'params': {'v': 'string'}, 'body': {'core:minecraft_version': ['>=', 'arg.v']}}}";
+        assertEquals(10, run(since, "{}", ifThen("{'animator.since': ['1.20.1']}"), 0), 1e-3);
+        assertEquals(0, run(since, "{}", ifThen("{'animator.since': ['1.21.2']}"), 0), 1e-3);
+        expectError(since, "{}", ifThen("{'animator.since': ['nope']}"), "got 'nope'");
+    }
+
+    @Test
+    public void aChoiceArgumentIsCheckedWhereTheFunctionIsCalled() throws MalformedKumoTemplateException
+    {
+        // Its first choice isn't a version: the body is checked with the call's value only.
+        String pick = "{'pick': {'params': {'v': {'choice': ['latest', '1.20.1']}}, 'body': {'core:minecraft_version': ['>=', 'arg.v']}}}";
+        assertEquals(10, run(pick, "{}", ifThen("{'animator.pick': ['1.20.1']}"), 0), 1e-3);
+        expectError(pick, "{}", ifThen("{'animator.pick': ['latest']}"), "got 'latest'");
+        expectError(pick, "{}", ifThen("{'animator.pick': ['1.19']}"), "'animator.pick' argument 1 (v) must be one of latest, 1.20.1, got '1.19'");
+    }
+
+    @Test
+    public void aStringArgumentPassedOnIsCheckedAtTheOuterCall() throws MalformedKumoTemplateException
+    {
+        // f's string is g's choice: checked against g's choices where f is called.
+        String functions = "{'g': {'params': {'c': {'choice': ['>=', '<']}}, 'body': {'core:minecraft_version': ['arg.c', '1.21']}}, "
+                + "'f': {'params': {'s': 'string'}, 'body': {'animator.g': ['arg.s']}}, "
+                + "'outer': {'params': {'v': 'string'}, 'body': {'animator.since': ['arg.v']}}, "
+                + "'since': {'params': {'v': 'string'}, 'body': {'core:minecraft_version': ['>=', 'arg.v']}}}";
+        assertEquals(10, run(functions, "{}", ifThen("{'animator.f': ['>=']}"), 0), 1e-3);
+        expectError(functions, "{}", ifThen("{'animator.f': ['==']}"), "'animator.g' argument 1 (c) must be one of >=, <, got '=='");
+        assertEquals(10, run(functions, "{}", ifThen("{'animator.outer': ['1.21']}"), 0), 1e-3);
+        expectError(functions, "{}", ifThen("{'animator.outer': ['nope']}"), "got 'nope'");
+    }
+
+    @Test
+    public void aStringParameterCantNameAFieldOrStandAsAnExpression()
+    {
+        expectError("{'read': {'params': {'name': 'string'}, 'body': {'field': ['arg.name']}}}", "{}", "0",
+                "can't be given to 'field', whose type depends on the string");
+        expectError("{'bad': {'params': {'s': 'string'}, 'body': {'add': ['arg.s', 1]}}}", "{}", "0",
+                "A function's string parameter ('s') stands only where an operation takes a string");
+        // What a file writes is checked as any string, whatever it says.
+        expectError("{'odd': {'params': {'v': 'string'}, 'body': {'core:minecraft_version': ['>=', 'arg.w']}}}", "{}", "0", "got 'arg.w'");
     }
 
     private static void expectError(String functions, String layerFunctions, String angle, String message)

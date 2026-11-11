@@ -299,6 +299,12 @@ public class PoseNode implements INodeState
     }
 
     @Override
+    public void resetClock(ITriggerConditionContext context)
+    {
+        context.getState().floats[clockSlot] = 0;
+    }
+
+    @Override
     public void start(IKumoContext context) throws MalformedKumoTemplateException
     {
         float[] state = context.getState().floats;
