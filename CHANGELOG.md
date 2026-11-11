@@ -17,6 +17,11 @@
 - Another mod's mob that is a subclass of a mob Mo' Bends animates (a mod's zombie) no longer
   bends with that mob's model unless a type names it.
 
+### Fixed
+
+- A mob in the Settings window settles back into its idle pose when its row is no longer hovered,
+  as on 1.12.2, instead of snapping straight to it.
+
 ### Removed
 
 - `AddonAnimationRegistry.registerDefinedEntity`: an addon's mobs are type files in its resources.
