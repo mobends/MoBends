@@ -58,23 +58,22 @@ model definition or type file loads; registering later throws.
 A mob is a model definition (`assets/<modid>/bends/models/my_mob.json`, see
 [content.md](content.md)) and a type file that gives it to your entities
 (`assets/<modid>/bends/types/my_mob.json`), both in your mod's resources; no addon is needed for
-them. The type file makes the model your entities' default model, the way Mo' Bends gives its own
-mobs theirs:
+them. The type file gives the model to your entities, the way Mo' Bends gives its own mobs theirs:
 
 ```json
 {
   "formatVersion": 2,
   "id": "mymod:my_mob",
-  "model": "mymod:bends/models/my_mob.json",
-  "defaultModel": true
+  "selector": {"core:entity_type": ["mymod:my_mob"]},
+  "model": "mymod:bends/models/my_mob.json"
 }
 ```
 
 Give it its model's key as id (your mod id and your entity's id, `mymod:my_mob`, or the
 definition's `key`), so extensions and the user's settings name it the way they name Mo' Bends'
-mobs. A default model also bends your entity's subclasses, unless another default model is closer
-to them; a type with a `selector` instead (`{"core:entity_type": ["mymod:my_mob"]}`) gives it to
-exactly the entities it names. See *Type files* in `misc/kumo-format.md`.
+mobs. The selector says which entities get the model: list every entity type of yours it's for
+(a subclass of your mob isn't covered unless it's listed). See *Type files* in
+`misc/kumo-format.md`.
 
 The definition names your entity by its
 registry id (`mymod:my_mob`) or its full class name (which also covers its subclasses), your model

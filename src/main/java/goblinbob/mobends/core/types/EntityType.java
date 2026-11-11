@@ -26,11 +26,9 @@ public class EntityType implements TypeOrder.Ranked {
     @Nullable
     private final ISelectorCondition selector;
     private final int specificity;
-    /** The model, or null for the entity's default model (or for vanilla). */
+    /** The model; null for a type that keeps its entities vanilla. */
     @Nullable
     private final DefinedEntity model;
-    /** Whether the model is the default model of the entities its definition names ({@code "defaultModel": true}). */
-    private final boolean defaultModel;
     private final boolean vanilla;
     @Nullable
     private final ResourceLocation animator;
@@ -43,14 +41,13 @@ public class EntityType implements TypeOrder.Ranked {
     private final Map<DefinedEntity, EntityTypeRegistry.Selection> selections = new HashMap<>();
     private final EntityTypeRegistry.Selection vanillaSelection = new EntityTypeRegistry.Selection(this, null, null);
 
-    EntityType(String id, String source, @Nullable ISelectorCondition selector, int specificity, @Nullable DefinedEntity model, boolean defaultModel,
-               boolean vanilla, @Nullable ResourceLocation animator, OptionSet options) {
+    EntityType(String id, String source, @Nullable ISelectorCondition selector, int specificity, @Nullable DefinedEntity model, boolean vanilla,
+               @Nullable ResourceLocation animator, OptionSet options) {
         this.id = id;
         this.source = source;
         this.selector = selector;
         this.specificity = specificity;
         this.model = model;
-        this.defaultModel = defaultModel;
         this.vanilla = vanilla;
         this.animator = animator;
         this.options = options;
@@ -77,15 +74,10 @@ public class EntityType implements TypeOrder.Ranked {
         return specificity;
     }
 
-    /** The model the type gives its entities; null for the entity's default model, or for vanilla. */
+    /** The model the type gives its entities; null if it keeps them vanilla. */
     @Nullable
     public DefinedEntity getModel() {
         return model;
-    }
-
-    /** Whether the type's model is the default model of the entities its definition names. */
-    public boolean isDefaultModel() {
-        return defaultModel;
     }
 
     /** Whether the type keeps its entities vanilla ({@code "model": "core:vanilla"}). */
@@ -117,19 +109,18 @@ public class EntityType implements TypeOrder.Ranked {
     }
 
     /**
-     * What this type does to the entity, or null if it can't apply to it (no default model for it,
-     * or a model made for another entity class).
+     * What this type does to the entity, or null if it can't apply to it (a model made for another
+     * entity class).
      */
     @Nullable
     EntityTypeRegistry.Selection selectionFor(LivingEntity entity) {
         if (vanilla) {
             return vanillaSelection;
         }
-        DefinedEntity defined = model != null ? model : EntityTypeRegistry.INSTANCE.defaultModelFor(entity);
-        if (defined == null || !defined.animates(entity)) {
+        if (model == null || !model.animates(entity)) {
             return null;
         }
-        return selections.computeIfAbsent(defined, d -> new EntityTypeRegistry.Selection(this, d, dataFactoryFor(d)));
+        return selections.computeIfAbsent(model, d -> new EntityTypeRegistry.Selection(this, d, dataFactoryFor(d)));
     }
 
     /** This type's extensions, in the order their layers go on (see {@link Extension#inLayerOrder}). */

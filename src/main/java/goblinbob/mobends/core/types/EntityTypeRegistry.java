@@ -8,22 +8,17 @@ import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.network.ResourcePackPolicy;
-import goblinbob.mobends.core.vanilla.EntityClasses;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 import javax.annotation.Nullable;
@@ -31,9 +26,8 @@ import javax.annotation.Nullable;
 /**
  * Every entity type, one for each type file found in {@code assets/<namespace>/bends/types/} of
  * every mod and resource pack, Mo' Bends' own mobs included. Decides which type animates an entity
- * (see {@code misc/kumo-format.md}, "Entity types and selectors"), which model an entity has by
- * default (the types marked {@code defaultModel}), and gives each type its extensions
- * ({@code bends/extensions/}).
+ * (see {@code misc/kumo-format.md}, "Entity types and selectors"), and gives each type its
+ * extensions ({@code bends/extensions/}).
  * <p>
  * Loaded when first asked after a resource reload, as the definitions and animators are. The
  * Mo' Bends menu lists the types and extensions of each animated mob ({@link #getTypesFor},
@@ -44,10 +38,6 @@ public final class EntityTypeRegistry {
 
     private final Map<String, EntityType> types = new LinkedHashMap<>();
     private final Map<String, Extension> extensions = new LinkedHashMap<>();
-    /** The models of the {@code defaultModel} types, by the types' ids. */
-    private final List<DefinedEntity> defaultModels = new ArrayList<>();
-    /** The default model by entity type id and class ({@link #defaultModelFor(ResourceLocation, Class)}). */
-    private final Map<List<Object>, Optional<DefinedEntity>> defaultModelByType = new HashMap<>();
     private boolean loaded;
 
     /**
@@ -129,23 +119,11 @@ public final class EntityTypeRegistry {
         return matched.isEmpty() && unstable.isEmpty() ? Candidates.NONE : new Candidates(matched, unstable);
     }
 
-    /** The model {@code entity} has by default ({@link #defaultModelFor(ResourceLocation, Class)}). */
+    /** The model with this key ({@code mobends:player}), or null if no type file brought one. */
     @Nullable
-    public DefinedEntity defaultModelFor(LivingEntity entity) {
-        return defaultModelFor(DefinedEntities.typeIdOf(entity), entity.getClass());
-    }
-
-    /**
-     * The model an entity of the type {@code typeId} and the class {@code entityClass} (null if not
-     * known) has by default: of the models of the {@code defaultModel} types, the one that names its
-     * type by id, else the one for the closest class it is an instance of
-     * ({@link DefinedEntities#closestDefault}); null if none.
-     */
-    @Nullable
-    public DefinedEntity defaultModelFor(ResourceLocation typeId, @Nullable Class<?> entityClass) {
+    public DefinedEntity modelByKey(String key) {
         ensureLoaded();
-        return defaultModelByType.computeIfAbsent(Arrays.asList(typeId, entityClass),
-                k -> Optional.ofNullable(DefinedEntities.closestDefault(defaultModels, typeId, entityClass))).orElse(null);
+        return DefinedEntities.byKey(key);
     }
 
     /**
@@ -165,29 +143,26 @@ public final class EntityTypeRegistry {
 
     /**
      * The types that can animate the entities of {@code defined} with it, in precedence order: those
-     * that give that model, and those that keep the entity's default model (or vanilla) for entity
-     * types whose default model it is (or for any entity, if they name no entity type).
+     * that give that model, and those that keep entities vanilla where they could get it: for an
+     * entity type one of its types names, or for any entity, if they name no entity type.
      */
     public List<EntityType> getTypesFor(DefinedEntity defined) {
         ensureLoaded();
         List<EntityType> found = new ArrayList<>();
+        Set<ResourceLocation> entityTypes = new HashSet<>();
         for (EntityType type : types.values()) {
-            if (type.getModel() != null) {
-                if (type.getModel() == defined) {
-                    found.add(type);
-                }
-                continue;
-            }
-            Collection<ResourceLocation> entityTypes = type.getEntityTypes();
-            if (entityTypes.isEmpty()) {
+            if (type.getModel() == defined) {
                 found.add(type);
+                entityTypes.addAll(type.getEntityTypes());
+            }
+        }
+        for (EntityType type : types.values()) {
+            if (!type.isVanilla()) {
                 continue;
             }
-            for (ResourceLocation entityType : entityTypes) {
-                if (defaultModelFor(entityType, EntityClasses.of(entityType)) == defined) {
-                    found.add(type);
-                    break;
-                }
+            Collection<ResourceLocation> named = type.getEntityTypes();
+            if (named.isEmpty() || !Collections.disjoint(named, entityTypes)) {
+                found.add(type);
             }
         }
         found.sort(TypeOrder.PRECEDENCE);
@@ -275,8 +250,6 @@ public final class EntityTypeRegistry {
         loaded = false;
         types.clear();
         extensions.clear();
-        defaultModels.clear();
-        defaultModelByType.clear();
         candidatesByEntity.clear();
     }
 
@@ -294,8 +267,6 @@ public final class EntityTypeRegistry {
     private void reload() {
         loaded = true;
         types.clear();
-        defaultModels.clear();
-        defaultModelByType.clear();
         candidatesByEntity.clear();
 
         ResourcePackPolicy policy = AnimationPolicy.INSTANCE.current();
@@ -321,11 +292,6 @@ public final class EntityTypeRegistry {
                 MoBends.LOGGER.error("Mo' Bends: could not load the type {}: {}", type.file().source(), e.getMessage(), e);
             }
         }
-        // By id, so which one is an entity's default model never depends on the order packs were read in.
-        types.values().stream()
-                .filter(type -> type.isDefaultModel() && type.getModel() != null)
-                .sorted(Comparator.comparing(EntityType::getId))
-                .forEach(type -> defaultModels.add(type.getModel()));
         int extensionCount = loadExtensions();
         MoBends.LOGGER.info("Mo' Bends: loaded {} entity types and {} extensions", types.size(), extensionCount);
     }

@@ -15,7 +15,6 @@ import goblinbob.mobends.core.supporters.AccessorySettings;
 import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.util.Draw;
-import goblinbob.mobends.core.util.Ids;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -24,7 +23,6 @@ import net.minecraft.client.gui.screens.Screen;
 /*import net.minecraft.client.input.MouseButtonEvent;
 *///?}
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.tags.ItemTags;
@@ -95,7 +93,7 @@ public class GuiSupportersWindow extends Screen {
     private final Map<String, EntityPreview> previews = new HashMap<>();
     private final List<LivingEntity> dressed = new ArrayList<>();
     @Nullable
-    private final DefinedEntity playerModel = EntityTypeRegistry.INSTANCE.defaultModelFor(Ids.minecraft("player"), RemotePlayer.class);
+    private final DefinedEntity playerModel = EntityTypeRegistry.INSTANCE.modelByKey("mobends:player");
     private final Map<String, AccessoryDetails> accessories = new HashMap<>();
 
     /** The accessory previewed; null if there are none. */

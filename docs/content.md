@@ -20,15 +20,12 @@ selector-safe operations addons register: see `misc/kumo-format.md`, *Selectors*
 Mo' Bends animates gets its type from a type file in `assets/mobends/bends/types/`; another mod's
 or a pack's type file adds or overrides (the same id). No mob is registered in code.
 
-A type file can make its model the **default model** of the entities its definition names
-(`"defaultModel": true`, with no selector): of their classes and the subclasses no closer default
-model claims, as 1.12's benders were. The player, the zombie, the skeleton, the wither skeleton,
-the zombie villager, the zombie pigman, the squid, the spider and the wolf are, so the zombie's
-also bends the husk and the drowned, the spider's the cave spider, the squid's the glow squid. A
-type without a `model` gives an entity its default model. `EntityTypeRegistry` reads every type
-file and makes every model one names by path before it builds any type, so a type naming a model
-by key (`mobends:zombie`) finds it whatever order the packs were read in; the default models are
-then taken in the order of their types' ids.
+Every type names its `model`: a model's key (`mobends:player`), a model definition, or `vanilla`.
+Which entities get it is up to its selector, so a subclass bends only when a type names it: the
+zombie's type names the husk and the drowned, the spider's the cave spider, the squid's the glow
+squid. `EntityTypeRegistry` reads every type file and makes every model one names by path before
+it builds any type, so a type naming a model by key (`mobends:zombie`) finds it whatever order the
+packs were read in.
 
 When several types match an entity, the winner is picked by (`TypeOrder`):
 1. the user's rank (Settings → *Order*, stored in the client config),

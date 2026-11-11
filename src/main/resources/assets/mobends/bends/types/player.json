@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
   "id": "mobends:player",
-  "model": "mobends:bends/models/player.json",
-  "defaultModel": true
+  "selector": {"core:entity_type": ["minecraft:player"]},
+  "model": "mobends:bends/models/player.json"
 }

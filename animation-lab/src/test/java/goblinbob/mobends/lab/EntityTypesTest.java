@@ -121,17 +121,13 @@ public class EntityTypesTest
     }
 
     @Test
-    void aDefaultModelTypeIsOneConditionAndNeedsAModelButNoSelector() throws Exception
+    void aTypeNeedsAModel() throws Exception
     {
-        EntityTypeDefinition zombie = EntityTypeDefinition.parse(JsonParser.parseString(
-                "{\"formatVersion\": 2, \"id\": \"mobends:zombie\", \"model\": \"mobends:bends/models/zombie.json\", \"defaultModel\": true}"));
-        assertTrue(zombie.defaultModel);
-        // "This is the entity's default model", as the built-in types of the mobs registered in code were.
-        assertEquals(1, zombie.specificity());
-        assertTypeRefused("needs a 'model'", "{\"formatVersion\": 2, \"id\": \"x:y\", \"defaultModel\": true}");
-        assertTypeRefused("needs a 'model'", "{\"formatVersion\": 2, \"id\": \"x:y\", \"model\": \"vanilla\", \"defaultModel\": true}");
-        assertTypeRefused("has no 'selector'", "{\"formatVersion\": 2, \"id\": \"x:y\", \"model\": \"x:bends/models/y.json\", \"defaultModel\": true, "
-                + "\"selector\": {\"core:entity_type\": [\"minecraft:zombie\"]}}");
+        assertTypeRefused("needs a 'model'", "{\"formatVersion\": 2, \"id\": \"x:y\", \"animator\": \"x:bends/animators/y.json\"}");
+        for (String model : new String[] { "mobends:player", "x:bends/models/y.json", "vanilla" })
+        {
+            assertEquals(model, EntityTypeDefinition.parse(JsonParser.parseString("{\"formatVersion\": 2, \"id\": \"x:y\", \"model\": \"" + model + "\"}")).model);
+        }
     }
 
     private static void assertTypeRefused(String message, String json)
@@ -142,13 +138,13 @@ public class EntityTypesTest
 
     private static int specificity(String selector) throws Exception
     {
-        return EntityTypeDefinition.parse(JsonParser.parseString("{\"formatVersion\": 2, \"id\": \"x:t\", \"selector\": " + selector.replace('\'', '"') + "}")).specificity();
+        return EntityTypeDefinition.parse(JsonParser.parseString("{\"formatVersion\": 2, \"id\": \"x:t\", \"model\": \"vanilla\", \"selector\": " + selector.replace('\'', '"') + "}")).specificity();
     }
 
     @Test
     void specificityCountsConditionsNotCombinators() throws Exception
     {
-        assertEquals(0, EntityTypeDefinition.parse(JsonParser.parseString("{\"formatVersion\": 2, \"id\": \"x:none\"}")).specificity());
+        assertEquals(0, EntityTypeDefinition.parse(JsonParser.parseString("{\"formatVersion\": 2, \"id\": \"x:none\", \"model\": \"vanilla\"}")).specificity());
         assertEquals(1, specificity("{'core:entity_type': ['minecraft:player']}"));
         // An "or" is as specific as its broadest branch, a "not" counts one: nesting can't inflate it.
         assertEquals(1, specificity("{'or': [{'core:player_name': ['A']}, {'core:player_name': ['B']}, {'core:player_name': ['C']}]}"));
@@ -205,10 +201,10 @@ public class EntityTypesTest
         assertEquals(2, example.specificity());
 
         TypeOrder.Ranked exampleType = type(example.id, 0, example.specificity());
-        // Default-model types are one condition: "this entity's default model is this model".
+        // Mo' Bends' player type is one condition: {"core:entity_type": ["minecraft:player"]}.
         TypeOrder.Ranked builtIn = type("mobends:player", 0, 1);
         assertSame(exampleType, TypeOrder.first(Arrays.asList(builtIn, exampleType)));
-        // Unless the user ranks the default-model type above it.
+        // Unless the user ranks the player type above it.
         TypeOrder.Ranked rankedBuiltIn = type("mobends:player", 1, 1);
         assertSame(rankedBuiltIn, TypeOrder.first(Arrays.asList(rankedBuiltIn, exampleType)));
     }

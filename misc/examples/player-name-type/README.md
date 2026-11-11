@@ -5,8 +5,9 @@ name is `BendyTester` walk around with their arms stretched out like a zombie. E
 about them, and every other player, animates as usual.
 
 * `assets/mobends_example/bends/types/bendy_tester.json`: the type. Its selector has two
-  conditions (the entity is a player, the name matches), one more than the built-in player type,
-  so it takes precedence without any ranking.
+  conditions (the entity is a player, the name matches), one more than Mo' Bends' player type
+  (`mobends:player`), so it takes precedence without any ranking. It keeps the player's model
+  (`"model": "mobends:player"`, its key) and gives it its own animator.
 * `assets/mobends_example/bends/animators/zombie_arms.json`: extends the player animator and adds a
   last layer that holds both arms forward with a slight sway.
 

@@ -93,7 +93,7 @@ public class DefinedModelsTest
     private static final Set<String> STAND_WHERE_THEY_STOPPED = new TreeSet<>(java.util.Arrays.asList("mobends:villager", "mobends:witch", "mobends:skeleton", "mobends:wither_skeleton",
             "mobends:zombie", "mobends:zombie_villager"));
 
-    /** The model definitions the shipped type files name (the default models among them), by type id, and the unreleased ones. */
+    /** The model definitions the shipped type files name, by type id, and the unreleased ones. */
     private static Map<String, ResourceLocation> definedModels() throws Exception
     {
         Map<String, ResourceLocation> models = new TreeMap<>(UNRELEASED_MODELS);
@@ -154,14 +154,14 @@ public class DefinedModelsTest
     }
 
     /**
-     * The mobs that were registered in code before they were type files are the default models of
-     * their entity classes, and keep the ids their built-in types had (their models' keys): users'
-     * ranks, switches and options, and extensions, name them by these.
+     * Every shipped type's id is its model's key, which the mobs registered in code before they were
+     * type files had as their built-in types' ids: users' ranks, switches and options, and
+     * extensions, name them by these.
      */
     @Test
-    void theDefaultModelsKeepTheirIds() throws Exception
+    void theShippedTypesKeepTheirIds() throws Exception
     {
-        Set<String> defaults = new TreeSet<>();
+        Set<String> ids = new TreeSet<>();
         try (Stream<Path> files = Files.list(BENDS.resolve("types")))
         {
             for (Path file : files.collect(Collectors.toList()))
@@ -174,14 +174,11 @@ public class DefinedModelsTest
                 EntityModelDefinition definition = ModelDefinitions.INSTANCE.load(ResourceLocation.parse(type.model));
                 String key = "mobends:" + (definition.key != null ? definition.key : definition.defaultKey());
                 assertEquals(key, type.id, file.getFileName() + ": a type's id is its model's key");
-                if (type.defaultModel)
-                {
-                    defaults.add(type.id);
-                }
+                ids.add(type.id);
             }
         }
-        assertEquals(new TreeSet<>(java.util.Arrays.asList("mobends:player", "mobends:zombie", "mobends:skeleton", "mobends:wither_skeleton",
-                "mobends:zombie_villager", "mobends:zombie_pigman", "mobends:squid", "mobends:spider", "mobends:wolf")), defaults);
+        assertTrue(ids.containsAll(java.util.Arrays.asList("mobends:player", "mobends:zombie", "mobends:skeleton", "mobends:wither_skeleton",
+                "mobends:zombie_villager", "mobends:zombie_pigman", "mobends:squid", "mobends:spider", "mobends:wolf")), ids.toString());
     }
 
     @TestFactory

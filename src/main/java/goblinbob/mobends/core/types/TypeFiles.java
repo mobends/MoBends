@@ -57,24 +57,17 @@ final class TypeFiles {
         boolean vanilla = false;
         if (EntityTypeDefinition.VANILLA_MODEL.equals(definition.model)) {
             vanilla = true;
-        } else if (model == null && definition.model != null) {
+        } else if (model == null) {
             model = DefinedEntities.byKey(definition.model);
             if (model == null) {
                 throw new MalformedKumoTemplateException("There is no model '" + definition.model + "'.");
             }
         }
 
-        ISelectorCondition selector;
-        if (definition.defaultModel) {
-            DefinedEntity defaultModel = model;
-            selector = entity -> EntityTypeRegistry.INSTANCE.defaultModelFor(entity) == defaultModel;
-        } else {
-            selector = definition.selector == null ? null : SelectorExpression.compile(definition.selector);
-        }
+        ISelectorCondition selector = definition.selector == null ? null : SelectorExpression.compile(definition.selector);
         ResourceLocation animator = definition.animator == null ? null : Ids.parse(definition.animator);
         OptionSet options = KumoOptions.INSTANCE.declare(definition.id, definition.options);
-        return new EntityType(definition.id, read.file().source(), selector, definition.specificity(), model, definition.defaultModel, vanilla,
-                animator, options);
+        return new EntityType(definition.id, read.file().source(), selector, definition.specificity(), model, vanilla, animator, options);
     }
 
     /** The extension an extension file describes. */

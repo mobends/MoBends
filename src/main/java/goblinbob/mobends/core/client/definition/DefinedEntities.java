@@ -21,8 +21,7 @@ import java.util.Set;
 /**
  * The entities Mo' Bends animates, each made from a model definition (1.12's benders) that a type
  * file names ({@link #forTypeFile}). Which one an entity gets is its type's choice
- * ({@code core.types.EntityTypeRegistry}), as is which of them are default models
- * ({@link #closestDefault}).
+ * ({@code core.types.EntityTypeRegistry}).
  */
 public final class DefinedEntities {
     /** Made for the type files since the last reload, in the order they were first named. */
@@ -63,35 +62,6 @@ public final class DefinedEntities {
             }
         }
         return null;
-    }
-
-    /**
-     * Of the default models {@code defaults}, the one an entity of the type {@code typeId} and the
-     * class {@code entityClass} (null if not known) has: the first that names its type by id, else
-     * the one for the closest class it is an instance of (its own, else the nearest superclass), so
-     * a zombie villager, a zombie, gets the zombie villager's and a husk the zombie's. 1.12 took the
-     * first registered superclass instead, which picks the same for every 1.12 mob.
-     */
-    @Nullable
-    public static DefinedEntity closestDefault(List<DefinedEntity> defaults, ResourceLocation typeId, @Nullable Class<?> entityClass) {
-        DefinedEntity best = null;
-        Class<?> bestClass = null;
-        for (DefinedEntity defined : defaults) {
-            defined.ensureLoaded();
-            if (defined.types.contains(typeId)) {
-                return defined;
-            }
-            if (entityClass == null) {
-                continue;
-            }
-            for (Class<?> type : defined.classes) {
-                if (type.isAssignableFrom(entityClass) && (best == null || bestClass.isAssignableFrom(type))) {
-                    best = defined;
-                    bestClass = type;
-                }
-            }
-        }
-        return best;
     }
 
     /** The registry id of {@code entity}'s type ({@code minecraft:fox}). */
