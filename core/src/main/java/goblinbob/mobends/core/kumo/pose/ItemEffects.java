@@ -16,7 +16,8 @@ import java.util.Map;
 /**
  * Smoothing (in ticks), vector modes and snapping attached to one pose item, applied to the bones the item wrote.
  * An item that moves bones ({@code core:translate}) smooths and snaps their positions: a part's offset,
- * an entity bone's position vector; any other smooths and snaps both rotations and positions.
+ * an entity bone's position vector; any other smooths and snaps both rotations and positions. A bone's
+ * position is its vector on an entity bone ({@code root}, {@code center}) and its offset on a model part.
  */
 public class ItemEffects
 {
@@ -25,9 +26,8 @@ public class ItemEffects
     private final boolean positions;
     private final Skeleton skeleton;
     /**
-     * The entity's own bones the item writes one channel of, and which ({@link #ROTATION},
-     * {@link #POSITION}): its effects on them go to that channel alone (see {@link #writes}). Any
-     * other bone's go to both.
+     * The bones the item writes one channel of, and which ({@link #ROTATION}, {@link #POSITION}): its
+     * effects on them go to that channel alone (see {@link #writes}). Any other bone's go to both.
      */
     private int[] channelSlots = new int[0];
     private int[] channelMasks = new int[0];
@@ -158,14 +158,15 @@ public class ItemEffects
     }
 
     /**
-     * Says what the item writes of one of the entity's own bones: its snap and smoothing (but a
-     * smoothing given apart, {"rotation": ..., "position": ...}) then go to that alone, so an item
-     * that moves the root doesn't snap or smooth the turn another item gives it. A bone it is never
-     * told about gets them on both.
+     * Says what the item writes of a bone: its snap, smoothing (but a smoothing given apart,
+     * {"rotation": ..., "position": ...}) and vector mode then go to that alone, so an item that moves
+     * the root doesn't snap or smooth the turn another item gives it, and a clip of a part's rotation
+     * alone doesn't snap or smooth the offset another item gives it. A bone it is never told about
+     * gets them on both.
      */
     public void writes(int slot, boolean rotation, boolean position)
     {
-        if (!skeleton.isEntityBone(slot) || (rotation && position))
+        if (rotation && position)
         {
             return;
         }
@@ -175,8 +176,13 @@ public class ItemEffects
         channelMasks[channelMasks.length - 1] = (rotation ? ROTATION : 0) | (position ? POSITION : 0);
     }
 
+    /** What the item writes of a bone: an item that moves bones, its position alone. */
     private int channels(int slot)
     {
+        if (positions)
+        {
+            return POSITION;
+        }
         for (int i = 0; i < channelSlots.length; i++)
         {
             if (channelSlots[i] == slot) return channelMasks[i];
@@ -190,7 +196,13 @@ public class ItemEffects
                 && rotationSlots.length == 0 && positionSlots.length == 0;
     }
 
-    /** @param writtenSlots the slots the item wrote this frame (the default smoothing applies to those). */
+    /**
+     * @param writtenSlots the slots the item wrote this frame (the default smoothing applies to those).
+     *                     A part it names but doesn't write (one a clip's {@code bones} leaves out) keeps
+     *                     the offset the items before gave it; its rotation, and an entity bone, still take
+     *                     what the item names for them, which the animators use to smooth what another
+     *                     item writes.
+     */
     public void apply(Pose pose, int[] writtenSlots, ITriggerConditionContext context)
     {
         if (snap)
@@ -198,14 +210,13 @@ public class ItemEffects
             for (int slot : writtenSlots)
             {
                 BoneTarget target = pose.get(slot);
-                if (positions && !skeleton.isEntityBone(slot))
-                {
-                    target.offsetMode = IVectorSink.Mode.SNAP;
-                    continue;
-                }
-                int channels = positions ? POSITION : channels(slot);
+                int channels = channels(slot);
                 if ((channels & ROTATION) != 0) target.snap = true;
-                if ((channels & POSITION) != 0 && target.hasVector) target.vectorMode = IVectorSink.Mode.SNAP;
+                if ((channels & POSITION) != 0)
+                {
+                    if (!skeleton.isEntityBone(slot)) target.offsetMode = IVectorSink.Mode.SNAP;
+                    else if (target.hasVector) target.vectorMode = IVectorSink.Mode.SNAP;
+                }
             }
         }
         if (defaultSmoothing != null)
@@ -226,11 +237,11 @@ public class ItemEffects
         // A bone's own smoothing, numbers or expression, wins over the default.
         for (int i = 0; i < smoothingSlots.length; i++)
         {
-            smooth(pose, smoothingSlots[i], smoothingValues[i]);
+            smooth(pose, smoothingSlots[i], smoothingValues[i], named(smoothingSlots[i], writtenSlots));
         }
         for (int i = 0; i < dynamicSlots.length; i++)
         {
-            smooth(pose, dynamicSlots[i], dynamicValues[i].get(context));
+            smooth(pose, dynamicSlots[i], dynamicValues[i].get(context), named(dynamicSlots[i], writtenSlots));
         }
         // Given apart: an item that moves bones smooths no rotation.
         if (!positions)
@@ -248,42 +259,61 @@ public class ItemEffects
         }
         for (int i = 0; i < modeSlots.length; i++)
         {
-            if (positions && !skeleton.isEntityBone(modeSlots[i])) pose.get(modeSlots[i]).offsetMode = modes[i];
-            else pose.get(modeSlots[i]).vectorMode = modes[i];
+            int slot = modeSlots[i];
+            if ((named(slot, writtenSlots) & POSITION) == 0) continue;
+            if (skeleton.isEntityBone(slot)) pose.get(slot).vectorMode = modes[i];
+            else pose.get(slot).offsetMode = modes[i];
         }
+    }
+
+    /** What a bone the item names takes of it: what it writes of it, but no offset of a part it doesn't write. */
+    private int named(int slot, int[] writtenSlots)
+    {
+        int channels = channels(slot);
+        if (skeleton.isEntityBone(slot)) return channels;
+        for (int written : writtenSlots)
+        {
+            if (written == slot) return channels;
+        }
+        return channels & ~POSITION;
+    }
+
+    private void smooth(Pose pose, int slot, float[] value)
+    {
+        smooth(pose, slot, value, channels(slot));
     }
 
     /**
-     * Smooths what the item moves of a bone: a part's offset or an entity bone's position (an item
-     * that moves bones), what it writes of an entity bone (see {@link #writes}), or else everything.
+     * Smooths {@code channels} of a bone (see {@link #channels}): its rotation, its position (a part's
+     * offset, an entity bone's vector), or both.
      */
-    private void smooth(Pose pose, int slot, float[] value)
+    private void smooth(Pose pose, int slot, float[] value, int channels)
     {
         BoneTarget target = pose.get(slot);
-        if (positions && !skeleton.isEntityBone(slot))
+        if ((channels & ROTATION) != 0) applyRotationSmoothing(target, value);
+        if ((channels & POSITION) != 0)
         {
-            applyOffsetSmoothing(target, value);
-            return;
+            if (skeleton.isEntityBone(slot)) applyVectorSmoothing(target, value);
+            else applyOffsetSmoothing(target, value);
         }
-        int channels = positions ? POSITION : channels(slot);
-        if (channels == BOTH) applySmoothing(target, value);
-        else if (channels == ROTATION) applyRotationSmoothing(target, value);
-        else applyVectorSmoothing(target, value);
     }
 
-    /** As {@link #smooth(Pose, int, float[])}, with one smoothing for every channel; NaN changes nothing. */
     private void smooth(Pose pose, int slot, float ticks)
+    {
+        smooth(pose, slot, ticks, channels(slot));
+    }
+
+    /** As {@link #smooth(Pose, int, float[], int)}, with one smoothing for every channel; NaN changes nothing. */
+    private void smooth(Pose pose, int slot, float ticks, int channels)
     {
         if (Float.isNaN(ticks)) return;
         BoneTarget target = pose.get(slot);
-        if (positions && !skeleton.isEntityBone(slot))
-        {
-            applyOffsetSmoothing(target, ticks);
-            return;
-        }
-        int channels = positions ? POSITION : channels(slot);
         if ((channels & ROTATION) != 0) target.smoothing = ticks;
-        if ((channels & POSITION) != 0) target.vectorSmoothing.set(ticks, ticks, ticks);
+        if ((channels & POSITION) != 0)
+        {
+            if (skeleton.isEntityBone(slot)) target.vectorSmoothing.set(ticks, ticks, ticks);
+            else applyOffsetSmoothing(target, ticks);
+        }
     }
 
     /** As {@link #applySmoothing(BoneTarget, float[])}, for the rotation alone (its first value). */

@@ -267,8 +267,8 @@ holds the item's own fields. The modifiers, the same for every item:
 |---|---|
 | `@when` | a condition; the item is skipped while it does not hold |
 | `@space` | `override` (replace), `pre` (rotate in the parent's space, the `rotate*` idiom), `post` (the bone's own space, the `localRotate*` idiom). Default: `override` for clips, `pre` for drivers. A clip writes many bones, so its `@space` can also be one per bone: `{"@default": "pre", "body": "post", "root": "override"}`. |
-| `@smoothing` | per bone written, the ticks it takes to reach its target (0: at once; for a `slide`, the tween's length), `{"body": 2, "root": [null, 1.67, null]}`; an expression is allowed (a name or an operation, evaluated every frame); a bone's rotation and position can be given apart, `{"root": {"rotation": 1.67, "position": [3, 1.7, 3]}}` (numbers); it holds for the frames the item applies, and a bone nothing smooths in a frame gets its base smoothing (see *Model definitions*' `smoothing`; otherwise 0, at once) |
-| `@vectorModes` | for the positions of `root` and `center` (and a `core:translate`'s part offsets): `slide` (tween restarted when the target changes), `retarget` (exponential approach re-aimed every frame), `snap` |
+| `@smoothing` | per bone written, the ticks it takes to reach its target (0: at once; for a `slide`, the tween's length), `{"body": 2, "root": [null, 1.67, null]}`; an expression is allowed (a name or an operation, evaluated every frame); a bone's rotation and position can be given apart, `{"root": {"rotation": 1.67, "position": [3, 1.7, 3]}}` (numbers); it holds for the frames the item applies, and a bone nothing smooths in a frame gets its base smoothing (see *Model definitions*' `smoothing`; otherwise 0, at once). A bone's position is its offset on a part, its vector on `root` and `center` |
+| `@vectorModes` | for the positions the item writes, of `root` and `center` and of parts (their offsets): `slide` (tween restarted when the target changes), `retarget` (exponential approach re-aimed every frame), `snap` |
 | `@snap` | the written bones jump to their target this frame (`orientInstant`, `finish`) |
 | `@mirror` | evaluate as the left-right mirror image while the layer's mirror condition holds (paired bones swapped, Y and Z rotations and X offsets negated; see *Mirroring*) |
 | `@swapSides` | like `@mirror`, but only the paired bones swap; rotations and offsets are kept |
@@ -367,9 +367,13 @@ smoothed vectors, with a base smoothing, `@vectorModes` and `@snap` of their own
 has neither); a clip's keyframe positions on them are taken as they are, not negated like a
 part's. A clip's track of one of them writes only what its keyframes give: a `root` track of
 positions alone (root motion) leaves the root's rotation to the rest of the animator. So does an
-item: its `@snap` and `@smoothing` go to what it writes of them (a `core:rotate` to the rotation,
-a `core:translate` to the position, a clip to what its tracks give), unless its `@smoothing`
-gives them apart.
+item, of these and of parts: its `@snap`, `@smoothing` and `@vectorModes` go to what it writes of
+a bone (a `core:rotate` to the rotation, a `core:translate` to the position, a clip to what its
+tracks and its `bones` give: a clip of `"head.rotation"` leaves the head's offset another item
+gives it as it is), unless its `@smoothing` gives them apart. A bone it names but doesn't write
+(one a clip's `bones` leaves out) still takes its `@smoothing` and `@vectorModes`, so an item can
+smooth what another one writes, but a part's offset doesn't: the offset another item gives it is
+left as it is.
 
 ### Drivers
 
