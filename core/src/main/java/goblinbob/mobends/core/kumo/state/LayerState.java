@@ -494,8 +494,9 @@ public class LayerState
     /**
      * Moves the layer. What the transition disposes of at once goes first (with no crossfade, every
      * node fading out and the node left; with the chain full, the same, frozen into what is on
-     * screen): their {@code exit} lists run. Then the transition's own {@code do} list, then the
-     * {@code enter} lists of the scopes it enters, from the outermost in. A node it goes back into
+     * screen; the machines it leaves, innermost first, unless the node left fades out; and the
+     * machines it enters again): their {@code exit} lists run. Then the transition's own {@code do}
+     * list, then the {@code enter} lists of the scopes it enters, from the outermost in. A node it goes back into
      * that still fades out (or the node it leaves, when it starts over) is frozen as it was last
      * posed, and its {@code exit} list runs, just before it starts again.
      */
@@ -520,11 +521,25 @@ public class LayerState
             exit(leftMember, context);
             leftMember = null;
         }
-        // The machines the transition enters again (around where it leads but not around the node
-        // left, or the one it leads into) are left first, with every machine inside them: a scope
-        // is created on every entry, and its exit list runs before it is created again.
+        // The machines the layer leaves, innermost first: disposed at once, or, where the node left
+        // fades out, once the last of their nodes has.
         MachineMember named = transition.getTarget();
         List<MachineState> around = around(named);
+        boolean leftFadesOut = fades && leftMember != null;
+        for (int i = left.size() - 1; i >= 0; i--)
+        {
+            MachineState machine = left.get(i);
+            boolean enteredAgain = named.machine != null && (machine == named.machine || isInside(machine, named.machine));
+            if (around.contains(machine) || enteredAgain)
+            {
+                continue;
+            }
+            if (leftFadesOut) state.ints[pendingExitSlot + machine.index] = 1;
+            else exitMachine(machine, context);
+        }
+        // The machines the transition enters again (around where it leads but not around the node
+        // left, or the one it leads into) are left too, with every machine inside them: a scope
+        // is created on every entry, and its exit list runs before it is created again.
         for (MachineState machine : around)
         {
             if (!left.contains(machine)) disposeMachine(machine, context);
@@ -568,16 +583,6 @@ public class LayerState
         }
 
         moveTo(target, context);
-        boolean leftFadesOut = fades && fadingIndexOf(leftMember == null ? null : leftMember.node, state) >= 0;
-        for (MachineState machine : left)
-        {
-            if (!target.path.contains(machine))
-            {
-                // Disposed once the last of its nodes has faded out.
-                if (leftFadesOut) state.ints[pendingExitSlot + machine.index] = 1;
-                else exitMachine(machine, context);
-            }
-        }
         context.enterNode(target.node);
         startNode(context);
     }

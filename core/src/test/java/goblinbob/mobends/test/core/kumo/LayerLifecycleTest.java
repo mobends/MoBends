@@ -141,6 +141,26 @@ public class LayerLifecycleTest
     private static final String[] NESTED_NAMES = { "goDone", "mEntered", "mExited", "mExits", "innerEntered", "innerFrames", "innerExited", "innerExits", "aExited", "outDone" };
 
     @Test
+    public void anImmediateTransitionLeavesTheMachinesInnermostFirstBeforeItsDo() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator(String.format(NESTED, 0), NESTED_NAMES);
+        TestSubject subject = new TestSubject(NESTED_NAMES);
+        subject.states.put("GO", false);
+        subject.states.put("OUT", false);
+        frames(animator, subject, 2);
+        // Entered from the outermost in.
+        assertTrue(read(subject, "mEntered") < read(subject, "innerEntered"));
+        subject.states.put("OUT", true);
+        frames(animator, subject, 1);
+        // The node, the inner machine, the outer one, then the connection's do.
+        assertTrue(read(subject, "aExited") < read(subject, "innerExited"));
+        assertTrue(read(subject, "innerExited") < read(subject, "mExited"));
+        assertTrue(read(subject, "mExited") < read(subject, "outDone"));
+        assertEquals(1, read(subject, "innerExits"), 0);
+        assertEquals(1, read(subject, "mExits"), 0);
+    }
+
+    @Test
     public void aNestedMachineEnteredAgainWhileItsNodeFadesOutStartsOverAndKeepsUpdating() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = animator(String.format(NESTED, 5), NESTED_NAMES);

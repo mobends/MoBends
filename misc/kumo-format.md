@@ -245,8 +245,10 @@ frame it happens:
 Every condition of those selectors and connections is evaluated every frame, whatever is chosen
 (edge triggers such as `decreased` stay fresh). When a branch or a connection leads into a
 machine, the transition (its duration and easing) is that of the branch or the connection. What
-runs, in order: the `exit` lists of what the transition disposes of at once, the transition's own
-`do`, then, on the way in, each machine entered (its definitions and `enter` list, then its
+runs, in order: the `exit` lists of what the transition disposes of at once, innermost first
+(without a crossfade, the nodes fading out, the node left and the machines it leaves; and the
+machines it enters again, see *Connections*), the transition's own `do`, then, on the way in, each
+machine entered from the outermost in (its definitions and `enter` list, then its
 selector, whose branch runs its `do`), and last the node entered. Each selector sees what ran
 before it.
 
