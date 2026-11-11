@@ -20,22 +20,11 @@ accessory on the player. Its *Support Mo' Bends* button opens the `supportUrl` o
 on the Mo' Bends menu (`GuiBendsMenu`) and by *Open Dashboard* on the linking screen
 (`GuiLinkAccount`). Both fall back to `https://mobends.com`.
 
-- [x] Add `supportUrl` (the Patreon page) and `accountUrl` (the mobends.com dashboard) to static-api.json.
 - [ ] Show the tiers (one-time collection, subscription, editor tier) once they exist.
-
-## Legacy Mo' Bends pack
-
-- [x] Built, signed and released from `main` (for 1.12.2 and the modern versions alike), whose
-      TODO.md tracks its upload. The signing tools moved there from `src/tools`.
 
 ## Animations
 
 - [ ] IK for cows and sheep (feet planted on the ground), switched off while they run.
-
-## Mo' Bends menu
-
-- [x] Improve the look of the *Settings* submenu (`GuiSettingsWindow`, `GuiBenderList`): each mob
-      shown with an orthographic render of it as a thumbnail (clipped to its frame), its name, etc.
 
 ## Multiple Minecraft versions and loaders
 
@@ -85,29 +74,6 @@ move on `main`.
 - [ ] Check that the animation lab passes without re-recording anything, and that a resource pack's
       animator with an expression in a node's `smoothing` fails to load with a message naming the
       bone.
-
-### #388: The first-person hand is vanilla's
-
-Doesn't need a new `core`. On `main` the first-person hand is never bent: it's vanilla's arm and
-sleeve, posed as vanilla poses them (its slight outward tilt included). The `renderer.firstPersonRest`
-definition key, which only put the bent arm at rest for the hand, is gone from the format. Do the steps
-together: without the key, this branch would draw the hand in the player's animated pose.
-
-- [ ] Draw the vanilla hand in first person: `RenderingEventHandler.beforeHandRender` puts the
-      renderer's vanilla state in place for the hand (as it already does when the player isn't
-      animated), instead of the local player's mutation. Then remove what only served the bent hand:
-      `Mutator.poseForFirstPersonView` and `DefinedMutator`'s override, and the stand-ins' drawing of
-      their bone alone (`DefinedStandIn.setDrawsAlone`, `DefinedMutator.parentedStandIns`) if nothing
-      else uses it.
-- [ ] Remove `renderer.firstPersonRest`: the field and its check in `EntityModelDefinition`, the lab's
-      `DefinedPositionsTest.theFirstPersonRestNamesBones`, and its mention in `misc/kumo-format.md`'s
-      `renderer` row (as on `main`).
-- [ ] Copy `assets/mobends/bends/models/player.json` and
-      `misc/legacy-pack/assets/mobends/bends/models/player.json` from `main`, or drop
-      `"firstPersonRest"` from their `renderer`: that's all that changed in them.
-- [ ] Check in the game, in first person: the hand matches vanilla's (an empty hand, holding an item,
-      eating, swinging), while standing, sprinting and right after a sword combo; slim and wide skins;
-      sleeves on and off. Then in third person, that the player still bends.
 
 ### #392: The pig zombie's variant for later versions
 
