@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Wither skeletons are animated, as skeletons are. They were left out when the mobs moved to model
+  definitions.
+
 ## 2.0.0-alpha.3
 
 The first Mo' Bends for Minecraft 1.21.1, on Fabric and NeoForge. It animates what 2.0.0-alpha.2

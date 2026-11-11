@@ -48,6 +48,7 @@ public class DefaultAddon implements IAddon {
         registry.registerDefinedEntity("player");
         registry.registerDefinedEntity("zombie");
         registry.registerDefinedEntity("skeleton");
+        registry.registerDefinedEntity("wither_skeleton");
         registry.registerDefinedEntity("zombie_villager");
         registry.registerDefinedEntity("pig_zombie");
         registry.registerDefinedEntity("squid");

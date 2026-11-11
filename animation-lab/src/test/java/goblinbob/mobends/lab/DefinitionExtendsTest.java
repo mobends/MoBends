@@ -67,6 +67,19 @@ public class DefinitionExtendsTest
         assertTrue(villager.trusted);
     }
 
+    @Test
+    void theWitherSkeletonIsTheSkeletonOfItsOwnEntity() throws Exception
+    {
+        EntityModelDefinition skeleton = ModelDefinitions.INSTANCE.load(ResourceLocation.fromNamespaceAndPath("mobends", "bends/models/skeleton.json"));
+        EntityModelDefinition wither = ModelDefinitions.INSTANCE.load(ResourceLocation.fromNamespaceAndPath("mobends", "bends/models/wither_skeleton.json"));
+        assertEquals(skeleton.model, wither.model);
+        assertEquals(skeleton.animator, wither.animator);
+        assertEquals(skeleton.allBoneNames(), wither.allBoneNames());
+        assertEquals(skeleton.layers.keySet(), wither.layers.keySet());
+        assertEquals(java.util.Collections.singletonList("net.minecraft.entity.monster.EntityWitherSkeleton"), wither.entity);
+        assertTrue(wither.trusted);
+    }
+
     private static JsonObject mergeOrFail(JsonObject child)
     {
         try

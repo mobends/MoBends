@@ -13,6 +13,7 @@ import net.minecraft.world.entity.animal.Squid;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.world.entity.monster.WitherSkeleton;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.monster.Zombie;
@@ -33,6 +34,7 @@ public final class EntityType<T extends Entity> {
     public static final EntityType<ZombieVillager> ZOMBIE_VILLAGER = register("zombie_villager", 0.6F, 1.8F);
     public static final EntityType<ZombifiedPiglin> ZOMBIFIED_PIGLIN = register("zombified_piglin", 0.6F, 1.8F);
     public static final EntityType<Skeleton> SKELETON = register("skeleton", 0.6F, 1.8F);
+    public static final EntityType<WitherSkeleton> WITHER_SKELETON = register("wither_skeleton", 0.7F, 2.4F);
     public static final EntityType<Spider> SPIDER = register("spider", 0.6F, 1.8F);
     public static final EntityType<Squid> SQUID = register("squid", 0.6F, 1.8F);
     public static final EntityType<Wolf> WOLF = register("wolf", 0.6F, 1.8F);
