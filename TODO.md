@@ -143,6 +143,20 @@ its target, and `stretch` stays in blocks. All of it is in `core`. `core` adds
 - [ ] Run the animation lab. Its goldens shouldn't change (`main`'s didn't).
 - [ ] Check in the game that the iron golem still grabs the ledge and climbs.
 
+### #463: A node's enterPose scales parts
+
+Needs the `core` release after 2.0.0-alpha.3. On `main` a `core:scale` in a node's `enterPose` scales
+the part on the frame the node is entered (it did nothing), unless the node's `pose` scales it too;
+a relative one scales what the layers below have, and an `override` one's left-out axes keep theirs.
+No animator here or on `main` scales a part in `enterPose`, so nothing changes in the assets, and the
+lab's goldens didn't move on `main`.
+
+- [ ] Build with that release (`core_version` in gradle.properties).
+- [ ] Copy the two passages of `misc/kumo-format.md` that say so from `main`: the sentence about
+      `enterPose` at the end of the `core:scale` row, and "translate or scale" in the `enterPose`
+      sentence under *Nodes*.
+- [ ] Check that the animation lab passes without re-recording anything.
+
 ## Other tasks
 
 - [ ] Make `field` resolve every vanilla field in production. The generated accessors
