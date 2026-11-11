@@ -167,7 +167,7 @@ public class KumoAnimatorState
 
             if (!started)
             {
-                layer.start(context);
+                layer.start(context, pose);
             }
 
             layer.update(context, deltaTime, pose);

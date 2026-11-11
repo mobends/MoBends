@@ -197,22 +197,28 @@ public class LayerState
      */
     public void start(IKumoContext context) throws MalformedKumoTemplateException
     {
+        start(context, null);
+    }
+
+    /** As {@link #start(IKumoContext)}, on top of {@code below}, the layers below as posed this frame (see {@link INodeState#start(IKumoContext, Pose)}). */
+    public void start(IKumoContext context, Pose below) throws MalformedKumoTemplateException
+    {
         if (when != null)
         {
             when.restart(context);
         }
-        enterLayer(context);
+        enterLayer(context, below);
     }
 
     /** Enters the layer: its definitions and {@code enter} list, then its machine, down to a node (see {@link #start}). */
-    private void enterLayer(IKumoContext context) throws MalformedKumoTemplateException
+    private void enterLayer(IKumoContext context, Pose below) throws MalformedKumoTemplateException
     {
         context.getState().floats[elapsedSlot] = 0;
         context.enterNode(current(context).node);
         lists.enter(context);
         moveTo(descend(enter(machine, context), context), context);
         context.enterNode(current(context).node);
-        startNode(context);
+        startNode(context, below);
         context.getState().ints[justStartedSlot] = 1;
     }
 
@@ -324,7 +330,7 @@ public class LayerState
             if (state.ints[offSlot] != 0)
             {
                 state.ints[offSlot] = 0;
-                enterLayer(context);
+                enterLayer(context, animatorPose);
                 starting = true;
                 state.ints[justStartedSlot] = 0;
             }
@@ -336,7 +342,7 @@ public class LayerState
         ITransition fired = starting ? null : decide(context);
         if (fired != null)
         {
-            beginTransition(fired, context);
+            beginTransition(fired, context, animatorPose);
         }
         MachineMember current = current(context);
         INodeState currentNode = current.node;
@@ -500,7 +506,7 @@ public class LayerState
      * that still fades out (or the node it leaves, when it starts over) is frozen as it was last
      * posed, and its {@code exit} list runs, just before it starts again.
      */
-    private void beginTransition(ITransition transition, IKumoContext context) throws MalformedKumoTemplateException
+    private void beginTransition(ITransition transition, IKumoContext context, Pose below) throws MalformedKumoTemplateException
     {
         EntityState state = context.getState();
         MachineMember leftMember = current(context);
@@ -584,7 +590,7 @@ public class LayerState
 
         moveTo(target, context);
         context.enterNode(target.node);
-        startNode(context);
+        startNode(context, below);
     }
 
     /** Freezes the {@code k}th node fading out as it was last posed: it is disposed (its {@code exit} list runs). */
@@ -784,13 +790,13 @@ public class LayerState
      * {@code enter} list runs, then the node itself starts, and the conditions of its connections
      * start over.
      */
-    private void startNode(IKumoContext context) throws MalformedKumoTemplateException
+    private void startNode(IKumoContext context, Pose below) throws MalformedKumoTemplateException
     {
         MachineMember current = current(context);
         // The clock first: the definitions and the enter list see the node as entered.
         current.node.resetClock(context);
         current.scope.enter(context);
-        current.node.start(context);
+        current.node.start(context, below);
         for (ConnectionState connection : current.connections)
         {
             connection.when.restart(context);

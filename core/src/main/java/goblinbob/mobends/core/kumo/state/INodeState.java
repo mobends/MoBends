@@ -26,6 +26,15 @@ public interface INodeState
 
     void start(IKumoContext context) throws MalformedKumoTemplateException;
 
+    /**
+     * Starts the node on top of {@code below}: the layers below, as they are posed this frame, or
+     * null where they aren't known. What the node poses on entry builds on them.
+     */
+    default void start(IKumoContext context, Pose below) throws MalformedKumoTemplateException
+    {
+        start(context);
+    }
+
     /** Writes this node's pose for the current frame into the given (cleared) pose. */
     void evaluate(IKumoContext context, Pose pose) throws MalformedKumoTemplateException;
 
