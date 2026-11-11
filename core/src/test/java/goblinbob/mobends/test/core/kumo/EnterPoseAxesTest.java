@@ -76,4 +76,16 @@ public class EnterPoseAxesTest
         assertVector(0, 20, 30, subject.smoothOffsets.get("arm").end);
     }
 
+    @Test
+    public void anOverrideAfterAnAdditiveEntryKeepsItsMoveOnTheAxesItLeavesOut() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'root', 'x': 0, 'y': 20, 'z': 30}, '@space': 'override'}",
+                "{'core:translate': {'bone': 'root', 'x': 1, 'y': 2, 'z': 3}, '@space': 'pre'}, {'core:translate': {'bone': 'root', 'x': 10}, '@space': 'override'}", "");
+        TestSubject subject = new TestSubject("arm");
+        animator.update(subject, 1F);
+
+        // From (10, 22, 33), not (10, 20, 30).
+        assertVector(10, 22, 33, subject.root.position.end);
+    }
+
 }

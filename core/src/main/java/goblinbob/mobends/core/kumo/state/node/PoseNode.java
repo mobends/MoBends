@@ -340,12 +340,10 @@ public class PoseNode implements INodeState
         }
         if (enterPose >= 0)
         {
-            Pose entered = context.getState().poses[enterPose];
-            entered.clear();
+            // The entry is posed when it's used (see evaluate), on top of the layers beneath.
             for (IPoseItem item : enterItems)
             {
                 item.onNodeStarted(context);
-                item.apply(entered, context, 0);
             }
             state[enterPendingSlot] = 1;
         }
@@ -414,16 +412,23 @@ public class PoseNode implements INodeState
 
         if (state[enterPendingSlot] != 0)
         {
-            // What the entry poses relatively (a PRE / POST rotation, an additive offset or vector) builds on
-            // the layers beneath, as the node's own items do: the bone starts from there.
+            // The entry is posed on top of the layers beneath, as the node's own items are: what it
+            // poses relatively (a PRE / POST rotation, an additive offset or vector, a relative
+            // scale) builds on them, an override that leaves axes out keeps theirs, and the bone
+            // starts from there.
             Pose enterPose = context.getState().poses[this.enterPose];
             enterPose.setBelow(pose.getBelow());
+            enterPose.clear();
+            for (IPoseItem item : enterItems)
+            {
+                item.apply(enterPose, context, 0);
+            }
             for (int slot = 0; slot < pose.size(); slot++)
             {
                 BoneTarget entered = enterPose.get(slot);
                 BoneTarget target = pose.get(slot);
-                // The axes an override entry leaves out keep what the layers beneath have: the entry
-                // was posed when the node started, before there was anything to read.
+                // With nothing beneath (a pose of its own), the axes an override entry leaves out are
+                // at rest.
                 if (entered.hasVector && !entered.vectorAdditive && hasNaN(entered.vector))
                 {
                     Vec3f beneath = new Vec3f();
@@ -479,6 +484,23 @@ public class PoseNode implements INodeState
                         enterPose.vectorSoFar(slot, target.vector);
                         target.vectorAdditive = false;
                         target.vectorMode = IVectorSink.Mode.SNAP;
+                    }
+                }
+                if (entered.hasScale)
+                {
+                    if (!entered.scaleRelative && hasNaN(entered.scale))
+                    {
+                        Vec3f beneath = new Vec3f(1F, 1F, 1F);
+                        if (pose.getBelow() != null) pose.getBelow().scaleSoFar(slot, beneath);
+                        fillNaN(entered.scale, beneath);
+                    }
+                    // A scale isn't smoothed, so there is no start for the pose's own to move from:
+                    // that one wins, and a scale only the entry writes holds for the entry frame.
+                    if (!target.hasScale)
+                    {
+                        target.hasScale = true;
+                        enterPose.scaleSoFar(slot, target.scale);
+                        target.scaleRelative = false;
                     }
                 }
             }
