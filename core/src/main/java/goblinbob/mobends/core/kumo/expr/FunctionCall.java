@@ -9,7 +9,11 @@ import com.google.gson.JsonPrimitive;
 import goblinbob.mobends.core.kumo.state.template.FunctionTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
+import javax.annotation.Nullable;
+
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
@@ -63,18 +67,56 @@ public final class FunctionCall
     {
     }
 
-    /** Checks a function's body once, where it is declared, with stand-ins for its arguments. */
+    /**
+     * What a function's {@code string} or {@code choice} parameter is while its body is checked:
+     * the operations it is given to check its type only, and its value is checked where the
+     * function is called, with what the call writes. Known by its identity (it is written as the
+     * parameter, {@code "arg.<name>"}), so no string written in a file can be one.
+     */
+    static final class StandIn
+    {
+        /** The stand-ins of the bodies being checked, by identity. */
+        private static final Map<JsonElement, StandIn> LIVE = Collections.synchronizedMap(new IdentityHashMap<JsonElement, StandIn>());
+
+        final String name;
+        final String kind;
+
+        private StandIn(String name, String kind)
+        {
+            this.name = name;
+            this.kind = kind;
+        }
+
+        /** The stand-in {@code json} is, or null if it is JSON as a file writes it. */
+        @Nullable
+        static StandIn of(@Nullable JsonElement json)
+        {
+            return json == null ? null : LIVE.get(json);
+        }
+    }
+
+    /**
+     * Checks a function's body once, where it is declared, with stand-ins for its arguments: types
+     * only, for a string or choice parameter (see {@link StandIn}).
+     */
     public static void check(Declared function) throws MalformedKumoTemplateException
     {
         JsonArray standIns = new JsonArray();
-        for (FunctionTemplate.Param param : function.template.params.values())
+        java.util.List<JsonElement> strings = new java.util.ArrayList<>();
+        for (Map.Entry<String, FunctionTemplate.Param> entry : function.template.params.entrySet())
         {
+            FunctionTemplate.Param param = entry.getValue();
             switch (param.kind)
             {
                 case "boolean": standIns.add(new JsonPrimitive(false)); break;
                 case "double": standIns.add(new JsonParser().parse("{\"toDouble\": [0]}")); break;
-                case "string": standIns.add(new JsonPrimitive("")); break;
-                case "choice": standIns.add(new JsonPrimitive(param.choices.isEmpty() ? "" : param.choices.get(0))); break;
+                case "string":
+                case "choice":
+                    JsonElement standIn = new JsonPrimitive("arg." + entry.getKey());
+                    StandIn.LIVE.put(standIn, new StandIn(entry.getKey(), param.kind));
+                    strings.add(standIn);
+                    standIns.add(standIn);
+                    break;
                 default: standIns.add(new JsonPrimitive(0)); break;
             }
         }
@@ -85,6 +127,13 @@ public final class FunctionCall
         catch (MalformedKumoTemplateException e)
         {
             throw new MalformedKumoTemplateException(String.format("In the function '%s': %s", function.name, e.getMessage()));
+        }
+        finally
+        {
+            for (JsonElement standIn : strings)
+            {
+                StandIn.LIVE.remove(standIn);
+            }
         }
     }
 
@@ -138,6 +187,12 @@ public final class FunctionCall
                     writtenOut.put(entry.getKey(), argument);
                     break;
                 default:
+                    if (StandIn.of(argument) != null)
+                    {
+                        // Passed on by another function as its body is checked: checked at that function's calls.
+                        writtenOut.put(entry.getKey(), argument);
+                        break;
+                    }
                     if (!argument.isJsonPrimitive() || !argument.getAsJsonPrimitive().isString())
                     {
                         throw new MalformedKumoTemplateException(where + " must be a string, got " + Expression.describe(argument) + ".");

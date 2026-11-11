@@ -958,7 +958,10 @@ expression repeated with different inputs, written once.
   are, so they can stand where an operation takes a string or a constant.
 * **A body reads** its parameters, the built-ins, and the names of the scope declaring it: an
   animator's function can't read a layer's names, wherever it is called. It is checked once, where
-  it is declared, used or not.
+  it is declared, used or not. What a `string` or `choice` argument says is checked at each call: a
+  body passing `arg.v` to `core:minecraft_version` loads, and a call giving it something that isn't
+  a version is the error. The same goes for one passed on to another function. A `string` or
+  `choice` parameter can't name a `field`, whose type depends on that name.
 * A function that calls itself, through any number of others, is a load error. A function and a
   definition of one scope can't share a name, nor can two functions (across `extends` too, which
   is how files share functions).
