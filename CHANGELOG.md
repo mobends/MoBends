@@ -11,7 +11,7 @@
   mobs' own layers follow the bent model too: the wolf's mouth, the iron golem's poppy, the witch's
   potion, the mooshroom's mushroom, the sheep's wool and saddles, and the elytra. Arrows and bee
   stingers stick in a bent player's bent parts, supporters wear their accessories, swung swords
-  and flying arrows leave their trails, and the cape ripples.
+  and flying arrows leave their trails, and the cape ripples. An animator's debug rays show.
 - Wither skeletons are animated, as skeletons are. They were left out when the mobs moved to model
   definitions.
 - Addon API: `INodeState.resetClock`, called before a node's scope is made, and

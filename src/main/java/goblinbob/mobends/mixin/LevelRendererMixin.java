@@ -1,6 +1,6 @@
 package goblinbob.mobends.mixin;
 
-// Not ported to 26.x yet (the debug rays).
+// On 26.x the debug rays are vanilla's gizmos (LevelExtractorMixin).
 //? if <26.1 {
 import goblinbob.mobends.core.client.event.RayGizmoRenderer;
 import net.minecraft.client.Camera;
