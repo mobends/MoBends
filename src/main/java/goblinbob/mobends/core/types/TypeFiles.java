@@ -25,11 +25,31 @@ final class TypeFiles
     }
 
     /**
-     * The type a type file describes, its model (a model definition's bender is registered)
-     * resolved; null if the policy leaves it out.
+     * A type file read, with the model definition it names by path made into its bender and
+     * registered (so its key is known before any type names it by key); the rest is resolved by
+     * {@link #build}.
+     */
+    static final class Read
+    {
+        final TypeFileDiscovery.TypeFile file;
+        final EntityTypeDefinition definition;
+        @Nullable
+        final EntityBender<?> model;
+
+        Read(TypeFileDiscovery.TypeFile file, EntityTypeDefinition definition, @Nullable EntityBender<?> model)
+        {
+            this.file = file;
+            this.definition = definition;
+            this.model = model;
+        }
+    }
+
+    /**
+     * Reads a type file, and makes and registers the bender of the model definition it names by
+     * path; null if the policy leaves it out.
      */
     @Nullable
-    static EntityType loadType(TypeFileDiscovery.TypeFile file, @Nullable CoreClientConfig config, ResourcePackPolicy policy) throws Exception
+    static Read read(TypeFileDiscovery.TypeFile file, @Nullable CoreClientConfig config, ResourcePackPolicy policy) throws Exception
     {
         EntityTypeDefinition definition = EntityTypeDefinition.parse(file.json);
         if (definition.isModelDefinition() && !file.trusted && policy != ResourcePackPolicy.ALLOW)
@@ -39,15 +59,8 @@ final class TypeFiles
             Core.LOG.warning("The server limits resource packs' animation: ignoring the type " + file.source + ", which brings its own model (" + definition.model + ")");
             return null;
         }
-        ISelectorCondition selector = definition.selector == null ? null : SelectorExpression.compile(definition.selector);
-
         EntityBender<?> model = null;
-        boolean vanilla = false;
-        if (EntityTypeDefinition.VANILLA_MODEL.equals(definition.model))
-        {
-            vanilla = true;
-        }
-        else if (definition.isModelDefinition())
+        if (definition.isModelDefinition())
         {
             ResourceLocation location = new ResourceLocation(definition.model);
             model = DefinedBenders.createBender(location.getResourceDomain(), location, ModelDefinitions.INSTANCE.load(location));
@@ -63,7 +76,24 @@ final class TypeFiles
                 model.setResourcePack(file.resourcePack);
             }
         }
-        else if (definition.model != null)
+        return new Read(file, definition, model);
+    }
+
+    /**
+     * The type a type file describes, once every type file has been read: a model it names by key
+     * is any type file's (or an addon's), whichever pack it comes from and in whatever order they
+     * were read.
+     */
+    static EntityType build(Read read) throws Exception
+    {
+        EntityTypeDefinition definition = read.definition;
+        EntityBender<?> model = read.model;
+        boolean vanilla = false;
+        if (EntityTypeDefinition.VANILLA_MODEL.equals(definition.model))
+        {
+            vanilla = true;
+        }
+        else if (model == null)
         {
             model = EntityBenderRegistry.instance.getByKey(definition.model);
             if (model == null)
@@ -72,9 +102,10 @@ final class TypeFiles
             }
         }
 
+        ISelectorCondition selector = definition.selector == null ? null : SelectorExpression.compile(definition.selector);
         ResourceLocation animator = definition.animator == null ? null : new ResourceLocation(definition.animator);
         OptionSet options = KumoOptions.INSTANCE.declare(definition.id, definition.options);
-        return new EntityType(definition.id, file.source, selector, definition.specificity(), model, vanilla, animator, false, options);
+        return new EntityType(definition.id, read.file.source, selector, definition.specificity(), model, vanilla, animator, options);
     }
 
     /** The extension an extension file describes, with its rank. */

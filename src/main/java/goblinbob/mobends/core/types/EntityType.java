@@ -29,14 +29,13 @@ public class EntityType implements TypeOrder.Ranked
     @Nullable
     private final ISelectorCondition selector;
     private final int specificity;
-    /** The model, or null for the entity's default model (or for vanilla). */
+    /** The model; null for a type that keeps its entities vanilla. */
     @Nullable
     private final EntityBender<?> model;
     private final boolean vanilla;
     @Nullable
     private final ResourceLocation animator;
-    private final boolean builtIn;
-    /** The options the type file declares (a built-in type has its model definition's, through the entity's data). */
+    /** The options the type file declares (besides its model definition's, which come through the entity's data). */
     private final OptionSet options;
     private int rank;
     /** The animators of the extensions of this type, in the order their layers go on top, and their options. */
@@ -46,8 +45,8 @@ public class EntityType implements TypeOrder.Ranked
     private final Map<EntityBender<?>, EntityTypeRegistry.Selection> selections = new HashMap<>();
     private final EntityTypeRegistry.Selection vanillaSelection = new EntityTypeRegistry.Selection(this, null, null);
 
-    EntityType(String id, String source, @Nullable ISelectorCondition selector, int specificity,
-               @Nullable EntityBender<?> model, boolean vanilla, @Nullable ResourceLocation animator, boolean builtIn, OptionSet options)
+    EntityType(String id, String source, @Nullable ISelectorCondition selector, int specificity, @Nullable EntityBender<?> model,
+               boolean vanilla, @Nullable ResourceLocation animator, OptionSet options)
     {
         this.options = options;
         this.id = id;
@@ -57,14 +56,6 @@ public class EntityType implements TypeOrder.Ranked
         this.model = model;
         this.vanilla = vanilla;
         this.animator = animator;
-        this.builtIn = builtIn;
-    }
-
-    /** The type every addon bender gets: its model for the entities it's the default model of. */
-    static EntityType builtIn(EntityBender<?> bender)
-    {
-        ISelectorCondition isDefaultModel = entity -> EntityBenderRegistry.instance.getDefaultBender(entity.getClass()) == bender;
-        return new EntityType(bender.getKey(), "built in", isDefaultModel, 1, bender, false, null, true, OptionSet.EMPTY);
     }
 
     @Override
@@ -73,7 +64,7 @@ public class EntityType implements TypeOrder.Ranked
         return id;
     }
 
-    /** Where the type came from: the pack and the file, or "built in". */
+    /** Where the type came from: the pack and the file. */
     public String getSource()
     {
         return source;
@@ -96,11 +87,6 @@ public class EntityType implements TypeOrder.Ranked
         return specificity;
     }
 
-    public boolean isBuiltIn()
-    {
-        return builtIn;
-    }
-
     public boolean isVanilla()
     {
         return vanilla;
@@ -118,7 +104,7 @@ public class EntityType implements TypeOrder.Ranked
         return animator;
     }
 
-    /** The options the type file declares; none for a built-in type. */
+    /** The options the type file declares. */
     public OptionSet getOptions()
     {
         return options;
@@ -147,8 +133,8 @@ public class EntityType implements TypeOrder.Ranked
     }
 
     /**
-     * What this type does to the entity, or null if it can't apply to it (no default model for it,
-     * or a model made for another entity class).
+     * What this type does to the entity, or null if it can't apply to it (a model made for another
+     * entity class).
      */
     @Nullable
     EntityTypeRegistry.Selection selectionFor(EntityLivingBase entity)
@@ -157,12 +143,11 @@ public class EntityType implements TypeOrder.Ranked
         {
             return vanillaSelection;
         }
-        EntityBender<?> bender = model != null ? model : EntityBenderRegistry.instance.getDefaultBender(entity.getClass());
-        if (bender == null || !bender.entityClass.isInstance(entity))
+        if (model == null || !model.entityClass.isInstance(entity))
         {
             return null;
         }
-        return selections.computeIfAbsent(bender, b -> new EntityTypeRegistry.Selection(this, b, dataFactoryFor(b)));
+        return selections.computeIfAbsent(model, b -> new EntityTypeRegistry.Selection(this, b, dataFactoryFor(b)));
     }
 
     /** This type's extensions, in the order their layers go on (see {@link Extension#inLayerOrder}). */

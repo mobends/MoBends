@@ -1,6 +1,5 @@
 package goblinbob.mobends.core.bender;
 
-import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
@@ -22,11 +21,6 @@ public class EntityBenderRegistry
 
     /** Every bender by key, in registration order. */
     private final Map<String, EntityBender<?>> benders = new LinkedHashMap<>();
-
-    /** The benders registered by addons: each is the default model of its entity class. */
-    private final List<EntityBender<?>> defaultBenders = new ArrayList<>();
-
-    private final Map<Class<?>, Optional<EntityBender<?>>> defaultBenderByClass = new HashMap<>();
 
     /**
      * The types each entity can have, so they aren't worked out every frame. Weak keys, so entities
@@ -56,23 +50,7 @@ public class EntityBenderRegistry
         clearCache();
     }
 
-    /** Registers a bender of an addon: the default model of every entity of its class. */
-    public void registerBender(EntityBender<?> entityBender)
-    {
-        Core.LOG.info(String.format("Registering %s", entityBender.getKey()));
-        EntityBender<?> previous = benders.put(entityBender.getKey(), entityBender);
-        if (previous != null)
-        {
-            defaultBenders.remove(previous);
-        }
-        defaultBenders.add(entityBender);
-        defaultBenderByClass.clear();
-        // Every addon bender brings a built-in type, and the types may have loaded before it (a
-        // resource reload listener runs as soon as it's registered, before the addons register).
-        EntityTypeRegistry.INSTANCE.markStale();
-    }
-
-    /** Registers a bender a type made from a model definition. It only animates entities of that type. */
+    /** Registers a bender a type made from a model definition. It animates the entities of the types that name it. */
     public void registerTypeBender(EntityBender<?> entityBender, CoreClientConfig config)
     {
         benders.put(entityBender.getKey(), entityBender);
@@ -82,19 +60,14 @@ public class EntityBenderRegistry
         }
     }
 
-    /** Removes the benders made by types, putting their renderers back to vanilla. */
+    /** Removes the benders made by types (every bender), putting their renderers back to vanilla. */
     public void removeTypeBenders()
     {
-        Iterator<EntityBender<?>> it = benders.values().iterator();
-        while (it.hasNext())
+        for (EntityBender<?> bender : benders.values())
         {
-            EntityBender<?> bender = it.next();
-            if (!defaultBenders.contains(bender))
-            {
-                bender.refreshMutation();
-                it.remove();
-            }
+            bender.refreshMutation();
         }
+        benders.clear();
     }
 
     public void applyConfiguration(CoreClientConfig config)
@@ -110,11 +83,6 @@ public class EntityBenderRegistry
         return benders.values();
     }
 
-    public Collection<EntityBender<?>> getDefaultBenders()
-    {
-        return defaultBenders;
-    }
-
     @Nullable
     public EntityBender<?> getByKey(String key)
     {
@@ -124,6 +92,8 @@ public class EntityBenderRegistry
     /** The benders whose displayed name contains {@code query} (all of them for null), by key. */
     public List<EntityBender<?>> search(@Nullable String query)
     {
+        // The type files bring most benders.
+        EntityTypeRegistry.INSTANCE.ensureLoaded();
         List<EntityBender<?>> benderList = new ArrayList<>(benders.values());
         if (query != null)
         {
@@ -132,26 +102,6 @@ public class EntityBenderRegistry
         }
         benderList.sort(Comparator.comparing(EntityBender::getKey));
         return benderList;
-    }
-
-    /**
-     * The model an entity of this class has by default: the addon bender registered for exactly this
-     * class, or else the first one registered for a superclass.
-     */
-    @Nullable
-    public EntityBender<?> getDefaultBender(Class<?> entityClass)
-    {
-        return defaultBenderByClass.computeIfAbsent(entityClass, c -> {
-            for (EntityBender<?> entityBender : defaultBenders)
-                if (entityBender.entityClass.equals(c))
-                    return Optional.of(entityBender);
-
-            for (EntityBender<?> entityBender : defaultBenders)
-                if (entityBender.entityClass.isAssignableFrom(c))
-                    return Optional.of(entityBender);
-
-            return Optional.empty();
-        }).orElse(null);
     }
 
     /** The type the entity is animated by, with its bender, or null if it stays vanilla. */

@@ -22,6 +22,7 @@ import java.util.Map;
  *   "formatVersion": 2,
  *   "id": "mobends:example_notch",
  *   "selector": {"and": [{"core:entity_type": ["minecraft:player"]}, {"core:player_name": ["Notch"]}]},
+ *   "model": "mobends:player",
  *   "animator": "mobends:bends/animators/example_zombie_walk.json"
  * }
  * </pre>
@@ -44,9 +45,8 @@ public class EntityTypeDefinition
     public JsonElement selector;
 
     /**
-     * Optional: a bender key ({@code mobends:player}), a model definition
-     * ({@code yourmod:bends/models/beast.json}) or {@value #VANILLA_MODEL}. Absent: the model the
-     * entity has by default.
+     * Required: a bender key ({@code mobends:player}), a model definition
+     * ({@code yourmod:bends/models/beast.json}) or {@value #VANILLA_MODEL}.
      */
     public String model;
 
@@ -79,6 +79,10 @@ public class EntityTypeDefinition
         if (id == null || id.isEmpty())
         {
             throw new MalformedKumoTemplateException("A type needs an 'id'.");
+        }
+        if (model == null || model.isEmpty())
+        {
+            throw new MalformedKumoTemplateException("The type '" + id + "' needs a 'model': a bender key (mobends:player), a model definition (yourmod:bends/models/beast.json) or 'vanilla'.");
         }
         OptionTemplate.validate(options, "the type '" + id + "'");
     }

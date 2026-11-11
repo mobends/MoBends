@@ -2,5 +2,6 @@
   "formatVersion": 2,
   "id": "mobends_example:bendy_tester",
   "selector": {"and": [{"core:entity_type": ["minecraft:player"]}, {"core:player_name": ["BendyTester"]}]},
+  "model": "mobends:player",
   "animator": "mobends_example:bends/animators/zombie_arms.json"
 }

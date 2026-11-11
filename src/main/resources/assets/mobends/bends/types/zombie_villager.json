@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends:zombie_villager",
+  "selector": {"core:entity_type": ["minecraft:zombie_villager"]},
+  "model": "mobends:bends/models/zombie_villager.json"
+}

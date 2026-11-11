@@ -4,6 +4,7 @@ import goblinbob.mobends.core.bender.DefaultEntityBender;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.MutatedRenderer;
+import goblinbob.mobends.core.kumo.option.OptionSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntityZombie;
@@ -41,9 +42,8 @@ public class EntityIdReuseTest
     {
         EntityBender<EntityZombie> zombieBender = new DefaultEntityBender<>("mobends", "zombie", "entity.Zombie.name",
                 EntityZombie.class, entity -> null, () -> null, allocate(StubRenderer.class));
-        EntityBenderRegistry.instance.registerBender(zombieBender);
         zombieBender.setAnimate(true);
-        useOnlyBuiltInTypes();
+        useOnlyATypeOf(zombieBender);
 
         EntityZombie zombie = withId(allocate(EntityZombie.class), 42);
         NotAZombie notAZombie = withId(allocate(NotAZombie.class), 42);
@@ -58,23 +58,24 @@ public class EntityIdReuseTest
         assertNull(EntityBenderRegistry.instance.getForEntity(notAZombie));
     }
 
-    /** The built-in types of the registered benders, without the type files (which need the game). */
+    /**
+     * One type, as a type file with this bender as its model and no selector makes it: it holds for
+     * every entity, so only the model's class keeps it off the others. Without the type files
+     * (which need the game).
+     */
     @SuppressWarnings("unchecked")
-    private static void useOnlyBuiltInTypes() throws Exception
+    private static void useOnlyATypeOf(EntityBender<?> bender) throws Exception
     {
         EntityTypeRegistry registry = EntityTypeRegistry.INSTANCE;
+        Field loadedField = EntityTypeRegistry.class.getDeclaredField("loaded");
+        loadedField.setAccessible(true);
+        loadedField.setBoolean(registry, true);
         Field typesField = EntityTypeRegistry.class.getDeclaredField("types");
         typesField.setAccessible(true);
         Map<String, EntityType> types = (Map<String, EntityType>) typesField.get(registry);
         types.clear();
-        for (EntityBender<?> bender : EntityBenderRegistry.instance.getDefaultBenders())
-        {
-            EntityType type = EntityType.builtIn(bender);
-            types.put(type.getId(), type);
-        }
-        Field loadedField = EntityTypeRegistry.class.getDeclaredField("loaded");
-        loadedField.setAccessible(true);
-        loadedField.setBoolean(registry, true);
+        EntityType type = new EntityType(bender.getKey(), "test", null, 0, bender, false, null, OptionSet.EMPTY);
+        types.put(type.getId(), type);
         EntityBenderRegistry.instance.clearCache();
     }
 

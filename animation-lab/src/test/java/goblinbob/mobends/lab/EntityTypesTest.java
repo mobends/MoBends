@@ -97,6 +97,16 @@ public class EntityTypesTest
         assertTypeRefused("no longer reads", "{\"formatVersion\": 1, \"id\": \"x:y\"}");
     }
 
+    @Test
+    void aTypeNeedsAModel() throws Exception
+    {
+        assertTypeRefused("needs a 'model'", "{\"formatVersion\": 2, \"id\": \"x:y\", \"animator\": \"x:bends/animators/y.json\"}");
+        for (String model : new String[] { "mobends:player", "x:bends/models/y.json", "vanilla" })
+        {
+            assertEquals(model, EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:y\", \"model\": \"" + model + "\"}").model);
+        }
+    }
+
     private static void assertTypeRefused(String message, String json)
     {
         MalformedKumoTemplateException e = assertThrows(MalformedKumoTemplateException.class, () -> EntityTypeDefinition.parse(json));
@@ -105,13 +115,13 @@ public class EntityTypesTest
 
     private static int specificity(String selector) throws Exception
     {
-        return EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:t\", \"selector\": " + selector.replace('\'', '"') + "}").specificity();
+        return EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:t\", \"model\": \"vanilla\", \"selector\": " + selector.replace('\'', '"') + "}").specificity();
     }
 
     @Test
     void specificityCountsConditionsNotCombinators() throws Exception
     {
-        assertEquals(0, EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:none\"}").specificity());
+        assertEquals(0, EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:none\", \"model\": \"vanilla\"}").specificity());
         assertEquals(1, specificity("{'core:entity_type': ['minecraft:player']}"));
         // An "or" is as specific as its broadest branch, a "not" counts one: nesting can't inflate it.
         assertEquals(1, specificity("{'or': [{'core:player_name': ['A']}, {'core:player_name': ['B']}, {'core:player_name': ['C']}]}"));
@@ -168,10 +178,10 @@ public class EntityTypesTest
         assertEquals(2, example.specificity());
 
         TypeOrder.Ranked exampleType = type(example.id, 0, example.specificity());
-        // Built-in types are one condition: "this entity's default model is this bender".
+        // Mo' Bends' player type is one condition: {"core:entity_type": ["minecraft:player"]}.
         TypeOrder.Ranked builtIn = type("mobends:player", 0, 1);
         assertSame(exampleType, TypeOrder.first(Arrays.asList(builtIn, exampleType)));
-        // Unless the user ranks the built-in type above it.
+        // Unless the user ranks the player type above it.
         TypeOrder.Ranked rankedBuiltIn = type("mobends:player", 1, 1);
         assertSame(rankedBuiltIn, TypeOrder.first(Arrays.asList(rankedBuiltIn, exampleType)));
     }

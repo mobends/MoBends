@@ -985,7 +985,7 @@ loads, and an animator shared by several mobs or extensions never makes them sha
 | `label` | optional: a language key (packs can ship their own `.lang` files); absent, or not translated, the menu shows the key, or else the name |
 
 * **Who reads what.** A type's animator reads the options of its model definition and of its type
-  file (a built-in type has no file: its model definition's alone); the two can't declare one
+  file (Mo' Bends' own types declare none: their model definitions' alone); the two can't declare one
   name. An extension's animator reads only its extension file's. Reading an option nothing
   declares is an error when the animator loads, as for an `entity.` name.
 * **Read only.** A `set` statement or a driver writing an option is an error, and an option is no
@@ -1107,9 +1107,9 @@ untrusted animator may set its state, never a trusted one's.
 
 The player, the zombie, the skeleton, the zombie villager, the zombie pigman, the squid, the
 spider and the wolf are model definitions too (`player`, `zombie`, `skeleton`, `zombie_villager`,
-`pig_zombie`, `squid`, `spider`, `wolf`): the default
-models of their entity classes rather than a type file's (an addon registers them with
-`registerDefinedEntity`). Their bodies bend at the hips, their limbs at elbows and knees (the
+`pig_zombie`, `squid`, `spider`, `wolf`), each given by a type file as the others are. The
+zombie's type also names the husk and the spider's the cave spider, whose classes their
+definitions accept. Their bodies bend at the hips, their limbs at elbows and knees (the
 player's sleeves and trousers ride them), and they declare the components, layers, renderer
 settings and entity values their animators and layers use (the zombie's animation set and
 walking style, the squid's tentacle phase, the spider's crawl). The squid's tentacles are cut
@@ -1121,7 +1121,7 @@ elbow) and share three generated animators (`quadruped`, `chicken`, `villager`: 
 jump with a smooth look, made by the lab's `tools/gen_animators.ts`). The golem's (`iron_golem`:
 its attack from its timer, turning on its feet), the creeper's (`creeper`: leaning at the waist)
 and the cow's (`cow`, extending `quadruped`) are edited by hand.
-`DefinedModelsTest` in the lab checks every listed definition and default model builds, covers
+`DefinedModelsTest` in the lab checks every listed definition builds, covers
 what its animator drives, and walks.
 
 ### Field names
@@ -1170,6 +1170,7 @@ Java addon is needed unless it brings its own operations or drivers.
   "formatVersion": 2,
   "id": "yourpack:notch_zombie_arms",
   "selector": {"and": [{"core:entity_type": ["minecraft:player"]}, {"core:player_name": ["Notch"]}]},
+  "model": "mobends:player",
   "animator": "yourpack:bends/animators/zombie_arms.json"
 }
 ```
@@ -1179,22 +1180,25 @@ Java addon is needed unless it brings its own operations or drivers.
 | `formatVersion` | `2` |
 | `id` | identifies the type; ranks are stored by it. Two types with the same id: a warning, and the one from the higher-priority pack is used (the server's resource pack, then the enabled resource packs from the top of the list, then mods) |
 | `selector` | a condition on the entity, an expression (see *Selectors*); absent means the type applies to every entity |
-| `model` | optional: a bender key (`mobends:player`, `mobends:zombie`), a model definition (`yourmod:bends/models/beast.json`), or `vanilla` (the entity stays vanilla). Absent: the model the entity has by default |
+| `model` | a bender key (`mobends:player`, `mobends:zombie`, see *Model keys*), a model definition (`yourmod:bends/models/beast.json`), or `vanilla` (the entity stays vanilla) |
 | `animator` | optional: the animator asset. Absent: the model's own animator |
 | `options` | optional: options the user sets in the Mo' Bends menu, which the type's animator reads as `option.x`, besides its model definition's (see *Options*) |
 
-A type applies to an entity only if its model fits the entity's class. A type without a `model`
-applies only to entities that have a default model.
+A type applies to an entity only if its model fits the entity's class (the definition's
+`entity`, a class and its subclasses): a type never gives its model to another mob, whatever its
+selector says. A `vanilla` type fits any entity. Which entities get a model is the selector's to
+say: a definition for `EntityZombie` accepts the husk, and Mo' Bends' zombie type names it
+(`{"core:entity_type": ["minecraft:zombie", "minecraft:husk"]}`). Another mod's subclass of a
+vanilla mob bends only if a type names it. To give a mob another model, a pack replaces its type
+(the same id) or adds one that takes precedence.
 
-Every bender an addon registers in code (the player, the zombie, ...) also gets a **built-in
-type**. Its id is the bender key, a
-resource location: the mod that registered the bender, and the name it gave it or else the
-entity's id (`mobends:player`, `mobends:zombie`; an entity of another mod than Minecraft keeps its
-namespace in the path, `mobends:othermod/beast`). The type's one condition is "this is the
-entity's default model": the addon bender for the entity's exact class, or else the first
-registered for a superclass. The bender a type makes from a model definition has the same kind of
-key (`mobends:cow`), and Mo' Bends gives its own types the same id, so extensions name either
-the same way.
+**Model keys.** A model a type file names by path gets a **key**, a resource location: the
+definition's namespace, and its `key` or else the entity's id (`mobends:player`, `mobends:zombie`,
+`mobends:cow`; an entity of another mod than Minecraft keeps its namespace in the path,
+`mobends:othermod/beast`). Another type names it by that key, whichever pack's type file named it
+by path, read before or after its own: every type file is read, and every model one names by path
+made, before any key is looked up. Mo' Bends gives each of its types its model's key as id, so
+extensions, ranks, switches and options name a mob the same way.
 
 ## Selectors
 
@@ -1238,7 +1242,7 @@ sorted by these keys, most significant first (`TypeOrder`):
    other than `and`, `or`, `not` and `if` counts 1, whatever it means; `and` counts the sum of
    its conditions, `or` the fewest of any of its conditions (it only holds as narrowly as its
    broadest branch), `not` 1, and `if` its condition plus the fewer of its two branches'. A
-   constant counts 0, and so does a type without a selector; built-in types count 1.
+   constant counts 0, and so does a type without a selector.
 3. **id**, plain lexical order, earlier first; the final tie breaker, so the result never depends
    on load order.
 
@@ -1328,7 +1332,7 @@ own animation and with other packs' extensions. Extension files are found like t
 |---|---|
 | `formatVersion` | `2` |
 | `id` | identifies the extension (ranks are stored by it); two with one id: the one from the higher-priority pack wins, with a warning (as for types) |
-| `type` | the id of the type it extends: a type file's `id`, or a built-in type's, which is its model's key (`mobends:player`, `mobends:zombie`, ...) |
+| `type` | the id of the type it extends, a type file's `id`; Mo' Bends' are their models' keys (`mobends:player`, `mobends:zombie`, ...) |
 | `animator` | an animator whose layers go on top of the type's animator (or, for a type without one, its model's) |
 | `options` | optional: options the user sets in the Mo' Bends menu, which only the extension's animator reads as `option.x` (see *Options*) |
 
