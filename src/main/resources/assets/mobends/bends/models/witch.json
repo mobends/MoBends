@@ -1,7 +1,7 @@
 {
   "formatVersion": 2,
   "entity": "net.minecraft.entity.monster.EntityWitch",
-  "model": "net.minecraft.client.model.ModelVillager",
+  "model": "net.minecraft.client.model.ModelWitch",
   "animator": "mobends:bends/animators/villager.json",
   "bones": [
     {
@@ -70,5 +70,5 @@
       }
     }
   ],
-  "@comment": "ModelWitch extends the villager model; the hat and mole are children of the head."
+  "@comment": "ModelWitch has the villager model's parts (its bones are named by ModelVillager's fields); the hat and mole are children of the head. It names ModelWitch, not ModelVillager: on 26.x the witch's model is no longer a villager model."
 }

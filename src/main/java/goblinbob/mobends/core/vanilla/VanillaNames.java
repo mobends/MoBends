@@ -97,6 +97,11 @@ public final class VanillaNames {
     private static final String MODEL_WOLF = "net.minecraft.client.model.ModelWolf";
     private static final String MODEL_QUADRUPED = "net.minecraft.client.model.ModelQuadruped";
     private static final String MODEL_CHICKEN = "net.minecraft.client.model.ModelChicken";
+    /**
+     * The zombified piglin's model on 26.x, which 1.12 had no counterpart of, by today's name (see
+     * {@code pig_zombie.json}): before 26.x the piglin's model was a {@code PlayerModel}.
+     */
+    private static final String MODEL_ZOMBIFIED_PIGLIN = "net.minecraft.client.model.monster.piglin.ZombifiedPiglinModel";
 
     /** A vanilla entity field, as {@code field} expressions read it. */
     public record EntityField(Expression.Type type, Function<Object, Object> reader, @Nullable ToDoubleFunction<Object> number) {
@@ -109,7 +114,8 @@ public final class VanillaNames {
         entity("net.minecraft.entity.monster.EntityWitherSkeleton", WitherSkeleton.class, "minecraft:wither_skeleton");
         entity("net.minecraft.entity.monster.EntityZombieVillager", ZombieVillager.class, "minecraft:zombie_villager");
         // The zombie pigman is the zombified piglin now: a zombie still, drawn with PiglinModel (a
-        // PlayerModel), which the pig zombie's definition names through a variant for later versions.
+        // PlayerModel; on 26.x a ZombifiedPiglinModel, which isn't one), which the pig zombie's
+        // definition names through variants for later versions.
         entity("net.minecraft.entity.monster.EntityPigZombie", ZombifiedPiglin.class, "minecraft:zombie_pigman");
         // The other mobs Mo' Bends ships definitions for (the animals' only in misc/dev-pack).
         entity("net.minecraft.entity.monster.EntityCreeper", Creeper.class, "minecraft:creeper");
@@ -152,7 +158,8 @@ public final class VanillaNames {
         // body now (and longer, for the new texture), and the hat a child of the head; both are drawn
         // with the part they hang from.
         model(MODEL_VILLAGER, VillagerModel.class, null);
-        // The witch's hat and mole hang from the head and the nose, as in 1.12.
+        // The witch's hat and mole hang from the head and the nose, as in 1.12. On 26.x WitchModel is
+        // no VillagerModel, but still has its parts, by the same names.
         model(MODEL_WITCH, WitchModel.class, MODEL_VILLAGER);
         model(MODEL_SPIDER, SpiderModel.class, null);
         model(MODEL_SQUID, SquidModel.class, null);
@@ -162,6 +169,11 @@ public final class VanillaNames {
         // QuadrupedModel covers the cow's, the pig's, the sheep's (and its wool's) and the polar bear's.
         model(MODEL_QUADRUPED, QuadrupedModel.class, null);
         model(MODEL_CHICKEN, ChickenModel.class, null);
+        //? if >=26.1 {
+        /*// No PlayerModel on 26.x but a HumanoidModel on the player's mesh, so with the player's parts
+        // (but the jacket and the hat, which it drops).
+        model(MODEL_ZOMBIFIED_PIGLIN, net.minecraft.client.model.monster.piglin.ZombifiedPiglinModel.class, MODEL_PLAYER);
+        *///?}
 
         // HumanoidModel's parts (1.12's ModelBiped). The hat is a child of the root on 1.21.1, of the
         // head again on 26.x; so are the player's outer layers of the parts they cover there.
