@@ -1,0 +1,9 @@
+{
+  "formatVersion": 2,
+  "@comment": "One layer on top of the wolf's animator, on for every other second of the wolf's age (20 ticks on, 20 off). Its only node is a vanilla node, so the wolf flips between vanilla's model and animation and Mo' Bends' bent model, to compare the two in place.",
+  "layers": [{
+    "@when": {"ge": [{"mod": ["entityTicksExisted", 40]}, 20]},
+    "defaultOnEntry": "vanilla",
+    "nodes": {"vanilla": {"core:vanilla": {}}}
+  }]
+}

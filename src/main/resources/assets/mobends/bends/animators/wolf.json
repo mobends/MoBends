@@ -176,7 +176,8 @@
                 "@snap": true
               },
               {
-                "core:rotate": {"bone": "tail", "axis": "x", "angle": {"add": [{"mobends:wolf_tail_rotation": []}, -90]}},
+                "@comment": "Vanilla's tail angle, measured from the idle clip's (72.93 degrees), so the idle tail is vanilla's and the other clips move it as much as they move theirs from idle.",
+                "core:rotate": {"bone": "tail", "axis": "x", "angle": {"add": [{"mobends:wolf_tail_rotation": []}, -72.93]}},
                 "@space": "post",
                 "@snap": true
               },

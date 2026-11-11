@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends_vanilla_wolf:vanilla_wolf",
+  "type": "mobends:wolf",
+  "animator": "mobends_vanilla_wolf:bends/animators/vanilla_wolf.json"
+}

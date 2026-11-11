@@ -23,7 +23,9 @@ The wolf already ran on the first version of KUMO in 1.2.2, so `wolf/idle_walk_s
 re-recorded from the new engine three times on purpose: non-looping clips now reach their last
 keyframe (the last three frames of standing up); transitions are decided before posing, so a
 state change shows on the frame it happens; and the old movement node sampled `limbSwing` one
-frame late, while the walk now reads the current value (up to 9.5° on a leg).
+frame late, while the walk now reads the current value (up to 9.5° on a leg). Both wolf scenarios were
+re-recorded once more when the tail took vanilla's angle: the vanilla tail angle is now measured
+from the idle clip's tail (72.93°) instead of from 90° (8.5° on the tail, every frame).
 
 The iron golem's goldens were re-recorded as it learned to jump and climb, and the zombie's, the
 zombie villager's, the skeleton's and the player's when they came to stand on their feet
