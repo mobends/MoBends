@@ -100,7 +100,8 @@ CI (`.github/scripts/check-sources.sh`) checks that no other package uses a load
 
 Other mods are optional. GeckoLib is a compile-only dependency; its mixins (`mixin.geckolib`) have
 their own config, `mobends.geckolib.mixins.json`, which applies them only when GeckoLib is installed.
-Nothing outside that package touches GeckoLib's classes.
+Nothing outside that package touches GeckoLib's classes but `standard.compat.geckolib.GeoArmorBones`
+(26.x), which only those mixins load.
 
 ## Building and running
 
@@ -112,7 +113,7 @@ downloads them (`gradle/gradle-daemon-jvm.properties`, and the toolchains of the
 | `./gradlew build` | Builds every node, and tests `core/`. Jars in `versions/<node>/build/libs/`. |
 | `./gradlew buildAndCollect` | The same, then copies every jar into `build/libs/<version>/`. |
 | `./gradlew :1.21.1-fabric:runClient` | Runs a node's client (`runServer` for its server). Every node shares the `run/` directory. |
-| `./gradlew :1.21.1-fabric:runClient -Pgeckolib` | The same, with GeckoLib (optional for Mo' Bends) installed. |
+| `./gradlew :1.21.1-fabric:runClient -Pgeckolib` | The same, with GeckoLib (optional for Mo' Bends) installed; on 26.3, with Fantasy Armor too, GeckoLib armour to try on. |
 | `./gradlew :core:test` | Tests the core. |
 | `cd animation-lab && ./gradlew test` | Runs the animation lab (see its README). |
 
@@ -131,6 +132,9 @@ downloads them (`gradle/gradle-daemon-jvm.properties`, and the toolchains of the
 - To compare a mob with vanilla, use a resource pack with an extension whose only layer is a
   `core:vanilla` node, on every other second (`"@when"` on `entityTicksExisted`): it switches the mob
   back and forth in place.
+- **Done with a [TODO.md](TODO.md) item? Remove it, don't tick it off.** TODO.md lists only what's
+  left; what's done is in the git history. If it was the last item of a list, remove the list's
+  heading item too, and update any text that says what's left.
 
 ## Branches
 

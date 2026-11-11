@@ -14,23 +14,25 @@ import java.util.Set;
  * for GeckoLib's class file, and loads nothing of GeckoLib's.
  */
 public final class GeckoLibMixins implements IMixinConfigPlugin {
+    //? if >=26.1 {
+    /*private static final String ARMOR_RENDERER = "com/geckolib/renderer/GeoArmorRenderer.class";
+    /^* GeckoLib 5's armour: noted as it's submitted, its bones drawn bent later (see GeoArmorBones). ^/
+    private static final List<String> MIXINS = List.of("GeoArmorRendererMixin", "GeoBoneMixin");
+    *///?} else {
     private static final String ARMOR_RENDERER = "software/bernie/geckolib/renderer/GeoArmorRenderer.class";
+    private static final List<String> MIXINS = List.of("GeoArmorRendererMixin");
+    //?}
 
     private boolean present;
 
     @Override
     public void onLoad(String mixinPackage) {
-        //? if <26.1 {
         present = GeckoLibMixins.class.getClassLoader().getResource(ARMOR_RENDERER) != null;
-        //?} else {
-        /*// GeckoLib 5 (26.x) isn't supported yet: GeoArmorRendererMixin isn't built there.
-        present = false;
-        *///?}
     }
 
     @Override
     public List<String> getMixins() {
-        return present ? List.of("GeoArmorRendererMixin") : Collections.emptyList();
+        return present ? MIXINS : Collections.emptyList();
     }
 
     @Override

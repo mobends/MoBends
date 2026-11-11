@@ -17,19 +17,31 @@ val requiredJava: JavaVersion = when {
 repositories {
     maven("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/") {
         name = "GeckoLib"
-        content { includeGroup("software.bernie.geckolib") }
+        content {
+            includeGroup("software.bernie.geckolib")
+            includeGroup("com.geckolib")
+        }
+    }
+    // Fantasy Armor and Cloth Config, for trying GeckoLib's armour on in the development client.
+    maven("https://api.modrinth.com/maven") {
+        name = "Modrinth"
+        content { includeGroup("maven.modrinth") }
     }
 }
 
 dependencies {
     // GeckoLib, whose armour Mo' Bends bends when it's installed (mixin.geckolib); not needed. Run the
-    // client with -Pgeckolib to have it in the game. Not on 26.x yet (GeckoLib 5, whose API differs;
-    // mixin.geckolib is fenced out there).
-    val withGeckoLib = sc.current.parsed < "26.1"
-    val geckoLib by lazy { "software.bernie.geckolib:geckolib-neoforge-${sc.current.version}:${sc.properties["deps.geckolib"]}" }
-    if (withGeckoLib) compileOnly(geckoLib) { isTransitive = false }
-    if (withGeckoLib && providers.gradleProperty("geckolib").isPresent) {
+    // client with -Pgeckolib to have it in the game; on 26.x, with Fantasy Armor too, armour to try
+    // on. GeckoLib 5 (26.x) is published under its own group.
+    val geckoLibGroup = if (sc.current.parsed >= "26.1") "com.geckolib" else "software.bernie.geckolib"
+    val geckoLib = "$geckoLibGroup:geckolib-neoforge-${sc.current.version}:${sc.properties["deps.geckolib"]}"
+    compileOnly(geckoLib) { isTransitive = false }
+    if (providers.gradleProperty("geckolib").isPresent) {
         runtimeOnly(geckoLib) { isTransitive = false }
+        if (sc.current.parsed >= "26.1") {
+            runtimeOnly("maven.modrinth:fantasy_armor:${sc.properties["deps.fantasy_armor"]}") { isTransitive = false }
+            runtimeOnly("maven.modrinth:cloth-config:${sc.properties["deps.cloth_config"]}") { isTransitive = false }
+        }
     }
 }
 
