@@ -429,13 +429,18 @@ public final class BendsLayers {
      * own way. It stays away from a chestplate, as vanilla's does.
      */
     public static void standCape(LivingEntity entity, ModelPart cloak) {
-        if (entity.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) {
-            cloak.y = 0.0F;
-            cloak.z = 0.0F;
-        } else {
-            cloak.y = -0.85F;
-            cloak.z = -1.1F;
-        }
+        cloak.y = standingCapeY(entity);
+        cloak.z = standingCapeZ(entity);
+    }
+
+    /** How far down the cape hangs for a player standing up ({@link #standCape}), in pixels. */
+    public static float standingCapeY(LivingEntity entity) {
+        return entity.getItemBySlot(EquipmentSlot.CHEST).isEmpty() ? 0.0F : -0.85F;
+    }
+
+    /** How far forward the cape hangs for a player standing up ({@link #standCape}), in pixels. */
+    public static float standingCapeZ(LivingEntity entity) {
+        return entity.getItemBySlot(EquipmentSlot.CHEST).isEmpty() ? 0.0F : -1.1F;
     }
 
     // --- models a layer draws (HumanoidArmorLayer, VillagerProfessionLayer, DrownedOuterLayer, ...) ---

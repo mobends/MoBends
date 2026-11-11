@@ -25,6 +25,10 @@ public final class BendsCapeRenderer {
     /** The strips, top to bottom; each is the box vanilla's cape has, one row of it. */
     private static final ModelPart.Cube[] SLABS = new ModelPart.Cube[SLAB_AMOUNT];
 
+    /** Vanilla's cape box, whole, for a cape that doesn't ripple. */
+    public static final ModelPart.Cube WHOLE = new ModelPart.Cube(0, 0, -MODEL_WIDTH / 2.0F, 0.0F, -MODEL_DEPTH, MODEL_WIDTH, MODEL_LENGTH,
+            MODEL_DEPTH, 0.0F, 0.0F, 0.0F, false, 64.0F, 32.0F, EnumSet.allOf(Direction.class));
+
     static {
         for (int i = 0; i < SLAB_AMOUNT; i++) {
             // Vanilla's cape is the box (-5, 0, -1) 10 x 16 x 1, at texture (0, 0) of 64 x 32.
@@ -57,6 +61,16 @@ public final class BendsCapeRenderer {
     public static void render(ModelPart cloak, float phase, PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay) {
         poseStack.pushPose();
         poseStack.translate(cloak.x / 16.0F, cloak.y / 16.0F, cloak.z / 16.0F);
+        forEachStrip(phase, poseStack, (strip, stack) -> VanillaDraw.compile(strip, stack.last(), consumer, packedLight, packedOverlay, -1));
+        poseStack.popPose();
+    }
+
+    /**
+     * Each strip of the cape rippled at {@code phase}, with {@code poseStack} in the frame it's drawn
+     * in, from the cape's top edge, where {@code poseStack} is.
+     */
+    public static void forEachStrip(float phase, PoseStack poseStack, StripVisitor visitor) {
+        poseStack.pushPose();
         for (int i = 0; i < SLAB_AMOUNT; i++) {
             float angle = angle(i, phase);
             // A strip turns about the edge it bends towards, so the strips don't cut into each
@@ -65,8 +79,13 @@ public final class BendsCapeRenderer {
             poseStack.translate(0.0F, (i == 0 ? 0 : SLAB_LENGTH) / 16.0F, hinge / 16.0F);
             VanillaDraw.rotate(poseStack, Axis.XP.rotationDegrees(angle));
             poseStack.translate(0.0F, 0.0F, -hinge / 16.0F);
-            VanillaDraw.compile(SLABS[i], poseStack.last(), consumer, packedLight, packedOverlay, -1);
+            visitor.visit(SLABS[i], poseStack);
         }
         poseStack.popPose();
+    }
+
+    @FunctionalInterface
+    public interface StripVisitor {
+        void visit(ModelPart.Cube strip, PoseStack poseStack);
     }
 }
