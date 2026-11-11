@@ -44,6 +44,8 @@ public class ItemEffects
     private final boolean snap;
     private final int[] dynamicSlots;
     private final Expression[] dynamicValues;
+    /** An {@code @default} given as an expression: evaluated every frame, for every slot the item writes. */
+    private final Expression dynamicDefault;
 
     /** @param scope Where the smoothing's expressions are compiled. */
     public ItemEffects(ExpressionScope scope, Skeleton skeleton, SmoothingTemplate smoothing, Map<String, IVectorSink.Mode> vectorModes, boolean snap) throws MalformedKumoTemplateException
@@ -115,14 +117,24 @@ public class ItemEffects
 
         List<String> dynNames = new ArrayList<>();
         List<Expression> dynValues = new ArrayList<>();
+        Expression dynFallback = null;
         if (smoothing != null)
         {
             for (Map.Entry<String, ExpressionTemplate> entry : smoothing.dynamic.entrySet())
             {
-                dynNames.add(entry.getKey());
-                dynValues.add(Expression.compile(entry.getValue(), scope, Expression.ONE));
+                Expression value = Expression.compile(entry.getValue(), scope, Expression.ONE);
+                if (SmoothingTemplate.DEFAULT.equals(entry.getKey()))
+                {
+                    dynFallback = value;
+                }
+                else
+                {
+                    dynNames.add(entry.getKey());
+                    dynValues.add(value);
+                }
             }
         }
+        dynamicDefault = dynFallback;
         dynamicSlots = new int[dynNames.size()];
         dynamicValues = new Expression[dynNames.size()];
         for (int k = 0; k < dynamicSlots.length; k++)
@@ -174,7 +186,7 @@ public class ItemEffects
 
     public boolean isEmpty()
     {
-        return smoothingSlots.length == 0 && defaultSmoothing == null && modeSlots.length == 0 && !snap && dynamicSlots.length == 0
+        return smoothingSlots.length == 0 && defaultSmoothing == null && dynamicDefault == null && modeSlots.length == 0 && !snap && dynamicSlots.length == 0
                 && rotationSlots.length == 0 && positionSlots.length == 0;
     }
 
@@ -183,16 +195,7 @@ public class ItemEffects
     {
         for (int i = 0; i < dynamicSlots.length; i++)
         {
-            float ticks = dynamicValues[i].get(context);
-            BoneTarget target = pose.get(dynamicSlots[i]);
-            int channels = positions ? POSITION : channels(dynamicSlots[i]);
-            if (Float.isNaN(ticks)) continue;
-            if (!skeleton.isEntityBone(dynamicSlots[i]) && positions) applyOffsetSmoothing(target, ticks);
-            else
-            {
-                if ((channels & ROTATION) != 0) target.smoothing = ticks;
-                if ((channels & POSITION) != 0) target.vectorSmoothing.set(ticks, ticks, ticks);
-            }
+            smooth(pose, dynamicSlots[i], dynamicValues[i].get(context));
         }
         if (snap)
         {
@@ -214,6 +217,14 @@ public class ItemEffects
             for (int slot : writtenSlots)
             {
                 smooth(pose, slot, defaultSmoothing);
+            }
+        }
+        if (dynamicDefault != null)
+        {
+            float ticks = dynamicDefault.get(context);
+            for (int slot : writtenSlots)
+            {
+                smooth(pose, slot, ticks);
             }
         }
         for (int i = 0; i < smoothingSlots.length; i++)
@@ -257,6 +268,21 @@ public class ItemEffects
         if (channels == BOTH) applySmoothing(target, value);
         else if (channels == ROTATION) applyRotationSmoothing(target, value);
         else applyVectorSmoothing(target, value);
+    }
+
+    /** As {@link #smooth(Pose, int, float[])}, with one smoothing for every channel; NaN changes nothing. */
+    private void smooth(Pose pose, int slot, float ticks)
+    {
+        if (Float.isNaN(ticks)) return;
+        BoneTarget target = pose.get(slot);
+        if (positions && !skeleton.isEntityBone(slot))
+        {
+            applyOffsetSmoothing(target, ticks);
+            return;
+        }
+        int channels = positions ? POSITION : channels(slot);
+        if ((channels & ROTATION) != 0) target.smoothing = ticks;
+        if ((channels & POSITION) != 0) target.vectorSmoothing.set(ticks, ticks, ticks);
     }
 
     /** As {@link #applySmoothing(BoneTarget, float[])}, for the rotation alone (its first value). */
