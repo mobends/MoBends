@@ -1,7 +1,7 @@
 {
   "formatVersion": 2,
   "@comment": "The zombie (and the husk, which shares its class): a biped whose body bends at the hips, with elbows and knees. Its entity scope: which of the two animation sets it has (the same on every client), and its walking style, picked at random every 4 to 5 seconds.",
-  "entity": "net.minecraft.entity.monster.EntityZombie",
+  "entity": ["minecraft:zombie", "minecraft:husk", "minecraft:drowned"],
   "model": "net.minecraft.client.model.ModelZombie",
   "animator": "mobends:bends/animators/zombie.json",
   "bones": [

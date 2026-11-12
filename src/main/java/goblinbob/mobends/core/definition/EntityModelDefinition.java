@@ -33,24 +33,19 @@ public class EntityModelDefinition {
     public static final int FORMAT_VERSION = 2;
 
     /**
-     * The entities it's for, one name or a list ({@code "entity": ["minecraft:fox", ...]}), each:
-     * <ul>
-     *   <li>a registry id ({@code minecraft:fox}, {@code mymod:my_mob}): the entities of that type
-     *   alone. Ids don't change between versions or loaders, so they name any mob, those added after
-     *   1.12 too;</li>
-     *   <li>a full class name: Minecraft's by its 1.12 name (see
-     *   {@link goblinbob.mobends.core.vanilla.VanillaNames}), another mod's by its own; the entities of
-     *   that class and its subclasses.</li>
-     * </ul>
-     * An entity any of them names is one of its. Names this version doesn't know (another version's
-     * mob, a mod that isn't installed) are skipped.
+     * The entity types it's for, by registry id, one or a list ({@code "entity": ["minecraft:zombie",
+     * "minecraft:husk"]}): the entities of those types alone, not of their subclasses. Ids don't
+     * change between loaders, and 1.12's are read as today's ({@code minecraft:zombie_pigman} is the
+     * zombified piglin, see {@link goblinbob.mobends.core.vanilla.VanillaNames#entityType}), so one
+     * file names a mob on every version. Ids this version doesn't have (another version's mob, a mod
+     * that isn't installed) are skipped.
      */
     @JsonAdapter(EntityNamesDeserializer.class)
     public List<String> entity;
 
     /**
-     * Optional: only models of this class (or a subclass) are bent. Minecraft's by its 1.12 name, as
-     * {@link #entity} is; another mod's by its full name, which loaders don't rename (see
+     * Optional: only models of this class (or a subclass) are bent. Minecraft's by its 1.12 name;
+     * another mod's by its full name, which loaders don't rename (see
      * {@link #modelClass()}).
      */
     public String model;
@@ -190,33 +185,21 @@ public class EntityModelDefinition {
     }
 
 
-    /** Whether {@code name}, one of {@link #entity}, is a registry id ({@code minecraft:fox}) rather than a class name. */
-    public static boolean isEntityId(String name) {
-        return name.indexOf(':') >= 0;
-    }
-
     /**
      * The key it has when it names none: from its first entity, as written, whether this version
-     * knows it or not: an id's ({@code fox}, {@code mymod/my_mob}), or 1.12's id of a Minecraft
-     * class ({@code zombie_pigman}), as 1.12 named it; null for another mod's class, which needs a
-     * {@code key}.
+     * has it or not ({@code fox}, {@code zombie_pigman}, {@code mymod/my_mob}), as 1.12 named it.
      */
-    @Nullable
     public String defaultKey() {
-        String first = entity.get(0);
-        String id = isEntityId(first) ? first : VanillaNames.legacyEntityId(first);
-        ResourceLocation location = id == null ? null : ResourceLocation.tryParse(id);
-        if (location == null) {
-            return null;
-        }
+        ResourceLocation location = ResourceLocation.tryParse(entity.get(0));
         return "minecraft".equals(location.getNamespace()) ? location.getPath() : location.getNamespace() + "/" + location.getPath();
     }
 
     public void validate() throws MalformedKumoTemplateException {
-        if (entity == null || entity.isEmpty()) throw new MalformedKumoTemplateException("A model definition needs an 'entity': a registry id or a class name, or a list of them.");
+        if (entity == null || entity.isEmpty()) throw new MalformedKumoTemplateException("A model definition needs an 'entity': a registry id, or a list of them.");
         for (String name : entity) {
-            if (name == null || name.isEmpty() || isEntityId(name) && ResourceLocation.tryParse(name) == null) {
-                throw new MalformedKumoTemplateException("'" + name + "' is no entity id or class name.");
+            if (name == null || name.indexOf(':') < 0 || ResourceLocation.tryParse(name) == null) {
+                throw new MalformedKumoTemplateException("'" + name + "' is no entity id: name the entity by its registry id"
+                        + " (minecraft:cow, mymod:my_mob), as entity classes aren't read anymore.");
             }
         }
         if (animator == null) throw new MalformedKumoTemplateException("A model definition needs an 'animator'.");

@@ -1,7 +1,7 @@
 {
   "formatVersion": 2,
   "@comment": "The squid: each tentacle cut into nine sections that curl one after another, hinged on their back edge. Its animator's clips turn every tentacle to where vanilla points it. Its entity scope reads the tentacle phase vanilla animates with.",
-  "entity": "net.minecraft.entity.passive.EntitySquid",
+  "entity": ["minecraft:squid", "minecraft:glow_squid"],
   "model": "net.minecraft.client.model.ModelSquid",
   "animator": "mobends:bends/animators/squid.json",
   "bones": [

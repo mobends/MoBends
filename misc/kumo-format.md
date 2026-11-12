@@ -1060,7 +1060,7 @@ From the definition the mod builds the data class (`DefinedEntityData`), the mut
 ```json
 {
   "formatVersion": 2,
-  "entity": "net.minecraft.entity.passive.EntityCow",
+  "entity": "minecraft:cow",
   "model": "net.minecraft.client.model.ModelQuadruped",
   "animator": "mobends:bends/animators/quadruped.json",
   "childScale": 0.5,
@@ -1087,7 +1087,7 @@ The chicken's definition also declares the values its animator reads, over the e
 |---|---|
 | `formatVersion` | `2` (the index, `{"formatVersion": 2, "models": [...]}`, has one too) |
 | `extends` | another model definition (`mobends:bends/models/zombie.json`) this one is, with its own on top: a bone of the same name replaces the other's where it stands and new ones come after; `@define` adds names (declaring one the other declares is an error); each `@on` list runs the other's statements first; `components`, `layers`, `childBones`, `smoothing`, `renderer` and `options` merge key by key; anything else is its own if it has it. The zombie villager and the zombie pigman extend the zombie, the wither skeleton the skeleton. A chain with a resource pack's file in it is untrusted |
-| `entity` | the entities it's for: a registry id (`minecraft:fox`), the entities of that type alone, or a class, those of that class and its subclasses (Minecraft's by its 1.12 name, a mod's by its full name); or a list of them (`["minecraft:zombie", "minecraft:husk"]`), any of which may name an entity. Names this version doesn't know are skipped (see *Field names*). `model` (optional) bends only models of that class and its subclasses, named as a class is |
+| `entity` | the entity types it's for, by registry id (`minecraft:fox`), the entities of that type alone (not its subclasses'); or a list of them (`["minecraft:zombie", "minecraft:husk"]`). 1.12's ids are read as today's (`minecraft:zombie_pigman` is the zombified piglin), and ids this version doesn't have are skipped (see *Field names*). A class name is a load error. `model` (optional) bends only models of that class and its subclasses (Minecraft's by its 1.12 name, a mod's by its full name) |
 | `animator` | the animator asset; `key` / `unlocalizedName` override the registry's |
 | `bones[].vanilla` | the model's part the bone takes over: `part` is its path in the model's part tree (`body/left_arm`), for any model; `field` is the model's field holding it, a vanilla model's by its 1.12 name, a mod's model's by its own (see *Field names* below), and `element` its index for array fields. `index` (1.12's position in the model's box list) is read but has nothing to stand for in the modern versions. |
 | `bones[].parent` | renders the bone inside another one; `position` is then relative to the parent. A stand-in takes the vanilla slot: it draws nothing, but what vanilla does through the field reaches the bone (its visibility, such as a player's skin-part toggles, and `postRender`, where vanilla attaches held items and hats) |
@@ -1157,11 +1157,12 @@ has are its own, and on Fabric they are renamed outside development, so a pack w
 version's names would work in one place and not another. Mods' names are their own, and loaders
 don't rename them. So:
 
-* **an entity** (`entity`) is named by its registry id (`minecraft:fox`, `mymod:my_mob`), which
-  no version or loader changes: the way to name a mob added after 1.12, which has no 1.12 name. Or
-  by its class: Minecraft's by its 1.12 name (`net.minecraft.entity.passive.EntityCow`), which
-  `VanillaNames` translates, which covers its subclasses as 1.12's did (`EntityZombie` the husk and
-  the drowned); another mod's by its full name. Mo' Bends 1.12.2 reads only a single class name.
+* **an entity** (`entity`) is named by its registry id (`minecraft:fox`, `mymod:my_mob`), which no
+  loader changes. Minecraft's by its 1.12 id where 1.12 had the mob (`minecraft:villager_golem`,
+  which `VanillaNames` renames to today's `minecraft:iron_golem`), so one file names it on every
+  version; a mob added since by today's. An id names that type alone: a definition for the zombie
+  that should bend the husk and the drowned lists them (`["minecraft:zombie", "minecraft:husk",
+  "minecraft:drowned"]`). Class names were read until 2.0.0-alpha.4, and are a load error now.
 * **a model** (`model`) is Minecraft's by its 1.12 name (`net.minecraft.client.model.ModelBiped`),
   which `VanillaNames` translates; another mod's by its full name
   (`com.example.mymod.client.MyMobModel`), loaded as is. A `net.minecraft.` name is never loaded as
@@ -1222,12 +1223,12 @@ Java addon is needed unless it brings its own operations or drivers.
 | `animator` | optional: the animator asset. Absent: the model's own animator |
 | `options` | optional: options the user sets in the Mo' Bends menu, which the type's animator reads as `option.x`, besides its model definition's (see *Options*) |
 
-A type applies to an entity only if its model fits the entity's class (the definition's
-`entity`): a type for a class never gives its model to another mob, whatever its selector says. A
-`vanilla` type fits any entity. Which entities get a model is the selector's to say: a definition
-for `EntityZombie` accepts the husk and the drowned, and Mo' Bends' zombie type names them
+A type applies to an entity only if its model is for the entity's type (the definition's
+`entity`): a type never gives its model to another mob, whatever its selector says. A `vanilla`
+type fits any entity. Which of those entities get the model is the selector's to say: Mo' Bends'
+zombie definition is for the zombie, the husk and the drowned, and its type names them
 (`{"core:entity_type": ["minecraft:zombie", "minecraft:husk", "minecraft:drowned"]}`). Another
-mod's subclass of a vanilla mob bends only if a type names it. To give a mob another model, a pack
+mod's subclass of a vanilla mob bends only if a definition and a type name it. To give a mob another model, a pack
 replaces its type (the same id) or adds one that takes precedence.
 
 **Model keys.** A model a type file names by path gets a **key**: the definition's namespace, and

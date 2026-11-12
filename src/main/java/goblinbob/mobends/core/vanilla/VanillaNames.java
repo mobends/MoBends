@@ -16,28 +16,12 @@ import net.minecraft.client.model.WitchModel;
 import net.minecraft.client.model.WolfModel;
 import net.minecraft.client.model.ZombieModel;
 import net.minecraft.client.model.ZombieVillagerModel;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Chicken;
-import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.IronGolem;
-import net.minecraft.world.entity.animal.MushroomCow;
-import net.minecraft.world.entity.animal.Pig;
-import net.minecraft.world.entity.animal.PolarBear;
-import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.entity.animal.Squid;
-import net.minecraft.world.entity.animal.Wolf;
-import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.entity.monster.Skeleton;
-import net.minecraft.world.entity.monster.Spider;
-import net.minecraft.world.entity.monster.Witch;
-import net.minecraft.world.entity.monster.WitherSkeleton;
-import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.entity.monster.ZombieVillager;
-import net.minecraft.world.entity.monster.ZombifiedPiglin;
-import net.minecraft.world.entity.npc.Villager;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -48,33 +32,18 @@ import java.util.function.ToDoubleFunction;
 
 /**
  * Translates the vanilla names packs write, which are Minecraft 1.12's (the pack format is shared by
- * every version), into this version's: an entity class name into the class, an entity id into
- * today's, a model class name into the class, a model's field into the name of its part in the
- * model tree ({@code ModelPart.getChild}), and an entity's field into what reads it now.
+ * every version), into this version's: an entity id into today's, a model class name into the
+ * class, a model's field into the name of its part in the model tree ({@code ModelPart.getChild}),
+ * and an entity's field into what reads it now.
  * <p>
  * The classes are written as class literals, not names: a loader can rename the game's classes at
  * runtime (Fabric does, outside development), and the literals are renamed with them.
- * <p>
- * What a 1.12 entity class stands for here covers the modern subclasses of the class it maps to,
- * as the 1.12 class covered its own: a definition for a class can bend every entity of a subclass,
- * and which entities get it is up to the selectors of the types that name it. So
- * {@code EntityZombie} (today's {@link Zombie}) can bend the husk, as it did in 1.12, and the
- * drowned, which is a zombie now, and Mo' Bends' zombie type names both; the zombie villager and the
- * zombified piglin have definitions of their own. {@code EntitySkeleton} is {@link Skeleton} alone:
- * the stray, the wither skeleton and the bogged are other subclasses of {@code AbstractSkeleton}, as
- * the stray and the wither skeleton were in 1.12. The wither skeleton has a definition of its own;
- * the stray and the bogged stay vanilla. {@code EntitySpider} can bend the cave spider too, as in
- * 1.12, and {@code EntitySquid} the glow squid, which is a squid now (both drawn with their parent's
- * model), and their types name them.
  * <p>
  * Each model's parts are mapped by where 1.12's model put them and what it drew there (read off
  * 1.12.2's classes), not by their names: 1.12's {@code ironGolemLeftLeg} stood on the golem's right,
  * which is today's {@code right_leg}.
  */
 public final class VanillaNames {
-    private static final Map<String, Class<?>> ENTITY_CLASSES = new HashMap<>();
-    /** A 1.12 entity class name to its 1.12 registry id, from which a definition's key is made. */
-    private static final Map<String, String> ENTITY_IDS = new HashMap<>();
     /** 1.12 entity ids that were renamed since, to today's. */
     private static final Map<String, String> RENAMED_ENTITY_IDS = new HashMap<>();
     private static final Map<String, Class<?>> MODEL_CLASSES = new HashMap<>();
@@ -110,30 +79,6 @@ public final class VanillaNames {
     }
 
     static {
-        entity("net.minecraft.client.entity.AbstractClientPlayer", AbstractClientPlayer.class, "minecraft:player");
-        entity("net.minecraft.entity.monster.EntityZombie", Zombie.class, "minecraft:zombie");
-        entity("net.minecraft.entity.monster.EntitySkeleton", Skeleton.class, "minecraft:skeleton");
-        entity("net.minecraft.entity.monster.EntityWitherSkeleton", WitherSkeleton.class, "minecraft:wither_skeleton");
-        entity("net.minecraft.entity.monster.EntityZombieVillager", ZombieVillager.class, "minecraft:zombie_villager");
-        // The zombie pigman is the zombified piglin now: a zombie still, drawn with PiglinModel (a
-        // PlayerModel; on 26.x a ZombifiedPiglinModel, which isn't one), which the pig zombie's
-        // definition names through variants for later versions.
-        entity("net.minecraft.entity.monster.EntityPigZombie", ZombifiedPiglin.class, "minecraft:zombie_pigman");
-        // The other mobs Mo' Bends ships definitions for (the animals' only in misc/dev-pack).
-        entity("net.minecraft.entity.monster.EntityCreeper", Creeper.class, "minecraft:creeper");
-        entity("net.minecraft.entity.monster.EntityIronGolem", IronGolem.class, "minecraft:villager_golem");
-        entity("net.minecraft.entity.passive.EntityVillager", Villager.class, "minecraft:villager");
-        entity("net.minecraft.entity.monster.EntityWitch", Witch.class, "minecraft:witch");
-        entity("net.minecraft.entity.monster.EntitySpider", Spider.class, "minecraft:spider");
-        entity("net.minecraft.entity.passive.EntitySquid", Squid.class, "minecraft:squid");
-        entity("net.minecraft.entity.passive.EntityWolf", Wolf.class, "minecraft:wolf");
-        entity("net.minecraft.entity.passive.EntityChicken", Chicken.class, "minecraft:chicken");
-        entity("net.minecraft.entity.passive.EntityCow", Cow.class, "minecraft:cow");
-        entity("net.minecraft.entity.passive.EntityPig", Pig.class, "minecraft:pig");
-        entity("net.minecraft.entity.passive.EntitySheep", Sheep.class, "minecraft:sheep");
-        entity("net.minecraft.entity.monster.EntityPolarBear", PolarBear.class, "minecraft:polar_bear");
-        entity("net.minecraft.entity.passive.EntityMooshroom", MushroomCow.class, "minecraft:mooshroom");
-
         // Living entities whose id changed in 1.13 (the flattening).
         RENAMED_ENTITY_IDS.put("minecraft:villager_golem", "minecraft:iron_golem");
         RENAMED_ENTITY_IDS.put("minecraft:zombie_pigman", "minecraft:zombified_piglin");
@@ -314,11 +259,6 @@ public final class VanillaNames {
     private VanillaNames() {
     }
 
-    private static void entity(String name, Class<?> modern, String id) {
-        ENTITY_CLASSES.put(name, modern);
-        ENTITY_IDS.put(name, id);
-    }
-
     private static void model(String name, Class<?> modern, @Nullable String superclass) {
         MODEL_CLASSES.put(name, modern);
         if (superclass != null) {
@@ -341,22 +281,6 @@ public final class VanillaNames {
 
     private static void bool(Class<?> owner, String field, Predicate<Object> reader) {
         ENTITY_FIELDS.put(owner.getName() + '#' + field, new EntityField(Expression.Type.BOOLEAN, reader::test, null));
-    }
-
-    /** The entity class a 1.12 class name stands for, or null if it isn't one this version knows. */
-    @Nullable
-    public static Class<?> entityClass(String name) {
-        return ENTITY_CLASSES.get(name);
-    }
-
-    /**
-     * The registry id 1.12 gave the entities of a 1.12 class (the zombie pigman's is
-     * {@code minecraft:zombie_pigman}), from which a definition without a key is named, as 1.12
-     * named it; or null if this version doesn't know the class.
-     */
-    @Nullable
-    public static String legacyEntityId(String name) {
-        return ENTITY_IDS.get(name);
     }
 
     /** Today's id of the entities a 1.12 entity id names (as a type file's selector writes it). */

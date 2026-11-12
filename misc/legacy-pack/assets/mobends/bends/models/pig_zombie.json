@@ -2,7 +2,7 @@
   "formatVersion": 2,
   "@comment": "The zombie pigman, which the Legacy pack leaves to the mod's animator: it extends the zombie, which the pack's head turns with the body, so its own head is the mod's, which doesn't.",
   "extends": "mobends:bends/models/zombie.json",
-  "entity": "net.minecraft.entity.monster.EntityPigZombie",
+  "entity": "minecraft:zombie_pigman",
   "animator": "mobends:bends/animators/pig_zombie.json",
   "bones": [
     {"name": "head", "vanilla": {"field": "bipedHead"}, "parent": "body", "inheritRotation": false}

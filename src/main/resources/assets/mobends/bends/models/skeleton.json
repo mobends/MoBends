@@ -1,7 +1,7 @@
 {
   "formatVersion": 2,
   "@comment": "The skeleton: thin limbs that turn where vanilla's do, with elbows and knees; the head doesn't turn with the body.",
-  "entity": "net.minecraft.entity.monster.EntitySkeleton",
+  "entity": "minecraft:skeleton",
   "model": "net.minecraft.client.model.ModelSkeleton",
   "animator": "mobends:bends/animators/skeleton.json",
   "bones": [

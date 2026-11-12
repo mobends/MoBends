@@ -6,6 +6,7 @@ import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.util.Ids;
 import goblinbob.mobends.core.vanilla.VanillaNames;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -14,7 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -82,10 +83,8 @@ public final class DefinedEntities {
         private final IEntityDataFactory<LivingEntity> dataFactory;
         @Nullable
         private EntityModelDefinition definition;
-        /** The classes its definition names that this version knows, until the next reload. */
-        private List<Class<?>> classes = List.of();
-        /** The entity types its definition names by id that this version knows, until the next reload. */
-        private Set<ResourceLocation> types = Set.of();
+        /** Today's ids of the entity types its definition names that this version has, in its order, until the next reload. */
+        private List<ResourceLocation> types = List.of();
         @Nullable
         private String key;
         /** Whether the definition failed to load (logged once), until the next reload. */
@@ -108,22 +107,12 @@ public final class DefinedEntities {
             return dataFactory;
         }
 
-        /** The definition; only called once {@link #entityClass()} or {@link #key()} has loaded it. */
+        /** The definition; only called once {@link #key()} or {@link #entityTypes()} has loaded it. */
         public EntityModelDefinition definition() {
             if (definition == null) {
                 throw new IllegalStateException("The model definition " + location + " isn't loaded.");
             }
             return definition;
-        }
-
-        /**
-         * The first entity class the definition names by class name, or null if it names none this
-         * version has (or names its entities by id alone) or can't be loaded.
-         */
-        @Nullable
-        public Class<?> entityClass() {
-            ensureLoaded();
-            return classes.isEmpty() ? null : classes.get(0);
         }
 
         /**
@@ -139,37 +128,25 @@ public final class DefinedEntities {
         }
 
         /**
-         * Today's id of the first entity type its definition names that this version knows: by id,
-         * or by one of Minecraft's 1.12 classes ({@code minecraft:zombified_piglin}); null if there's
-         * none (it names another mod's classes alone) or the definition can't be loaded.
+         * Today's ids of the entity types its definition names that this version has, in the order
+         * it names them ({@code minecraft:zombified_piglin} for 1.12's {@code minecraft:zombie_pigman});
+         * empty if the definition can't be loaded.
          */
-        @Nullable
-        public ResourceLocation entityTypeId() {
+        public List<ResourceLocation> entityTypes() {
             ensureLoaded();
-            if (definition == null) {
-                return null;
-            }
-            for (String name : definition.entity) {
-                ResourceLocation id = idNamedBy(name);
-                if (id != null) {
-                    return id;
-                }
-            }
-            return null;
+            return types;
         }
 
-        /** Whether it can animate {@code entity}: of a type it names by id, or an instance of a class it names. */
+        /** The first of {@link #entityTypes()}, or null if the definition can't be loaded. */
+        @Nullable
+        public ResourceLocation entityTypeId() {
+            List<ResourceLocation> named = entityTypes();
+            return named.isEmpty() ? null : named.get(0);
+        }
+
+        /** Whether it can animate {@code entity}: of an entity type it names. */
         public boolean animates(LivingEntity entity) {
-            ensureLoaded();
-            if (!types.isEmpty() && types.contains(typeIdOf(entity))) {
-                return true;
-            }
-            for (Class<?> type : classes) {
-                if (type.isInstance(entity)) {
-                    return true;
-                }
-            }
-            return false;
+            return entityTypes().contains(typeIdOf(entity));
         }
 
         /**
@@ -205,62 +182,21 @@ public final class DefinedEntities {
 
         private void loadOrThrow() throws Exception {
             EntityModelDefinition loaded = ModelDefinitions.INSTANCE.load(location);
-            List<Class<?>> knownClasses = new ArrayList<>();
-            Set<ResourceLocation> knownTypes = new HashSet<>();
+            // Today's ids (1.12's renamed), those this version has (another version's mob, or a mod
+            // that isn't installed, is skipped), each once.
+            Set<ResourceLocation> known = new LinkedHashSet<>();
             for (String name : loaded.entity) {
-                if (EntityModelDefinition.isEntityId(name)) {
-                    ResourceLocation id = idNamedBy(name);
-                    if (id != null && BuiltInRegistries.ENTITY_TYPE.containsKey(id)) {
-                        knownTypes.add(id);
-                    }
-                } else {
-                    Class<?> type = entityClassOf(name);
-                    if (type != null) {
-                        knownClasses.add(type);
-                    }
+                ResourceLocation id = VanillaNames.entityType(Ids.parse(name));
+                if (BuiltInRegistries.ENTITY_TYPE.containsKey(id)) {
+                    known.add(id);
                 }
             }
-            if (knownClasses.isEmpty() && knownTypes.isEmpty()) {
-                throw new MalformedKumoTemplateException("its entity " + String.join(", ", loaded.entity) + " is no living entity this version knows.");
-            }
-            String name = loaded.key != null ? loaded.key : loaded.defaultKey();
-            if (name == null) {
-                throw new MalformedKumoTemplateException("it needs a 'key': its entity " + loaded.entity.get(0) + " isn't one of Minecraft's.");
+            if (known.isEmpty()) {
+                throw new MalformedKumoTemplateException("its entity " + String.join(", ", loaded.entity) + " is no entity type this version has.");
             }
             definition = loaded;
-            classes = List.copyOf(knownClasses);
-            types = Set.copyOf(knownTypes);
-            key = namespace + ":" + name;
-        }
-
-        /**
-         * Today's id of the entity type {@code name} (one of a definition's entities) names: an id,
-         * renamed if 1.12 had it under another, or one of Minecraft's 1.12 classes; null otherwise.
-         */
-        @Nullable
-        private static ResourceLocation idNamedBy(String name) {
-            String id = EntityModelDefinition.isEntityId(name) ? name : VanillaNames.legacyEntityId(name);
-            ResourceLocation location = id == null ? null : ResourceLocation.tryParse(id);
-            return location == null ? null : VanillaNames.entityType(location);
-        }
-
-        /**
-         * The living entity class a definition's entity names: one of Minecraft's by its 1.12 name,
-         * through {@link VanillaNames}; another mod's by its own name, which loaders don't rename;
-         * null if this version has none.
-         */
-        @Nullable
-        private static Class<?> entityClassOf(String name) {
-            Class<?> type = VanillaNames.entityClass(name);
-            if (type == null && !name.startsWith("net.minecraft.")) {
-                try {
-                    // Without initialising it: a resource pack may name any class.
-                    type = Class.forName(name, false, DefinedEntities.class.getClassLoader());
-                } catch (ClassNotFoundException | LinkageError e) {
-                    type = null;
-                }
-            }
-            return type != null && LivingEntity.class.isAssignableFrom(type) ? type : null;
+            types = List.copyOf(known);
+            key = namespace + ":" + (loaded.key != null ? loaded.key : loaded.defaultKey());
         }
     }
 }

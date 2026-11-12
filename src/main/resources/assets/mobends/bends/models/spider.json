@@ -1,7 +1,7 @@
 {
   "formatVersion": 2,
   "@comment": "The spider: legs of two segments, each half of vanilla's leg texture stretched to 12 units (so they reach the ground as the leg drivers place the feet). The legs component is where the feet are planted; the entity scope turns the body against the wall it climbs.",
-  "entity": "net.minecraft.entity.monster.EntitySpider",
+  "entity": ["minecraft:spider", "minecraft:cave_spider"],
   "model": "net.minecraft.client.model.ModelSpider",
   "animator": "mobends:bends/animators/spider.json",
   "bones": [

@@ -11,7 +11,6 @@ import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.types.EntityTypeDefinition;
-import goblinbob.mobends.core.vanilla.VanillaNames;
 import goblinbob.mobends.lab.sim.EntityInputs;
 import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.KumoSession;
@@ -21,13 +20,27 @@ import goblinbob.mobends.lab.sim.ScriptedEntity;
 import goblinbob.mobends.lab.sim.VanillaModelInputs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.animal.MushroomCow;
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.world.entity.animal.Sheep;
+import net.minecraft.world.entity.animal.Squid;
+import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.Spider;
+import net.minecraft.world.entity.monster.Witch;
+import net.minecraft.world.entity.monster.WitherSkeleton;
 import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.entity.monster.ZombieVillager;
+import net.minecraft.world.entity.monster.ZombifiedPiglin;
+import net.minecraft.world.entity.npc.Villager;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
@@ -42,6 +55,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -111,27 +125,40 @@ public class DefinedModelsTest
         return models;
     }
 
-    /**
-     * An entity of the definition's class, which its entity scope reads; a zombie when the class has
-     * no stub here (any living entity will do then, as long as the scope reads no field).
-     */
-    /** An entity of the class the definition is for (named as 1.12 named it), added to {@code world}; a zombie for a class the stand-ins don't have. */
-    static LivingEntity entityOf(EntityModelDefinition definition, ClientLevel world) throws Exception
+    /** The stand-ins' entities, by the (1.12) id a definition names them by. */
+    private static final Map<String, Function<ClientLevel, LivingEntity>> ENTITIES = new HashMap<>();
+
+    static
     {
-        Class<?> type = VanillaNames.entityClass(definition.entity.get(0));
-        LivingEntity entity;
-        if (type == null)
-        {
-            entity = new Zombie(world);
-        }
-        else if (type == AbstractClientPlayer.class)
-        {
-            entity = new LocalPlayer(world);
-        }
-        else
-        {
-            entity = (LivingEntity) type.getConstructor(Level.class).newInstance(world);
-        }
+        ENTITIES.put("minecraft:player", LocalPlayer::new);
+        ENTITIES.put("minecraft:zombie", Zombie::new);
+        ENTITIES.put("minecraft:zombie_villager", ZombieVillager::new);
+        ENTITIES.put("minecraft:zombie_pigman", ZombifiedPiglin::new);
+        ENTITIES.put("minecraft:skeleton", net.minecraft.world.entity.monster.Skeleton::new);
+        ENTITIES.put("minecraft:wither_skeleton", WitherSkeleton::new);
+        ENTITIES.put("minecraft:creeper", Creeper::new);
+        ENTITIES.put("minecraft:villager_golem", IronGolem::new);
+        ENTITIES.put("minecraft:villager", Villager::new);
+        ENTITIES.put("minecraft:witch", Witch::new);
+        ENTITIES.put("minecraft:spider", Spider::new);
+        ENTITIES.put("minecraft:squid", Squid::new);
+        ENTITIES.put("minecraft:wolf", Wolf::new);
+        ENTITIES.put("minecraft:chicken", Chicken::new);
+        ENTITIES.put("minecraft:cow", Cow::new);
+        ENTITIES.put("minecraft:pig", Pig::new);
+        ENTITIES.put("minecraft:sheep", Sheep::new);
+        ENTITIES.put("minecraft:polar_bear", PolarBear::new);
+        ENTITIES.put("minecraft:mooshroom", MushroomCow::new);
+    }
+
+    /**
+     * An entity of the first type the definition is for, which its entity scope reads, added to
+     * {@code world}; a zombie when the stand-ins don't have it (any living entity will do then, as
+     * long as the scope reads no field).
+     */
+    static LivingEntity entityOf(EntityModelDefinition definition, ClientLevel world)
+    {
+        LivingEntity entity = ENTITIES.getOrDefault(definition.entity.get(0), Zombie::new).apply(world);
         world.addEntity(entity);
         return entity;
     }

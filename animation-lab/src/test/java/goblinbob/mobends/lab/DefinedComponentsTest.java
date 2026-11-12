@@ -110,7 +110,7 @@ public class DefinedComponentsTest
     @Test
     void aComponentCannotTakeABonesName()
     {
-        String json = "{\"formatVersion\": 2, \"entity\": \"x.Y\", \"animator\": \"a:b.json\","
+        String json = "{\"formatVersion\": 2, \"entity\": \"x:y\", \"animator\": \"a:b.json\","
                 + " \"bones\": [{\"name\": \"head\"}], \"components\": {\"head\": \"core:orientation\"}}";
         MalformedKumoTemplateException e = assertThrows(MalformedKumoTemplateException.class,
                 () -> ModelDefinitions.parse(new JsonParser().parse(json)));
