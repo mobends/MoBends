@@ -27,7 +27,7 @@ public class DefinedPositionsTest
 
     private static EntityModelDefinition definition(String extra) throws MalformedKumoTemplateException
     {
-        return ModelDefinitions.parse(new JsonParser().parse("{\"formatVersion\": 2, \"entity\": \"x.Y\", \"animator\": \"a:b.json\","
+        return ModelDefinitions.parse(new JsonParser().parse("{\"formatVersion\": 2, \"entity\": \"x:y\", \"animator\": \"a:b.json\","
                 + " \"bones\": [{\"name\": \"body\"}, {\"name\": \"arm\", \"parent\": \"body\"}]" + extra + "}"));
     }
 

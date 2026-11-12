@@ -76,14 +76,14 @@ mobs. The selector says which entities get the model: list every entity type of 
 `misc/kumo-format.md`.
 
 The definition names your entity by its
-registry id (`mymod:my_mob`) or its full class name (which also covers its subclasses), your model
-by its full class name, which loaders don't rename, and each bone's part by its path in your
+registry id (`mymod:my_mob`, and every other entity type of yours it's for), your model by its full
+class name, which loaders don't rename, and each bone's part by its path in your
 model's part tree (the names you gave `addOrReplaceChild`), or by your model's `ModelPart` field:
 
 ```json
 {
   "formatVersion": 2,
-  "entity": "com.example.mymod.entity.MyMob",
+  "entity": "mymod:my_mob",
   "model": "com.example.mymod.client.MyMobModel",
   "animator": "mymod:bends/animators/my_mob.json",
   "bones": [

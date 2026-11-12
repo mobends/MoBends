@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- A model definition names its entities by registry id only (`"entity": "minecraft:cow"`), 1.12's
+  where 1.12 had the mob (`minecraft:zombie_pigman`), which is read as today's. A class name is a
+  load error. An id names that entity type alone, so Mo' Bends' zombie definition lists the husk
+  and the drowned, its spider the cave spider and its squid the glow squid. Keys are unchanged.
+
 ## 2.0.0-alpha.4
 
 The first Mo' Bends for Minecraft 1.20.1 (Forge and Fabric) and 26.3 (Fabric and NeoForge),

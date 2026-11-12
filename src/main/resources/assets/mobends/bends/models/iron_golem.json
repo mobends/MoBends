@@ -1,7 +1,7 @@
 {
   "formatVersion": 2,
   "@comment": "ModelIronGolem: arms pivot at the shoulder with their boxes offset sideways; both arms and legs get a middle joint.",
-  "entity": "net.minecraft.entity.monster.EntityIronGolem",
+  "entity": "minecraft:villager_golem",
   "model": "net.minecraft.client.model.ModelIronGolem",
   "animator": "mobends:bends/animators/iron_golem.json",
   "childScale": 1.0,

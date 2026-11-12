@@ -1,7 +1,7 @@
 {
   "formatVersion": 2,
   "@comment": "The sheep: a quadruped with knees, as the cow. Its wool is a copy of the model the wool layer draws, animated as the sheep is.",
-  "entity": "net.minecraft.entity.passive.EntitySheep",
+  "entity": "minecraft:sheep",
   "model": "net.minecraft.client.model.ModelQuadruped",
   "animator": "mobends:bends/animators/quadruped.json",
   "childScale": 0.5,

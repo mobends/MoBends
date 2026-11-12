@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
-  "entity": "net.minecraft.entity.passive.EntityVillager",
+  "entity": "minecraft:villager",
   "model": "net.minecraft.client.model.ModelVillager",
   "animator": "mobends:bends/animators/villager.json",
   "bones": [

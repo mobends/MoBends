@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
-  "entity": "net.minecraft.entity.monster.EntityWitch",
+  "entity": "minecraft:witch",
   "model": "net.minecraft.client.model.ModelWitch",
   "animator": "mobends:bends/animators/villager.json",
   "bones": [

@@ -11,15 +11,11 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * A model definition's {@code entity}: one name or a list, each a registry id or a class name
- * ({@link EntityModelDefinition#entity}), and the key made from the first
- * ({@link EntityModelDefinition#defaultKey()}).
+ * A model definition's {@code entity}: one registry id or a list ({@link EntityModelDefinition#entity}),
+ * and the key made from the first ({@link EntityModelDefinition#defaultKey()}).
  */
 class EntityNamesTest
 {
@@ -34,22 +30,20 @@ class EntityNamesTest
     void oneNameIsAListOfOne() throws Exception
     {
         assertEquals(List.of("minecraft:fox"), definition("\"minecraft:fox\"").entity);
-        assertEquals(List.of("net.minecraft.entity.passive.EntityCow"), definition("\"net.minecraft.entity.passive.EntityCow\"").entity);
     }
 
     @Test
     void aListKeepsItsOrder() throws Exception
     {
-        assertEquals(List.of("minecraft:zombie", "minecraft:husk", "com.example.Mob"),
-                definition("[\"minecraft:zombie\", \"minecraft:husk\", \"com.example.Mob\"]").entity);
+        assertEquals(List.of("minecraft:zombie", "minecraft:husk", "mymod:my_mob"),
+                definition("[\"minecraft:zombie\", \"minecraft:husk\", \"mymod:my_mob\"]").entity);
     }
 
     @Test
-    void idsAreToldFromClassNames()
+    void classNamesAreRefused()
     {
-        assertTrue(EntityModelDefinition.isEntityId("minecraft:fox"));
-        assertTrue(EntityModelDefinition.isEntityId("mymod:my_mob"));
-        assertFalse(EntityModelDefinition.isEntityId("net.minecraft.entity.passive.EntityCow"));
+        assertThrows(MalformedKumoTemplateException.class, () -> definition("\"net.minecraft.entity.passive.EntityCow\""));
+        assertThrows(MalformedKumoTemplateException.class, () -> definition("[\"minecraft:cow\", \"com.example.Mob\"]"));
     }
 
     @Test
@@ -57,10 +51,8 @@ class EntityNamesTest
     {
         assertEquals("fox", definition("[\"minecraft:fox\", \"minecraft:wolf\"]").defaultKey());
         assertEquals("mymod/my_mob", definition("\"mymod:my_mob\"").defaultKey());
-        // A 1.12 class keeps 1.12's id, as 1.12 named it.
-        assertEquals("zombie_pigman", definition("\"net.minecraft.entity.monster.EntityPigZombie\"").defaultKey());
-        // Another mod's class has no id: its definition needs a key.
-        assertNull(definition("\"com.example.Mob\"").defaultKey());
+        // 1.12's id, as written, as 1.12 named it (not today's zombified_piglin).
+        assertEquals("zombie_pigman", definition("\"minecraft:zombie_pigman\"").defaultKey());
     }
 
     @Test

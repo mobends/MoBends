@@ -76,7 +76,7 @@ public class DefinitionExtendsTest
         assertEquals(skeleton.animator, wither.animator);
         assertEquals(skeleton.allBoneNames(), wither.allBoneNames());
         assertEquals(skeleton.layers.keySet(), wither.layers.keySet());
-        assertEquals(java.util.Collections.singletonList("net.minecraft.entity.monster.EntityWitherSkeleton"), wither.entity);
+        assertEquals(java.util.Collections.singletonList("minecraft:wither_skeleton"), wither.entity);
         assertTrue(wither.trusted);
     }
 

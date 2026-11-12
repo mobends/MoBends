@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
-  "entity": "net.minecraft.entity.passive.EntityChicken",
+  "entity": "minecraft:chicken",
   "model": "net.minecraft.client.model.ModelChicken",
   "animator": "mobends:bends/animators/chicken.json",
   "bones": [

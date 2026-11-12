@@ -1,7 +1,7 @@
 {
   "formatVersion": 2,
   "@comment": "The wolf: its body lies along Z with its texture turned to fit (vanilla turns the whole part instead), so its legs, mane and tail hang from it as the animator expects; the head turns where vanilla's does (1 px left of its middle), and the legs and tail sit where vanilla's do; the nose, mouth, tongue and ears are bones of their own. Vanilla draws a pup's head outside its half-size body, so the head is drawn alone, at half the offsets, and moved to where vanilla draws it.",
-  "entity": "net.minecraft.entity.passive.EntityWolf",
+  "entity": "minecraft:wolf",
   "model": "net.minecraft.client.model.ModelWolf",
   "animator": "mobends:bends/animators/wolf.json",
   "bones": [
