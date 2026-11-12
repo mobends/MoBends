@@ -167,9 +167,12 @@ node is in *Choosing the node*.
     it.
   * The entity's own bones, `root` and `center`, are written at rest: vanilla draws its parts in
     the entity's frame, so what the layers below move it by (the wolf's sitting lowers `root`)
-    would move the pose twice. Vanilla's own turns of the whole entity (dying, sleeping, gliding)
-    stay, as they do under any node; a player's swimming tilt, which Mo' Bends leaves to the
-    animator's `root` in water, is lost.
+    would move the pose twice. The whole entity is then drawn as vanilla draws it: what Mo' Bends
+    does in place of vanilla for the animator is left out (a definition's `renderer.sneakOffset`
+    and 1.12's sneaking drop, a swimming player's drop) and vanilla's own turns stay (a player's
+    swimming tilt, an iron golem's walking rock with `renderer.undoVanillaRock`, besides dying,
+    sleeping and gliding, as under any node). While the node leaves `root` and `center` out
+    (`bones`), the animator keeps the entity's frame.
   * `bones` lists the bones it takes, `root` and `center` included; by default, every bone the
     animator names anywhere (any layer, its extensions' included), which for the shipped animators
     is every bone that moves.
@@ -177,7 +180,8 @@ node is in *Choosing the node*.
     in the animation lab, and on Minecraft before 26.1 for now (see below).
   * Not carried over: a vanilla part's scale, and what a mod draws outside the model's parts
     (Player Animation Library's whole-body `body` bone, which turns the entity's frame, is lost).
-    A definition's `renderer.sneakOffset` still raises a sneaking player.
+    The switch to vanilla's frame isn't blended: a layer's `@fade` into or out of the node blends
+    the bones, but the swimming tilt or the sneak offset comes and goes at once.
 
   The example pack `misc/examples/vanilla-pose-extension` bends Player Animation Library's poses
   while it plays something on the player.

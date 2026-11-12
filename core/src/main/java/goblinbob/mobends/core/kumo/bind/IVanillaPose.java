@@ -23,4 +23,14 @@ public interface IVanillaPose
      */
     boolean read(String bone, Quaternion rotation, Vec3f offset);
 
+    /**
+     * Told that the entity's own bones ({@code root}, {@code center}) were put at rest for this pose:
+     * the entity's frame is vanilla's this frame. Whatever the host does to the whole entity in place
+     * of vanilla, for the animator to do instead (a swimming tilt, a sneaking offset), it leaves to
+     * vanilla.
+     */
+    default void onEntityFrameLeftToVanilla()
+    {
+    }
+
 }

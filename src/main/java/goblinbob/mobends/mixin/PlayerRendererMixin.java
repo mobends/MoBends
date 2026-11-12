@@ -43,7 +43,7 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
     )
     private float mobends$noSwimTiltWhenBent(AvatarRenderState state, Operation<Float> original) {
         DefinedEntityData<?> bent = ((BentRenderState) state).mobends$bent();
-        if (bent != null && DefinedRenderer.replacesSwimmingTilt(bent.getEntity())) {
+        if (bent != null && DefinedRenderer.replacesSwimmingTilt(bent)) {
             return 0.0F;
         }
         return original.call(state);
@@ -54,6 +54,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import goblinbob.mobends.core.client.BendingEntityRenderer;
 import goblinbob.mobends.core.client.definition.DefinedRenderer;
+import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.standard.client.renderer.entity.layers.PlayerAccessoriesLayer;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -98,7 +99,8 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;getSwimAmount(F)F")
     )
     private float mobends$noSwimTiltWhenBent(AbstractClientPlayer player, float partialTicks, Operation<Float> original) {
-        if (DefinedRenderer.replacesSwimmingTilt(player) && ((BendingEntityRenderer) this).mobends$bentData() != null) {
+        DefinedEntityData<?> bent = ((BendingEntityRenderer) this).mobends$bentData();
+        if (bent != null && DefinedRenderer.replacesSwimmingTilt(bent)) {
             return 0.0F;
         }
         return original.call(player, partialTicks);

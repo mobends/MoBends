@@ -12,7 +12,8 @@ import javax.annotation.Nullable;
  * has ({@link IVanillaPose}) as that pose has it, its rotation and offset replacing what lies
  * beneath. A bone it has no pose for is left alone. The entity's own bones ({@code root},
  * {@code center}), which the vanilla model draws nothing of (its parts are drawn in the entity's
- * frame), are put at rest, once any bone has a pose.
+ * frame), are put at rest, once any bone has a pose, and the entity's frame is left to vanilla
+ * ({@link IVanillaPose#onEntityFrameLeftToVanilla}).
  */
 public class VanillaPoseItem implements IPoseItem
 {
@@ -59,6 +60,7 @@ public class VanillaPoseItem implements IPoseItem
         }
         // Vanilla's parts are drawn in the entity's frame: nothing of the animator's own moves it.
         rotation.setIdentity();
+        boolean atRest = false;
         for (int i = 0; i < count; i++)
         {
             int slot = bones != null ? bones[i] : i;
@@ -66,7 +68,12 @@ public class VanillaPoseItem implements IPoseItem
             {
                 pose.composeRotation(slot, rotation, Pose.Space.OVERRIDE);
                 pose.composeVector(slot, 0, 0, 0, Pose.Space.OVERRIDE);
+                atRest = true;
             }
+        }
+        if (atRest)
+        {
+            vanilla.onEntityFrameLeftToVanilla();
         }
     }
 

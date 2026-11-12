@@ -320,11 +320,16 @@ public abstract class EntityData<E extends Entity> implements IKumoSubject {
             return false;
         }
         animatedFrame = DataUpdateHandler.frame;
+        beforeAnimate();
         if (animator == null) {
             animator = new KumoAnimatorController(getEntityScope(), getDefaultAnimator());
         }
         animator.animate(this);
         return true;
+    }
+
+    /** Just before the animator runs, once a frame (a draw after it in the same frame doesn't animate again). */
+    protected void beforeAnimate() {
     }
 
     /** True when the entity's animator asks for the vanilla model and animation right now (a {@code core:vanilla} node). */

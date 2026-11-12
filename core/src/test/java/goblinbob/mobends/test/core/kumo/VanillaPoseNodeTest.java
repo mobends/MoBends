@@ -21,6 +21,13 @@ public class VanillaPoseNodeTest
         final Map<String, Quaternion> rotations = new HashMap<>();
         final Map<String, Vec3f> offsets = new HashMap<>();
         int reads;
+        int framesLeftToVanilla;
+
+        @Override
+        public void onEntityFrameLeftToVanilla()
+        {
+            framesLeftToVanilla++;
+        }
 
         FakeVanillaPose put(String bone, Quaternion rotation, float x, float y, float z)
         {
@@ -208,6 +215,7 @@ public class VanillaPoseNodeTest
         animator.update(subject, 1F);
 
         assertVector(0, 0, 0, subject.root.position.end);
+        assertEquals(1, ((FakeVanillaPose) subject.vanillaPose).framesLeftToVanilla);
     }
 
     @Test
@@ -220,6 +228,7 @@ public class VanillaPoseNodeTest
         animator.update(subject, 1F);
 
         assertVector(3, 0, 0, subject.root.position.end);
+        assertEquals(0, ((FakeVanillaPose) subject.vanillaPose).framesLeftToVanilla);
     }
 
     @Test
@@ -232,6 +241,8 @@ public class VanillaPoseNodeTest
         animator.update(subject, 1F);
 
         assertVector(3, 0, 0, subject.root.position.end);
+        // The animator keeps the entity's frame.
+        assertEquals(0, ((FakeVanillaPose) subject.vanillaPose).framesLeftToVanilla);
     }
 
     @Test

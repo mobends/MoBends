@@ -129,6 +129,11 @@ public final class VanillaPoseReader implements IVanillaPose {
         return true;
     }
 
+    @Override
+    public void onEntityFrameLeftToVanilla() {
+        data.setEntityFrameLeftToVanilla(true);
+    }
+
     private void solve(DefinedModel model) {
         if (solvedFor != model) {
             byPart.clear();

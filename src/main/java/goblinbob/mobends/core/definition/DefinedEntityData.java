@@ -43,6 +43,8 @@ public class DefinedEntityData<E extends LivingEntity> extends LivingEntityData<
     /** Whatever the renderer keeps to read it with, from one frame to the next (see {@link #getVanillaPoseSource}). */
     @Nullable
     private Object vanillaPoseSource;
+    /** Whether this frame's animation left the entity's frame to vanilla (see {@link #isEntityFrameLeftToVanilla}). */
+    private boolean entityFrameLeftToVanilla;
 
     public DefinedEntityData(EntityModelDefinition definition, E entity) {
         super(entity);
@@ -188,6 +190,28 @@ public class DefinedEntityData<E extends LivingEntity> extends LivingEntityData<
 
     public void setVanillaPoseSource(@Nullable Object source) {
         this.vanillaPoseSource = source;
+    }
+
+    /**
+     * Whether this frame's animation left the entity's frame to vanilla: a {@code core:vanilla_pose}
+     * node put {@code root} and {@code center} at rest, so the renderer draws the whole entity as
+     * vanilla does (its swimming tilt, its rock), without what it does in their place for the
+     * animator (the definition's sneak offset, the drop of a swimming player).
+     */
+    public boolean isEntityFrameLeftToVanilla() {
+        return entityFrameLeftToVanilla;
+    }
+
+    public void setEntityFrameLeftToVanilla(boolean entityFrameLeftToVanilla) {
+        this.entityFrameLeftToVanilla = entityFrameLeftToVanilla;
+    }
+
+    @Override
+    protected void beforeAnimate() {
+        super.beforeAnimate();
+        // Set again by this frame's animation, if it leaves the frame to vanilla; kept through any
+        // draw after it in the same frame, which doesn't animate again.
+        entityFrameLeftToVanilla = false;
     }
 
     public boolean hasAdoptedPositionsOf(Object source) {
