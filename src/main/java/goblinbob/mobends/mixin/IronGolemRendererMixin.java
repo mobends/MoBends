@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.injection.At;
 /^*
  * Keeps vanilla's walking rock (a turn about Z on a triangle wave of the limb swing) off a bent iron
  * golem whose definition asks for it ({@code renderer.undoVanillaRock}), so the animator has the whole
- * model to itself (not while its animation leaves the entity's frame to vanilla,
- * {@link DefinedEntityData#isEntityFrameLeftToVanilla}). 1.12 turned the model back by as much just
+ * model to itself (only as far as its animation doesn't leave the entity's frame to vanilla,
+ * {@link DefinedEntityData#getEntityFrameVanilla}). 1.12 turned the model back by as much just
  * before vanilla turned it; here the turn is left out.
  ^/
 @Mixin(IronGolemRenderer.class)
@@ -29,7 +29,9 @@ public abstract class IronGolemRendererMixin {
     private void mobends$leaveRockOut(PoseStack poseStack, Axis axis, float degrees, Operation<Void> original,
                                       @Local(argsOnly = true) IronGolemRenderState state) {
         DefinedEntityData<?> bent = ((BentRenderState) state).mobends$bent();
-        if (bent != null && bent.getDefinition().renderer.undoVanillaRock && !bent.isEntityFrameLeftToVanilla()) {
+        if (bent != null && bent.getDefinition().renderer.undoVanillaRock) {
+            // As far as the frame is left to vanilla, vanilla's rock shows.
+            original.call(poseStack, axis, degrees * bent.getEntityFrameVanilla());
             return;
         }
         original.call(poseStack, axis, degrees);
@@ -49,8 +51,8 @@ import org.spongepowered.asm.mixin.injection.At;
 /**
  * Keeps vanilla's walking rock (a turn about Z on a triangle wave of the limb swing) off a bent iron
  * golem whose definition asks for it ({@code renderer.undoVanillaRock}), so the animator has the whole
- * model to itself (not while its animation leaves the entity's frame to vanilla,
- * {@link DefinedEntityData#isEntityFrameLeftToVanilla}). 1.12 turned the model back by as much just
+ * model to itself (only as far as its animation doesn't leave the entity's frame to vanilla,
+ * {@link DefinedEntityData#getEntityFrameVanilla}). 1.12 turned the model back by as much just
  * before vanilla turned it; here the turn is left out.
  */
 @Mixin(IronGolemRenderer.class)
@@ -65,7 +67,12 @@ public abstract class IronGolemRendererMixin {
     )
     private void mobends$leaveRockOut(PoseStack poseStack, Quaternionf rock, Operation<Void> original) {
         DefinedEntityData<?> bent = ((BendingEntityRenderer) this).mobends$bentData();
-        if (bent != null && bent.getDefinition().renderer.undoVanillaRock && !bent.isEntityFrameLeftToVanilla()) {
+        if (bent != null && bent.getDefinition().renderer.undoVanillaRock) {
+            // As far as the frame is left to vanilla, vanilla's rock shows.
+            float shown = bent.getEntityFrameVanilla();
+            if (shown > 0) {
+                original.call(poseStack, new Quaternionf().slerp(rock, shown));
+            }
             return;
         }
         original.call(poseStack, rock);

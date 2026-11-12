@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.pose;
 
+import goblinbob.mobends.core.kumo.IKumoSubject;
 import goblinbob.mobends.core.kumo.state.EntityState;
 import javax.annotation.Nullable;
 import goblinbob.mobends.core.kumo.bind.IBoneSink;
@@ -47,6 +48,11 @@ public class Pose
     private final EntityState owner;
     /** The pose this one goes on top of (a layer's: the animator pose, holding the layers below), or null. */
     private Pose below;
+    /**
+     * How much the entity's frame is vanilla's (0..1, see {@link IKumoSubject#setEntityFrameVanilla}):
+     * written as a channel of its own, blended as the bones are; NaN where nothing wrote it.
+     */
+    private float vanillaFrame = Float.NaN;
 
     public Pose(Skeleton skeleton)
     {
@@ -212,6 +218,7 @@ public class Pose
         {
             target.clear();
         }
+        vanillaFrame = Float.NaN;
     }
 
     public void set(Pose other)
@@ -220,6 +227,26 @@ public class Pose
         {
             targets[i].set(other.targets[i]);
         }
+        vanillaFrame = other.vanillaFrame;
+    }
+
+    /** Whether something wrote how much the entity's frame is vanilla's (see {@link #setVanillaFrame}). */
+    public boolean hasVanillaFrame()
+    {
+        return !Float.isNaN(vanillaFrame);
+    }
+
+    /** Writes how much the entity's frame is vanilla's, 0..1 (see {@link IKumoSubject#setEntityFrameVanilla}). */
+    public void setVanillaFrame(float weight)
+    {
+        vanillaFrame = weight;
+    }
+
+    /** How much the entity's frame is vanilla's: this pose's, else the poses' below it, else 0. */
+    public float vanillaFrameSoFar()
+    {
+        if (hasVanillaFrame()) return vanillaFrame;
+        return below != null ? below.vanillaFrameSoFar() : 0F;
     }
 
     /**
@@ -239,6 +266,7 @@ public class Pose
                 targets[j].mirrorX();
             }
         }
+        vanillaFrame = other.vanillaFrame;
     }
 
     /**

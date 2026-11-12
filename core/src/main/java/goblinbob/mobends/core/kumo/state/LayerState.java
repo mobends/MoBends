@@ -940,6 +940,13 @@ public class LayerState
      */
     private void crossfade(Pose from, Pose to, float t, Pose below)
     {
+        if (from.hasVanillaFrame() || to.hasVanillaFrame())
+        {
+            // Filled from beneath the layer where one side doesn't write it, as a bone is.
+            float a = from.hasVanillaFrame() ? from.vanillaFrameSoFar() : below.vanillaFrameSoFar();
+            float b = to.hasVanillaFrame() ? to.vanillaFrameSoFar() : below.vanillaFrameSoFar();
+            from.setVanillaFrame(a + (b - a) * t);
+        }
         fillFromBelow(from, to, below);
         fillFromBelow(to, from, below);
         for (int i = 0; i < from.size(); i++)
@@ -1016,6 +1023,10 @@ public class LayerState
 
     private void composite(Pose layerPose, Pose animatorPose)
     {
+        if (layerPose.hasVanillaFrame())
+        {
+            animatorPose.setVanillaFrame(layerPose.vanillaFrameSoFar());
+        }
         for (int i = 0; i < layerPose.size(); i++)
         {
             if (!allowed[i])

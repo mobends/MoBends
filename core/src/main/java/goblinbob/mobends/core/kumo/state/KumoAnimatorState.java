@@ -179,6 +179,8 @@ public class KumoAnimatorState
             limit(pose, trustedPose, limits);
         }
         pose.writeTo();
+        float vanillaFrame = pose.vanillaFrameSoFar();
+        subject.setEntityFrameVanilla(Float.isNaN(vanillaFrame) ? 0F : Math.max(0F, Math.min(1F, vanillaFrame)));
     }
 
     /** Binds the entity state to {@code subject}, the first time it is animated: its bones, and where it keeps the values the animator reads. */

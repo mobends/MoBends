@@ -66,6 +66,8 @@ class TestSubject implements IKumoSubject
     Object entity;
     /** What a {@code core:vanilla_pose} node reads; null for none. */
     IVanillaPose vanillaPose;
+    /** What the animator last said of the entity's frame (see {@link IKumoSubject#setEntityFrameVanilla}). */
+    float entityFrameVanilla = Float.NaN;
 
     TestSubject(String... boneNames)
     {
@@ -119,6 +121,12 @@ class TestSubject implements IKumoSubject
     public IVanillaPose getVanillaPose()
     {
         return vanillaPose;
+    }
+
+    @Override
+    public void setEntityFrameVanilla(float weight)
+    {
+        entityFrameVanilla = weight;
     }
 
     // The names a test sets, numbered as animators look them up. A name set after the animator

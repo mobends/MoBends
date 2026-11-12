@@ -21,13 +21,6 @@ public class VanillaPoseNodeTest
         final Map<String, Quaternion> rotations = new HashMap<>();
         final Map<String, Vec3f> offsets = new HashMap<>();
         int reads;
-        int framesLeftToVanilla;
-
-        @Override
-        public void onEntityFrameLeftToVanilla()
-        {
-            framesLeftToVanilla++;
-        }
 
         FakeVanillaPose put(String bone, Quaternion rotation, float x, float y, float z)
         {
@@ -215,7 +208,7 @@ public class VanillaPoseNodeTest
         animator.update(subject, 1F);
 
         assertVector(0, 0, 0, subject.root.position.end);
-        assertEquals(1, ((FakeVanillaPose) subject.vanillaPose).framesLeftToVanilla);
+        assertEquals(1F, subject.entityFrameVanilla, 1e-6F);
     }
 
     @Test
@@ -228,7 +221,7 @@ public class VanillaPoseNodeTest
         animator.update(subject, 1F);
 
         assertVector(3, 0, 0, subject.root.position.end);
-        assertEquals(0, ((FakeVanillaPose) subject.vanillaPose).framesLeftToVanilla);
+        assertEquals(0F, subject.entityFrameVanilla, 1e-6F);
     }
 
     @Test
@@ -242,7 +235,7 @@ public class VanillaPoseNodeTest
 
         assertVector(3, 0, 0, subject.root.position.end);
         // The animator keeps the entity's frame.
-        assertEquals(0, ((FakeVanillaPose) subject.vanillaPose).framesLeftToVanilla);
+        assertEquals(0F, subject.entityFrameVanilla, 1e-6F);
     }
 
     @Test
@@ -255,6 +248,65 @@ public class VanillaPoseNodeTest
         animator.update(subject, 1F);
 
         assertVector(0, 0, 0, subject.root.position.end);
+    }
+
+    @Test
+    public void theEntitysFrameFadesWithTheLayer() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance(("{'formatVersion': 2, 'layers': ["
+                + "{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:translate': {'bone': 'root', 'x': 3}}, "
+                + "{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 0}}]}}}}, "
+                + "{'@when': 'GO', '@fade': 4, 'defaultOnEntry': 'b', 'nodes': {'b': {'core:vanilla_pose': {}}}}]}").replace('\'', '"'));
+        TestSubject subject = new TestSubject("arm");
+        subject.vanillaPose = new FakeVanillaPose().put("arm", pitch(-60), 0, 0, 0);
+        subject.states.put("GO", false);
+
+        animator.update(subject, 1F);
+        assertEquals(0F, subject.entityFrameVanilla, 1e-6F);
+        subject.states.put("GO", true);
+        animator.update(subject, 1F);
+        animator.update(subject, 1F);
+        // Half way in, as the bones are.
+        assertEquals(0.5F, subject.entityFrameVanilla, 1e-4F);
+        animator.update(subject, 1F);
+        animator.update(subject, 1F);
+        assertEquals(1F, subject.entityFrameVanilla, 1e-6F);
+        subject.states.put("GO", false);
+        animator.update(subject, 1F);
+        animator.update(subject, 1F);
+        assertEquals(0.5F, subject.entityFrameVanilla, 1e-4F);
+        animator.update(subject, 1F);
+        animator.update(subject, 1F);
+        assertEquals(0F, subject.entityFrameVanilla, 1e-6F);
+    }
+
+    @Test
+    public void theEntitysFrameFollowsATransition() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance(("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'own', 'nodes': {"
+                + "'own': {'core:pose': {'pose': [{'core:translate': {'bone': 'root', 'x': 3}}, "
+                + "{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 0}}]}, "
+                + "'@connections': [{'when': {'gt': ['nodeTicksElapsed', 2]}, 'then': 'theirs', 'transitionDuration': 10, 'transitionEasing': 'linear'}]}, "
+                + "'theirs': {'core:vanilla_pose': {}}}}]}").replace('\'', '"'));
+        TestSubject subject = new TestSubject("arm");
+        subject.vanillaPose = new FakeVanillaPose().put("arm", pitch(-60), 0, 0, 0);
+
+        // Three frames in the first node, then the one the transition starts on.
+        for (int frame = 0; frame < 4; frame++)
+        {
+            animator.update(subject, 1F);
+            assertEquals(0F, subject.entityFrameVanilla, 1e-6F);
+        }
+        for (int frame = 0; frame < 5; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        assertEquals(0.5F, subject.entityFrameVanilla, 1e-4F);
+        for (int frame = 0; frame < 5; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        assertEquals(1F, subject.entityFrameVanilla, 1e-6F);
     }
 
     @Test

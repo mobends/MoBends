@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
  * beneath. A bone it has no pose for is left alone. The entity's own bones ({@code root},
  * {@code center}), which the vanilla model draws nothing of (its parts are drawn in the entity's
  * frame), are put at rest, once any bone has a pose, and the entity's frame is left to vanilla
- * ({@link IVanillaPose#onEntityFrameLeftToVanilla}).
+ * (the pose's {@link Pose#setVanillaFrame}, see {@link goblinbob.mobends.core.kumo.IKumoSubject#setEntityFrameVanilla}).
  */
 public class VanillaPoseItem implements IPoseItem
 {
@@ -73,7 +73,7 @@ public class VanillaPoseItem implements IPoseItem
         }
         if (atRest)
         {
-            vanilla.onEntityFrameLeftToVanilla();
+            pose.setVanillaFrame(1F);
         }
     }
 

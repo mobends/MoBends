@@ -2,6 +2,7 @@ package goblinbob.mobends.core.client.definition;
 
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
+import goblinbob.mobends.core.data.OrientationComponent;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.kumo.bind.IVanillaPose;
 import goblinbob.mobends.core.math.Quaternion;
@@ -31,7 +32,8 @@ import java.util.Map;
  * wolf tail tilts back, the definition's hangs straight), and vanilla's angle shows. Vanilla's parts hang from
  * the model's root, the bones from each other (a head that doesn't turn with the body), so a bone's
  * own rotation is what's left once its parents' is taken out. A bone vanilla draws as a piece of an
- * ancestor's part, straight with it (a forearm, the wolf's shins and ears), is at rest. Any other
+ * ancestor's part, straight with it (a forearm, the wolf's shins and ears), is at rest, and so is a
+ * {@code core:orientation} component (how a held item turns in the hand). Any other
  * bone that stands for no vanilla part has nothing to read; the bones under it are worked out as
  * if it were at rest.
  * <p>
@@ -121,17 +123,18 @@ public final class VanillaPoseReader implements IVanillaPose {
             }
         }
         Solved solved = byName.get(bone);
+        if (solved == null && data.getComponent(bone, OrientationComponent.class) != null) {
+            // How a held item turns in the hand (core:orientation): vanilla holds it unturned.
+            rotation.setIdentity();
+            offset.set(0, 0, 0);
+            return true;
+        }
         if (solved == null || !solved.posed) {
             return false;
         }
         rotation.set(solved.rotation);
         offset.set(solved.offset);
         return true;
-    }
-
-    @Override
-    public void onEntityFrameLeftToVanilla() {
-        data.setEntityFrameLeftToVanilla(true);
     }
 
     private void solve(DefinedModel model) {

@@ -43,8 +43,8 @@ public class DefinedEntityData<E extends LivingEntity> extends LivingEntityData<
     /** Whatever the renderer keeps to read it with, from one frame to the next (see {@link #getVanillaPoseSource}). */
     @Nullable
     private Object vanillaPoseSource;
-    /** Whether this frame's animation left the entity's frame to vanilla (see {@link #isEntityFrameLeftToVanilla}). */
-    private boolean entityFrameLeftToVanilla;
+    /** How much this frame's animation leaves the entity's frame to vanilla (see {@link #getEntityFrameVanilla}). */
+    private float entityFrameVanilla;
 
     public DefinedEntityData(EntityModelDefinition definition, E entity) {
         super(entity);
@@ -193,25 +193,27 @@ public class DefinedEntityData<E extends LivingEntity> extends LivingEntityData<
     }
 
     /**
-     * Whether this frame's animation left the entity's frame to vanilla: a {@code core:vanilla_pose}
-     * node put {@code root} and {@code center} at rest, so the renderer draws the whole entity as
-     * vanilla does (its swimming tilt, its rock), without what it does in their place for the
-     * animator (the definition's sneak offset, the drop of a swimming player).
+     * How much this frame's animation leaves the entity's frame to vanilla, 0..1: 1 where a
+     * {@code core:vanilla_pose} node put {@code root} and {@code center} at rest, in between while it
+     * fades in or out. The renderer draws the whole entity as vanilla does by as much (its swimming
+     * tilt, its rock), and does what it does in their place for the animator by the rest (the
+     * definition's sneak offset, the drop of a swimming player).
      */
-    public boolean isEntityFrameLeftToVanilla() {
-        return entityFrameLeftToVanilla;
+    public float getEntityFrameVanilla() {
+        return entityFrameVanilla;
     }
 
-    public void setEntityFrameLeftToVanilla(boolean entityFrameLeftToVanilla) {
-        this.entityFrameLeftToVanilla = entityFrameLeftToVanilla;
+    @Override
+    public void setEntityFrameVanilla(float weight) {
+        this.entityFrameVanilla = weight;
     }
 
     @Override
     protected void beforeAnimate() {
         super.beforeAnimate();
-        // Set again by this frame's animation, if it leaves the frame to vanilla; kept through any
-        // draw after it in the same frame, which doesn't animate again.
-        entityFrameLeftToVanilla = false;
+        // Set again by this frame's animation (the animator says it every frame it runs); kept
+        // through any draw after it in the same frame, which doesn't animate again.
+        entityFrameVanilla = 0F;
     }
 
     public boolean hasAdoptedPositionsOf(Object source) {
