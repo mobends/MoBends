@@ -49,7 +49,6 @@
   "mobends.config.item_attack_classifications": "Классификация предметов (атака)",
   "mobends.config.item_attack_classifications.tooltip": "Список соответствий \"предмет=классификация\".",
   "mobends.config.keep_armor_as_vanilla": "Броня без изменений (vanilla)",
-  "mobends.config.keep_entity_as_vanilla": "Существа без изменений (vanilla)",
   "mobends.gui.reset": "Сбросить",
   "mobends.gui.settings.via": "%s · через %s",
   "mobends.gui.settings.from_pack": "%s · из %s",

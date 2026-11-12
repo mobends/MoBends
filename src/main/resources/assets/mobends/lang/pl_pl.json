@@ -49,7 +49,6 @@
   "mobends.config.item_attack_classifications": "Klasyfikacja przedmiotów (atak)",
   "mobends.config.item_attack_classifications.tooltip": "Lista przypisań \"przedmiot=klasyfikacja\".",
   "mobends.config.keep_armor_as_vanilla": "Zbroje bez zmian (vanilla)",
-  "mobends.config.keep_entity_as_vanilla": "Stworzenia bez zmian (vanilla)",
   "mobends.gui.reset": "Resetuj",
   "mobends.gui.settings.via": "%s · przez %s",
   "mobends.gui.settings.from_pack": "%s · z %s",

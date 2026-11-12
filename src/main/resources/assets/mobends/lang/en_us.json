@@ -49,7 +49,6 @@
   "mobends.config.item_attack_classifications": "Item attack classifications",
   "mobends.config.item_attack_classifications.tooltip": "A list of \"item=classification\" mappings.",
   "mobends.config.keep_armor_as_vanilla": "Keep armor as vanilla",
-  "mobends.config.keep_entity_as_vanilla": "Keep entity as vanilla",
   "mobends.gui.reset": "Reset",
   "mobends.gui.settings.via": "%s · via %s",
   "mobends.gui.settings.from_pack": "%s · from %s",

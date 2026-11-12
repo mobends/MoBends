@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * The rest of the client's settings ({@code config/mobends.json}, see docs/configuration.md): the
- * trails, and the lists of item and entity patterns, each written as one line, its entries
+ * trails, and the lists of item patterns, each written as one line, its entries
  * separated by commas. 1.12's More Settings opened Forge's config screen for them; this is the
  * screen's place on every loader. The trails change at once; the lists when the screen is left,
  * which reloads the animation if they changed (as 1.12 refreshed Mo' Bends).
@@ -36,10 +36,9 @@ public class GuiMoreSettings extends Screen {
             "mobends.config.item_use_classifications",
             "mobends.config.item_attack_classifications",
             "mobends.config.keep_armor_as_vanilla",
-            "mobends.config.keep_entity_as_vanilla",
     };
     /** Only these lists have a tooltip. */
-    private static final boolean[] LIST_TOOLTIPS = {true, true, false, false};
+    private static final boolean[] LIST_TOOLTIPS = {true, true, false};
 
     /** Where Back goes: the Settings window. */
     private final Screen back;
@@ -64,7 +63,7 @@ public class GuiMoreSettings extends Screen {
     protected void init() {
         int left = (this.width - COLUMN_WIDTH) / 2;
         int halfWidth = (COLUMN_WIDTH - 10) / 2;
-        int top = Math.max(30, (this.height - 30 - (ROW_HEIGHT + 10 + 4 * (LABEL_HEIGHT + ROW_HEIGHT + LIST_GAP))) / 2);
+        int top = Math.max(30, (this.height - 30 - (ROW_HEIGHT + 10 + LIST_KEYS.length * (LABEL_HEIGHT + ROW_HEIGHT + LIST_GAP))) / 2);
 
         addRenderableWidget(CycleButton.onOffBuilder(ClientConfig.INSTANCE.showSwordTrail())
                 .withTooltip(value -> Tooltip.create(Component.translatable("mobends.config.show_sword_trails.tooltip")))

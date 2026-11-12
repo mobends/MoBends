@@ -15,8 +15,7 @@ options and the Mo' Bends menu's settings alike:
   "itemUseClassifications": ["minecraft:spyglass=BOW"],
   "itemAttackClassifications": ["mymod:*_hammer=SWORD"],
   "keepArmorAsVanilla": ["mymod:*"],
-  "keepEntityAsVanilla": ["minecraft:husk"],
-  "animated": {"mobends:zombie": false},
+  "animatedEntities": {"minecraft:husk": false},
   "typeRanks": {},
   "extensionRanks": {},
   "options": {"mobends:bends/models/player.json#spinAttack": 0.0}
@@ -29,18 +28,25 @@ options and the Mo' Bends menu's settings alike:
 | `itemUseClassifications` | none | `<item pattern>=<FOOD, BOW or SHIELD>`: how using a matching item is animated, in place of how its kind is; the last matching entry wins |
 | `itemAttackClassifications` | none | `<item pattern>=<FISTS, SWORD or TOOL>`: the same for attacking |
 | `keepArmorAsVanilla` | none | Item patterns: armour drawn as vanilla draws it, even on a bent entity |
-| `keepEntityAsVanilla` | none | Entity type patterns (today's ids, `minecraft:zombified_piglin`): never animated |
-| `animated` | every mob on | Per animated mob, by key (`mobends:player`): `false` switches it off |
+| `animatedEntities` | every entity on | Per entity type, by today's id (`minecraft:zombified_piglin`): `false` keeps it vanilla, whatever type would animate it |
 | `typeRanks`, `extensionRanks` | none | The order the user gave entity types and extensions, by id; absent means 0 |
 | `options` | none | The values the user gave options, by `<owner>#<name>`; absent means the option's default |
 
-The Mo' Bends menu edits it, and every change is saved at once: its Settings window sets `animated`,
+The Mo' Bends menu edits it, and every change is saved at once: its Settings window sets `animatedEntities`
+(a row, and a switch, for each entity type a mob animates),
 the ranks (Order, Extensions) and `options`; its More Settings window the trails and the lists, each
 list written as one line, its entries separated by commas (a changed list reloads the animation as
 the window is left).
 
 A pattern is a `namespace:path` whose namespace and path may each start or end with `*`
 (`minecraft:*_sword`, `*:*`); without a namespace it's `minecraft`'s.
+
+Up to 2.0.0-alpha.4 the file switched mobs off per model (`animated`, by key: `mobends:zombie`)
+and kept entity types vanilla by pattern (`keepEntityAsVanilla`). The first time the types load,
+both become `animatedEntities` (`ClientConfig.migrateLegacySwitches`): a model switched off
+switches off every entity type it animates, and a pattern every registered entity type it
+matches. A model no type brings yet (its pack is off, or the server denies packs) stays in
+`animated` until one does.
 
 A server's rules for its players' resource packs are in its `config/mobends-server.json` (see
 [server-networking.md](server-networking.md)).

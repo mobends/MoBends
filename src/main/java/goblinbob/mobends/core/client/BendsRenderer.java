@@ -153,10 +153,8 @@ public final class BendsRenderer {
         if (!selection.model().bends(model)) {
             return null;
         }
-        // Switched off by the user: the mob (in the Mo' Bends menu), or entities of its type (the config).
-        String key = selection.model().key();
-        if (key != null && !ClientConfig.INSTANCE.isAnimated(key)
-                || ClientConfig.INSTANCE.keepsEntityVanilla(BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString())) {
+        // Switched off by the user (in the Mo' Bends menu), per entity type.
+        if (!ClientConfig.INSTANCE.isEntityAnimated(BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString())) {
             return null;
         }
         LivingEntityData<LivingEntity> data = preview

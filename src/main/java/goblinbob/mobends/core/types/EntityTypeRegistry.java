@@ -8,6 +8,7 @@ import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.network.ResourcePackPolicy;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -169,6 +170,33 @@ public final class EntityTypeRegistry {
         return found;
     }
 
+    /**
+     * The entity types {@code defined} animates, as the Mo' Bends menu switches them on and off, in
+     * its definition's order: those its definition names that a type giving that model can give it
+     * to (any of them, for a type whose selector names no entity type). Empty if no type gives it.
+     */
+    public List<ResourceLocation> getEntityTypesOf(DefinedEntity defined) {
+        ensureLoaded();
+        Set<ResourceLocation> given = new HashSet<>();
+        boolean any = false;
+        for (EntityType type : types.values()) {
+            if (type.getModel() == defined) {
+                Collection<ResourceLocation> named = type.getEntityTypes();
+                if (named.isEmpty()) {
+                    any = true;
+                }
+                given.addAll(named);
+            }
+        }
+        List<ResourceLocation> found = new ArrayList<>();
+        for (ResourceLocation id : defined.entityTypes()) {
+            if (any || given.contains(id)) {
+                found.add(id);
+            }
+        }
+        return found;
+    }
+
     /** The extensions of the types that can animate {@code defined}'s entities, in precedence order (the first goes on top). */
     public List<Extension> getExtensionsFor(DefinedEntity defined) {
         Set<String> typeIds = new HashSet<>();
@@ -294,6 +322,25 @@ public final class EntityTypeRegistry {
         }
         int extensionCount = loadExtensions();
         MoBends.LOGGER.info("Mo' Bends: loaded {} entity types and {} extensions", types.size(), extensionCount);
+        migrateLegacySwitches();
+    }
+
+    /** The switches of 2.0.0-alpha.4 and before (per model, and keepEntityAsVanilla) become switches per entity type. */
+    private void migrateLegacySwitches() {
+        List<String> registered = new ArrayList<>();
+        for (ResourceLocation id : BuiltInRegistries.ENTITY_TYPE.keySet()) {
+            registered.add(id.toString());
+        }
+        ClientConfig.INSTANCE.migrateLegacySwitches(registered, key -> {
+            DefinedEntity defined = DefinedEntities.byKey(key);
+            List<String> entityTypes = new ArrayList<>();
+            if (defined != null) {
+                for (ResourceLocation id : getEntityTypesOf(defined)) {
+                    entityTypes.add(id.toString());
+                }
+            }
+            return entityTypes;
+        });
     }
 
     /** Loads every extension and gives each type its own; returns how many there are. */
