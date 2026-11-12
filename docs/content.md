@@ -110,7 +110,8 @@ effect immediately.
 ### Mo' Bends' Own Resource Packs
 
 A resource pack Mo' Bends makes itself, such as the Legacy Mo' Bends pack
-([`misc/legacy-pack`](../misc/legacy-pack/README.md)), is trusted under every policy. It carries a
+([`misc/legacy-pack`](../misc/legacy-pack/README.md)) and Mo' Bends Compat+
+([`misc/compat-plus-pack`](../misc/compat-plus-pack/README.md)), is trusted under every policy. It carries a
 signature, `assets/mobends/bends/signature.json` (`core/pack/PackSignature`): the SHA-256 of each of its
 `bends/` files, signed with ECDSA (P-256) by a key only the Mo' Bends team holds. The mod ships the
 public keys (`PackSigningKeys`). A file from an enabled pack is trusted when the pack's signature
@@ -123,7 +124,7 @@ types or extensions, which are found by scanning the packs (`TypeFileDiscovery`)
 guards against packs passing as Mo' Bends' own. Like the policy itself, it doesn't guard against a
 modified client, which can ignore the policy anyway.
 
-`./gradlew :core:legacyPack` builds and signs the pack (`core/src/tools`, `SignPack`) into
+`./gradlew :core:legacyPack` and `./gradlew :core:compatPlusPack` build and sign the packs (`core/src/tools`, `SignPack`) into
 `build/packs/`, with the private key from `-Ppack_signing_key=<file>` or the
 `MOBENDS_PACK_SIGNING_KEY` environment variable; it refuses a key `PackSigningKeys` doesn't trust.
 `./gradlew :core:generatePackSigningKey -Ppack_signing_key=<file>` makes a new key pair. To replace a key, add the new

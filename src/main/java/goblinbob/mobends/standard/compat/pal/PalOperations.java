@@ -15,7 +15,8 @@ import net.minecraft.world.entity.player.Player;
  * Player Animation Library (PAL), the library Better Combat, emote mods and others animate the
  * player with. PAL poses the vanilla model, which Mo' Bends doesn't draw: an animator can hand the
  * player to vanilla while PAL plays something ({@code core:vanilla}), or take the vanilla model's
- * pose, PAL's included, as its own ({@code core:vanilla_pose}).
+ * pose, PAL's included, as its own ({@code core:vanilla_pose}). The Mo' Bends Compat+ pack does the
+ * former.
  * <p>
  * PAL is optional: without it, or before 26.1 (whose PAL Mo' Bends isn't built against), the
  * operations hold for nothing. Only {@link PalAnimations} touches PAL's classes, and it is loaded

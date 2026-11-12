@@ -78,14 +78,15 @@ dependencies {
             localRuntime("com.eliotlash.mclib:mclib:20")
         }
     }
-    // Player Animation Library, whose pose core:vanilla_pose can build on (standard.compat.pal); not
-    // needed. 26.x only.
+    // Player Animation Library, whose pose core:vanilla_pose can build on, and which
+    // mobends:compat_pal_animation_playing reads (standard.compat.pal); not needed. 26.x only.
     val pal = { "maven.modrinth:player-animation-library:${sc.properties["deps.player_animation_library"]}" }
     if (sc.current.parsed >= "26.1") {
         modCompileOnly(pal()) { isTransitive = false }
     }
     // Better Combat, which plays its attacks with PAL: run the client with -PbetterCombat to see how
-    // they get along with Mo' Bends' (26.x only).
+    // they get along with Mo' Bends' (26.x only). Add Mo' Bends Compat+ (misc/compat-plus-pack) to
+    // the resource packs to see them played.
     val betterCombat = providers.gradleProperty("betterCombat").isPresent && sc.current.parsed >= "26.1"
     if (betterCombat) {
         modLocalRuntime("maven.modrinth:better-combat:${sc.properties["deps.better_combat"]}") { isTransitive = false }

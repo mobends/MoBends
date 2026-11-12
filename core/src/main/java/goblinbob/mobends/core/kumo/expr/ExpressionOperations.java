@@ -519,6 +519,8 @@ public final class ExpressionOperations
 
         // The engine's own registered operations (core:), which need nothing of Minecraft's.
         registerBuiltIn(goblinbob.mobends.core.kumo.MinecraftVersion.OPERATION);
+        registerBuiltIn(goblinbob.mobends.core.kumo.InstalledMods.LOADED);
+        registerBuiltIn(goblinbob.mobends.core.kumo.InstalledMods.VERSION);
     }
 
     /** Adds one of the engine's registered operations, before any driver is (see {@link #register(goblinbob.mobends.core.kumo.api.KumoOperation)}). */

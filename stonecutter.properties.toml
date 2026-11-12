@@ -50,7 +50,8 @@ deps.neo_loader = "21.1.265"
 mod.mc_releases = ["26.3"]
 # GeckoLib 5, published under com.geckolib.
 deps.geckolib = "5.5.7"
-# Player Animation Library (compile only; the Modrinth version id of its one jar for both loaders).
+# Player Animation Library, which core:vanilla_pose and mobends:compat_pal_animation_playing
+# read (compile only; the Modrinth version id of its one jar for both loaders).
 deps.player_animation_library = "lQIjpkZc"
 
 [fabric."26.3"]

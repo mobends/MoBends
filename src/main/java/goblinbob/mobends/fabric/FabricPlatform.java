@@ -38,6 +38,12 @@ public final class FabricPlatform implements Platform {
 
     @Override
     @Nullable
+    public String modVersion(String modId) {
+        return FabricLoader.getInstance().getModContainer(modId).map(mod -> mod.getMetadata().getVersion().getFriendlyString()).orElse(null);
+    }
+
+    @Override
+    @Nullable
     public String modName(String modId) {
         return FabricLoader.getInstance().getModContainer(modId).map(mod -> mod.getMetadata().getName()).orElse(null);
     }

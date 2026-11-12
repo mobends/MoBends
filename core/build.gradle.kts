@@ -85,24 +85,35 @@ val packSigningKeyFile: Provider<File> = rootProject.layout.projectDirectory.let
     providers.gradleProperty("pack_signing_key").map { root.file(it).asFile }
 }
 
+/**
+ * Registers a task that builds one of Mo' Bends' own resource packs from misc/[folder] into
+ * build/packs/[fileName]-<mod version>.zip, signed with the key in -Ppack_signing_key, or else the
+ * MOBENDS_PACK_SIGNING_KEY environment variable.
+ */
+fun registerPack(task: String, title: String, folder: String, fileName: String) =
+    tasks.register<JavaExec>(task) {
+        description = "Builds the signed $title resource pack from misc/$folder into build/packs/."
+        group = "build"
+        classpath = tools.runtimeClasspath
+        mainClass = "goblinbob.mobends.tools.SignPack"
+        val pack = rootProject.layout.projectDirectory.dir("misc/$folder").asFile
+        val out = rootProject.layout.buildDirectory.file("packs/$fileName-$modVersion.zip")
+        val key = packSigningKeyFile
+        inputs.dir(pack)
+        outputs.file(out)
+        argumentProviders.add(CommandLineArgumentProvider {
+            key.map { listOf("--key-file", it.absolutePath) }.getOrElse(emptyList()) +
+                listOf(pack.absolutePath, out.get().asFile.absolutePath)
+        })
+    }
+
 // The Legacy Mo' Bends resource pack (misc/legacy-pack), for 1.12.2 and the modern versions alike:
-// the player's and the zombie's animations as they were in 1.X. Built into build/packs/, signed
-// with the key in -Ppack_signing_key, or else the MOBENDS_PACK_SIGNING_KEY environment variable.
-tasks.register<JavaExec>("legacyPack") {
-    description = "Builds the signed Legacy Mo' Bends resource pack from misc/legacy-pack into build/packs/."
-    group = "build"
-    classpath = tools.runtimeClasspath
-    mainClass = "goblinbob.mobends.tools.SignPack"
-    val pack = rootProject.layout.projectDirectory.dir("misc/legacy-pack").asFile
-    val out = rootProject.layout.buildDirectory.file("packs/Legacy-Mo-Bends-$modVersion.zip")
-    val key = packSigningKeyFile
-    inputs.dir(pack)
-    outputs.file(out)
-    argumentProviders.add(CommandLineArgumentProvider {
-        key.map { listOf("--key-file", it.absolutePath) }.getOrElse(emptyList()) +
-            listOf(pack.absolutePath, out.get().asFile.absolutePath)
-    })
-}
+// the player's and the zombie's animations as they were in 1.X.
+registerPack("legacyPack", "Legacy Mo' Bends", "legacy-pack", "Legacy-Mo-Bends")
+
+// The Mo' Bends Compat+ resource pack (misc/compat-plus-pack): Mo' Bends gets along with other mods
+// that animate the player, each only where it's installed (core:mod_loaded).
+registerPack("compatPlusPack", "Mo' Bends Compat+", "compat-plus-pack", "Mo-Bends-Compat-Plus")
 
 // Makes a new pack signing key pair: the private key goes to the -Ppack_signing_key file, the
 // public key (printed) into core/pack/PackSigningKeys.

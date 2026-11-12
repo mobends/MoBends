@@ -1,0 +1,15 @@
+{
+  "formatVersion": 2,
+  "@comment": "Layers on top of the player's animator, one per mod Mo' Bends gets along with. Each holds only where its mod is installed (core:mod_loaded, which folds to a constant when the animator loads), so without the mod it costs nothing.",
+  "layers": [
+    {
+      "@comment": "Better Combat plays its attacks (and its weapons' idle poses) on the vanilla model with Player Animation Library, which Mo' Bends doesn't draw: while PAL plays something, the player is handed to vanilla, so they show. The player's own animator keeps running underneath, and takes over again when PAL stops.",
+      "@when": {"and": [
+        {"core:mod_loaded": ["bettercombat"]},
+        {"mobends:compat_pal_animation_playing": [], "@fallback": false}
+      ]},
+      "defaultOnEntry": "vanilla",
+      "nodes": {"vanilla": {"core:vanilla": {}}}
+    }
+  ]
+}

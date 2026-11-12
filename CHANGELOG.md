@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Added
+
+- Mo' Bends Compat+, a resource pack that makes Mo' Bends get along with other mods that animate
+  the player, on the GitHub release. So far, Better Combat: while it plays an attack on Minecraft
+  26.3, the player is drawn with the vanilla model, which its animations pose.
+- Resource packs can ask which mods are installed, to turn on what they have for them only where
+  they are: `core:mod_loaded` and `core:mod_version` (see `misc/kumo-format.md`).
+- `mobends:compat_pal_animation_playing`: Player Animation Library plays something on the player
+  (26.x).
+
 ### Fixed
 
 - A left-handed player spins the right way in the sword combo's last hit. It spun the way a

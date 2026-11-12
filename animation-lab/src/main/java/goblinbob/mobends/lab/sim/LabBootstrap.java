@@ -3,6 +3,7 @@ package goblinbob.mobends.lab.sim;
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.data.EntityComponents;
 import goblinbob.mobends.core.kumo.MinecraftKumoOperations;
+import goblinbob.mobends.core.kumo.InstalledMods;
 import goblinbob.mobends.core.kumo.MinecraftVersion;
 import goblinbob.mobends.core.kumo.driver.DriverRegistry;
 import goblinbob.mobends.core.kumo.expr.EntityFields;
@@ -33,6 +34,8 @@ public class LabBootstrap
         done = true;
         // What core:minecraft_version compares with: the version the stand-ins are.
         MinecraftVersion.set(MoBends.MINECRAFT);
+        // No other mods are installed in the lab.
+        InstalledMods.set(modId -> null);
         MinecraftKumoOperations.register();
         MoBendsOperations.register();
         PalOperations.register();

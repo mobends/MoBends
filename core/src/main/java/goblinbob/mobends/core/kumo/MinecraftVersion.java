@@ -21,8 +21,8 @@ import javax.annotation.Nullable;
 public final class MinecraftVersion
 {
 
-    /** The comparisons {@code core:minecraft_version} takes, as written. */
-    private static final String[] COMPARISONS = {">", ">=", "<", "<=", "==", "!="};
+    /** The comparisons {@code core:minecraft_version} (and {@code core:mod_version}) take, as written. */
+    static final String[] COMPARISONS = {">", ">=", "<", "<=", "==", "!="};
 
     @Nullable
     private static volatile String current;
@@ -98,7 +98,7 @@ public final class MinecraftVersion
         return compare(parse(a), parse(b));
     }
 
-    private static int compare(int[] a, int[] b)
+    static int compare(int[] a, int[] b)
     {
         for (int i = 0; i < Math.max(a.length, b.length); i++)
         {
@@ -112,7 +112,7 @@ public final class MinecraftVersion
         return 0;
     }
 
-    private static boolean test(String comparison, int order)
+    static boolean test(String comparison, int order)
     {
         switch (comparison)
         {
@@ -126,7 +126,7 @@ public final class MinecraftVersion
     }
 
     /** The segments of a version, or an {@link IllegalArgumentException} saying what is wrong with it. */
-    private static int[] parse(String version)
+    static int[] parse(String version)
     {
         String[] parts = version.split("\\.", -1);
         int[] segments = new int[parts.length];

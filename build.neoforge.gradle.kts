@@ -44,7 +44,8 @@ dependencies {
             runtimeOnly("maven.modrinth:cloth-config:${sc.properties["deps.cloth_config"]}") { isTransitive = false }
         }
     }
-    // Player Animation Library, whose pose core:vanilla_pose can build on
+    // Player Animation Library, whose pose core:vanilla_pose can build on, and which
+    // mobends:compat_pal_animation_playing reads
     // (standard.compat.pal); not needed. 26.x only.
     if (sc.current.parsed >= "26.1") {
         compileOnly("maven.modrinth:player-animation-library:${sc.properties["deps.player_animation_library"]}") { isTransitive = false }
