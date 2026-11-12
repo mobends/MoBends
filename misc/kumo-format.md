@@ -72,7 +72,7 @@ node is in *Choosing the node*.
 | `@when` | a condition (a boolean expression): the layer is posed while it holds. When it stops, the layer fades out (over `@fade`) and is left: its nodes, machines and the layer itself are disposed (their `exit` lists run), and it writes nothing. When it holds again, the layer starts over (as on its first frame) and fades in |
 | `@fade` | the ticks the layer takes to fade in and out with its `@when`, eased in and out (default 0, at once). It fades against the layers below, as a transition fades a bone one side doesn't pose; while it fades out its nodes keep running, and smoothing and snapping follow what is fading in (the layers below) |
 | `@define`, `@on` | the layer's definitions and statement lists (see *Definitions and statements*) |
-| `smoothing` | default smoothing for the bones the layer writes (nodes and items override) |
+| `smoothing` | default smoothing for the bones the layer writes (nodes and items override). A bone's own entry comes first, and `@default` smooths only what no entry of its own does: `{"@default": 10, "head": {"rotation": 0}}` snaps the head's rotation and eases its position, and every other bone, over 10 ticks. A bone's rotation and position take it apart: an item that smooths only the rotation leaves the position to the node's or the layer's smoothing. It, and a node's `smoothing`, is written as an item's `@smoothing`, but in numbers of ticks only: an expression is a load error |
 | `mask` | `{"mode": "include_only", "includedParts": ["mouth"]}` (or `exclude_only`): the bones the layer may write |
 | `mirror` | `{"@when": <condition>, "pairs": [["leftArm","rightArm"], ...]}`: the rule items with `@mirror` / `@swapSides` follow (see *Mirroring*) |
 | `nodes`, `machines` | the layer's nodes and machines, as maps by name |
@@ -96,7 +96,10 @@ node is in *Choosing the node*.
 
 * The node's one key without `@` is its type: `core:pose`, `core:fallthrough` or
   `core:vanilla`. `core:pose` takes the pose stack and what goes with it (`pose`, `enterPose`,
-  `snapOnEnter`, `smoothing`); the other two pose nothing and take `{}`.
+  `snapOnEnter`, `smoothing`); the other two pose nothing and take `{}`. The bones `enterPose`
+  poses start from there when the node is entered; what it poses relatively (`pre`, `post`) builds
+  on the layers below, as the node's own items do, and an axis an `override` translate or scale in it
+  leaves out starts from what the layers below have, as it would in `pose`.
 * `@define` and `@on` are the node's definitions and statement lists (see *Definitions and
   statements*): `node.` names, and what runs when the node is entered, every frame it is posed
   and when it is left.
@@ -222,7 +225,8 @@ A connection is written like a selector branch:
 
 * `when` is its condition, and `then` any node or machine of the layer: a machine is entered as
   above. A connection to where the layer already is starts that node over (a jump bouncing into
-  another jump).
+  another jump). One into a machine whose scope exists (the layer is in it, or one of its nodes
+  still fades out) leaves it first, with every machine inside it, and enters it afresh.
 * `do` is a statement list, run when the connection fires (see *Definitions and statements*).
   `transitionDuration` (ticks)
   crossfades (an interrupted crossfade continues from what was on screen); easings `linear`,
@@ -244,8 +248,10 @@ frame it happens:
 Every condition of those selectors and connections is evaluated every frame, whatever is chosen
 (edge triggers such as `decreased` stay fresh). When a branch or a connection leads into a
 machine, the transition (its duration and easing) is that of the branch or the connection. What
-runs, in order: the `exit` lists of what the transition disposes of at once, the transition's own
-`do`, then, on the way in, each machine entered (its definitions and `enter` list, then its
+runs, in order: the `exit` lists of what the transition disposes of at once, innermost first
+(without a crossfade, the nodes fading out, the node left and the machines it leaves; and the
+machines it enters again, see *Connections*), the transition's own `do`, then, on the way in, each
+machine entered from the outermost in (its definitions and `enter` list, then its
 selector, whose branch runs its `do`), and last the node entered. Each selector sees what ran
 before it.
 
@@ -284,7 +290,9 @@ A layer's `mirror` rule says when its mirrored items mirror, and which bones pai
 
 While the rule's `@when` holds, an item with `@mirror` or `@swapSides` runs on a reflection of the
 pose built so far, and its result is reflected back. Reflecting twice gives back the original, so
-the item's composition rules don't change. An item that sets either without a rule on its layer
+the item's composition rules don't change. What it reads of the layers below is reflected with it:
+a weighted clip blends from the layers below's mirror image, as it would blend from them
+unmirrored. An item that sets either without a rule on its layer
 is a load error.
 
 | | paired bones swap | Y and Z rotations, X offset negated |
@@ -368,8 +376,8 @@ Each driver is `{"<driver>": {fields}}` plus the modifiers.
 | driver | fields |
 |---|---|
 | `core:rotate` | `bone`, `axis` (`x`/`y`/`z`), `angle` (expression, degrees) |
-| `core:translate` | `bone`, `x`, `y`, `z` (expressions, model units): moves a part (its position offset) or the position of `root` or `center`. Default space `pre`, like every driver's; there and in `post` an axis left out moves by nothing, in `override` it keeps what the bone has so far this frame (from the items before and the layers below; rest where nothing wrote it). On a part, the item's `@smoothing`, `@vectorModes` and `@snap` go to the offset, not the rotation: with a smoothing, it's smoothed like a vector, and without one it's applied as is |
-| `core:scale` | `bone`, `x`, `y`, `z`, `all` (expressions; 1 is the part as modelled): scales a part on its own axes, and with it what it carries (its child parts, a held item, its armor). `all` is for every axis not given its own. Default space `pre`, like every driver's; there and in `post` it multiplies the part's scale (an axis left out by one), in `override` it replaces it (an axis left out keeps what the part has so far this frame, as `core:translate`'s). A part nothing scales is at its modelled scale, so a node that stops scaling it lets it go back. Scales aren't smoothed (no `@smoothing`, `@vectorModes` or `@snap`), but a transition crossfades them. `root` and `center` can't be scaled; a negative axis mirrors the part |
+| `core:translate` | `bone`, `x`, `y`, `z` (expressions, model units): moves a part (its position offset) or the position of `root` or `center`. Default space `pre`, like every driver's; there and in `post` an axis left out moves by nothing, in `override` it keeps what the bone has so far this frame (from the items before and the layers below; rest where nothing wrote it). On a part, the item's `@smoothing`, `@vectorModes` and `@snap` go to the offset, not the rotation: with a smoothing, it's smoothed like a vector, and without one it's applied as is. The node's and the layer's `smoothing` (the bone's, its `position`, or `@default`) smooth the offset too, where the item doesn't |
+| `core:scale` | `bone`, `x`, `y`, `z`, `all` (expressions; 1 is the part as modelled): scales a part on its own axes, and with it what it carries (its child parts, a held item, its armor). `all` is for every axis not given its own. Default space `pre`, like every driver's; there and in `post` it multiplies the part's scale (an axis left out by one), in `override` it replaces it (an axis left out keeps what the part has so far this frame, as `core:translate`'s). A part nothing scales is at its modelled scale, so a node that stops scaling it lets it go back. Scales aren't smoothed (no `@smoothing`, `@vectorModes` or `@snap`), but a transition crossfades them. So in a node's `enterPose` a scale holds for the frame the node is entered, unless the node's `pose` scales the part too: then that one wins. `root` and `center` can't be scaled; a negative axis mirrors the part |
 | `core:accumulate` | `inout` (a number state), `rate` (expression, per tick, any sign), `min`, `max`: steps the state by the rate; with `min` 0 and `max` 1 and a rate that changes sign with a condition, it ramps up and down |
 | `core:spring` | `inout` (a number state), `target` (expression), `stiffness` (per tick²), `friction` (per tick): pulls the state towards `target` like a mass on a spring, so it lags, overshoots and settles (follow-through); its velocity is its own, at rest when the node is entered |
 | `core:step_turn` | the body stands, turns and walks on feet planted in the world (see *Turning on the feet*) |
@@ -568,11 +576,12 @@ a hand put on a ledge, a foot on a step.
   `entityWorldX`, ...) and body yaw (`yaw`, `entityBodyYaw`), through the bones as the items before
   it have posed them: `rootBone` (`root`), `centerBone` (`center`, turned about `centerPivot`,
   `{"x", "y", "z"}` in blocks, the entity's own pivot unless written), and the bones it hangs from,
-  `parents` (each a `bone` and its `pivot`, outermost first: a player's arms hang from its body).
-  So the end stays on the target wherever the entity is drawn: leaning, or held at a point by
+  `parents` (each a `bone` and its `pivot`, outermost first: a player's arms hang from its body),
+  moved, turned and scaled as they are posed. So the end stays on the target wherever the entity is drawn: leaning, or held at a point by
   `core:anchor`. Write it after what moves the model, and snap what it reads (a smoothed bone is
   drawn behind its target, and the end would lag with it). `modelScale` is the renderer's scale of
-  the model (vanilla draws the player at 0.9375); the bones are assumed to have no `restRotation`.
+  the model (vanilla draws the player at 0.9375); the bones are assumed to have no `restRotation`,
+  and the chain's own bones no scale.
 * `weight` (0..1) blends it in from what lies beneath. At 1 the bones snap to it, so the end
   doesn't slide; at 0 it writes nothing (and still says its `stretch`).
 
@@ -892,7 +901,10 @@ prefix says where the value lives, and a name that scope doesn't declare is an e
 the animator's on its first frame; a layer's when it starts; a machine's on every entry into it, so its definitions
 start over each time, and it is disposed once the last of its nodes has faded out; a node's on
 every entry. A node fading out keeps its scope until its crossfade ends; a node a transition
-leaves without a crossfade, or whose crossfade a transition cuts short, is disposed at once.
+leaves without a crossfade, or whose crossfade a transition cuts short, is disposed at once. A
+scope created again keeps nothing of its previous entry: whatever order its definitions are
+declared in, none of them, nor what one remembers (an edge trigger starting from what it watches),
+reads a value from before.
 
 **Statement lists**, in a scope's `@on`:
 
@@ -958,7 +970,10 @@ expression repeated with different inputs, written once.
   are, so they can stand where an operation takes a string or a constant.
 * **A body reads** its parameters, the built-ins, and the names of the scope declaring it: an
   animator's function can't read a layer's names, wherever it is called. It is checked once, where
-  it is declared, used or not.
+  it is declared, used or not. What a `string` or `choice` argument says is checked at each call: a
+  body passing `arg.v` to `core:minecraft_version` loads, and a call giving it something that isn't
+  a version is the error. The same goes for one passed on to another function. A `string` or
+  `choice` parameter can't name a `field`, whose type depends on that name.
 * A function that calls itself, through any number of others, is a load error. A function and a
   definition of one scope can't share a name, nor can two functions (across `extends` too, which
   is how files share functions).

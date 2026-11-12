@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Added
+
+- Addon API: `INodeState.resetClock`, called before a node's scope is made, and
+  `PoseWriter.scaleSoFar`, a bone's scale as the items before have left it.
+
 ### Changed
 
 - Every mob Mo' Bends animates, the player included, is a type file now (`bends/types/`), not
@@ -11,6 +16,34 @@
   default models anymore, which a type without one used to get.
 - Another mod's mob that is a subclass of a mob Mo' Bends animates (a mod's zombie) no longer
   bends with that mob's model unless a type names it.
+- An expression in a node's or layer's `smoothing` is a load error. It used to be read and then
+  ignored: only an item's `@smoothing` takes expressions.
+
+### Fixed
+
+- Node and layer `smoothing` (and `@default`) smooths a part's offset (`core:translate`) too, and
+  smooths a bone's rotation and position each on its own: an item smoothing one of them no longer
+  leaves the other unsmoothed.
+- A bone's own smoothing wins over `@default`, in a node's or layer's `smoothing` and in an item's
+  `@smoothing`. An expression in an item's `@default` smooths every bone the item writes.
+- `enterPose` moves parts (`core:translate`) and scales them (`core:scale`), and a relative one
+  builds on the layers below. Axes an `override` translate or scale leaves out start from the
+  layers below, instead of NaN.
+- An item with `@mirror` reads the layers below mirrored, so a weighted clip no longer blends from
+  rest.
+- A function's `string` and `choice` arguments are checked where it's called, so a function that
+  passes its argument on to another loads, and a bad string is caught.
+- A node entered again keeps nothing from its last time, and its constants and `enter` list read
+  `nodeTicksElapsed` as 0.
+- A state machine keeps running its `update` list while one of its nodes fades out. A transition
+  into a machine that's running leaves it and enters it again, and exits run innermost first,
+  then the transition's `do`, as the format says.
+- Leg IK puts an angled leg's foot in the right place when the leg points straight away from its
+  target.
+- `core:three_bone_ik` reaches targets near its root, and turns the chain when its end points
+  straight away from the target. `core:two_bone_ik` and `core:three_bone_ik` follow the scale of
+  the bones in `parents`, and their `stretch` is how far the end really is from the target, in
+  blocks.
 
 ### Removed
 
