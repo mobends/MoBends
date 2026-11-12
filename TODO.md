@@ -75,6 +75,36 @@ definition names `EntitySkeleton`, which the wither skeleton isn't (both extend 
       on its feet as the skeleton does, at its bigger size, and the Settings menu lists it with its
       own switch. The skeleton, the stray and the wither (the boss) are unchanged.
 
+### #486: Asking which mods are installed
+
+Needs the first `core` with `InstalledMods` (the release after `core-2.0.0-alpha.4`). On `main`, KUMO
+can ask which mods are installed: `core:mod_loaded` and `core:mod_version` are the core's, like
+`core:minecraft_version`, and the host tells the core what's installed at start-up. Without that call
+here, every use of them is a load error on 1.12.2: the Mo' Bends Compat+ pack (`misc/compat-plus-pack`
+on `main`) would be left out with an error instead of loading and doing nothing.
+
+- [ ] Bump `core_version` in `gradle.properties` to that release.
+- [ ] In `Core.preInit`, next to `MinecraftVersion.set`, tell the core what's installed, from Forge's
+      mod list (asked when an expression is compiled, so after mod loading):
+      ```java
+      InstalledMods.set(modId -> {
+          ModContainer mod = Loader.instance().getIndexedModList().get(modId);
+          return mod == null ? null : mod.getVersion();
+      });
+      ```
+- [ ] Do the same in the lab's `LabBootstrap.ensure`, with no mods installed:
+      `InstalledMods.set(modId -> null);`.
+- [ ] Register `mobends:compat_pal_animation_playing` in `DefaultAddon`, holding for nothing: there's
+      no Player Animation Library on 1.12.2, but the Compat+ pack names it, and an operation that
+      isn't registered is a load error even under a condition that folds to false (a `@fallback`
+      doesn't help). A boolean entity reader on `EntityPlayer` that returns `false` does.
+- [ ] Document the three operations in `misc/kumo-format.md` as on `main` (the operations table under
+      *Expressions*, the paragraph after `core:minecraft_version`'s, the registered operations table,
+      the selector-safe table, and the `@variants` row), and mention them in CHANGELOG.md.
+- [ ] Check in the game with the Compat+ pack from `main` (copied into `resourcepacks`, not linked):
+      it loads without an error, and the player bends as without it. Its only layer holds where
+      Better Combat is installed, which it never is on 1.12.2.
+
 ## Other tasks
 
 - [ ] Make `field` resolve every vanilla field in production. The generated accessors
