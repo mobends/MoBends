@@ -156,9 +156,11 @@ node is in *Choosing the node*.
     `override`, its rotation and its offset, so that it's drawn where vanilla draws the part,
     through the bones above it as the vanilla pose has them: a body that bends at the hips, a head
     that doesn't turn with it and arms that hang from the body all end up where vanilla's
-    (unparented) parts are. A bone keeps where it sits from its part at rest, however the
-    definition places its pivot or turns its boxes (the wolf's body lies along Z, vanilla's stands
-    up and is turned down). A bone vanilla draws as a piece of an ancestor's part, straight with it,
+    (unparented) parts are. A bone keeps where its pivot sits from its part at rest, and the
+    quarter turns its boxes are modelled by against the part's (the wolf's body lies along Z,
+    vanilla's stands up and is turned down); any other angle between them at rest is a rest pose
+    the definition doesn't share, and vanilla's angle shows (vanilla's wolf tail tilts back, the
+    definition's hangs straight). A bone vanilla draws as a piece of an ancestor's part, straight with it,
     is written at rest: a split bone's further segments (forearms, shins), and a bone with boxes of
     its own and no part, under one that has (the wolf's shins, nose and ears). Any other bone that
     stands for no vanilla part (the cape, the wolf's tongue) isn't written: the layers below decide

@@ -24,10 +24,11 @@ import java.util.Map;
  * <p>
  * Each bone that takes over a vanilla part is given the rotation and offset that draw it where
  * vanilla draws that part, through the bones above it as they're given here. The bone keeps where
- * it sits from the part at rest, as the definition places it: its pivot may be elsewhere (a body
- * that bends at the hips, a wolf's leg turning a pixel off vanilla's) and its boxes turned another
- * way (the wolf's body lies along Z, vanilla's is turned up), so its frame is the part's posed
- * frame, times the part's rest frame undone, times its own rest frame. Vanilla's parts hang from
+ * its pivot sits from the part at rest, as the definition places it (a body that bends at the
+ * hips, a wolf's leg turning a pixel off vanilla's), and the quarter turns its boxes are modelled
+ * by against the part's (the wolf's body lies along Z, vanilla's stands up and is turned down);
+ * any other angle between them at rest is a rest pose the definition doesn't share (vanilla's
+ * wolf tail tilts back, the definition's hangs straight), and vanilla's angle shows. Vanilla's parts hang from
  * the model's root, the bones from each other (a head that doesn't turn with the body), so a bone's
  * own rotation is what's left once its parents' is taken out. A bone vanilla draws as a piece of an
  * ancestor's part, straight with it (a forearm, the wolf's shins and ears), is at rest. Any other
@@ -221,13 +222,15 @@ public final class VanillaPoseReader implements IVanillaPose {
             vanillaRestOrigin.add(vanillaRestRotation.transform(vector.set(at[0], at[1], at[2])));
             vanillaRestRotation.mul(partTurn.rotationZYX(at[5], at[4], at[3]));
         }
-        // The bone keeps where it sits from vanilla's part at rest (its boxes are where the part's
-        // are, however the definition placed its pivot and turned its boxes): its frame is
-        // V * V0^-1 * its rest frame.
+        // The bone keeps where its pivot sits from vanilla's part at rest (V * V0^-1 * its rest
+        // origin), and the quarter turns its boxes are modelled by against the part's: the rest of
+        // what turns it from the part at rest is a rest pose the definition doesn't share (vanilla
+        // tilts the wolf's tail back, the definition hangs it straight and the animator lifts it),
+        // so vanilla's angle shows.
         vanillaRestRotation.conjugate();
         Vector3f origin = vanillaRestRotation.transform(vector.set(solved.restOrigin).sub(vanillaRestOrigin), new Vector3f());
         matrix.transformPosition(origin);
-        Quaternionf frame = new Quaternionf(vanillaRotation).mul(vanillaRestRotation).mul(solved.restRotation);
+        Quaternionf frame = new Quaternionf(vanillaRotation).mul(nearestQuarterTurns(vanillaRestRotation.mul(solved.restRotation)));
 
         // Its rotation: that, less its parent's (unless it doesn't turn with it), less its rest rotation.
         Quaternionf local = new Quaternionf(frame);
@@ -247,6 +250,43 @@ public final class VanillaPoseReader implements IVanillaPose {
 
         solved.frameRotation.set(frame);
         solved.frameOrigin.set(origin);
+    }
+
+    /** The 24 turns that take the axes onto the axes. */
+    private static final Quaternionf[] QUARTER_TURNS = quarterTurns();
+
+    private static Quaternionf[] quarterTurns() {
+        java.util.List<Quaternionf> turns = new java.util.ArrayList<>();
+        float quarter = (float) (Math.PI / 2);
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 4; y++) {
+                for (int z = 0; z < 4; z++) {
+                    Quaternionf turn = new Quaternionf().rotationXYZ(x * quarter, y * quarter, z * quarter);
+                    boolean known = false;
+                    for (Quaternionf other : turns) {
+                        known |= Math.abs(other.dot(turn)) > 0.999F;
+                    }
+                    if (!known) {
+                        turns.add(turn);
+                    }
+                }
+            }
+        }
+        return turns.toArray(new Quaternionf[0]);
+    }
+
+    /** The turn of {@link #QUARTER_TURNS} nearest {@code turn} (which is overwritten with it). */
+    private static Quaternionf nearestQuarterTurns(Quaternionf turn) {
+        Quaternionf nearest = QUARTER_TURNS[0];
+        float best = -1;
+        for (Quaternionf candidate : QUARTER_TURNS) {
+            float dot = Math.abs(candidate.dot(turn));
+            if (dot > best) {
+                best = dot;
+                nearest = candidate;
+            }
+        }
+        return turn.set(nearest);
     }
 
     @Nullable
