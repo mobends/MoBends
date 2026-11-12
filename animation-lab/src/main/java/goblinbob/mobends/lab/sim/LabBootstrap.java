@@ -10,6 +10,7 @@ import goblinbob.mobends.core.vanilla.VanillaEntityFields;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import goblinbob.mobends.standard.data.CapeWave;
 import goblinbob.mobends.standard.kumo.CapeDriver;
+import goblinbob.mobends.standard.compat.pal.PalOperations;
 import goblinbob.mobends.standard.kumo.MoBendsOperations;
 import goblinbob.mobends.standard.kumo.SwordTrailDriver;
 import goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsDriver;
@@ -34,6 +35,7 @@ public class LabBootstrap
         MinecraftVersion.set(MoBends.MINECRAFT);
         MinecraftKumoOperations.register();
         MoBendsOperations.register();
+        PalOperations.register();
         DriverRegistry.INSTANCE.register("mobends:cape", CapeDriver::create, CapeDriver.Template.class);
         DriverRegistry.INSTANCE.register("mobends:sword_trail", SwordTrailDriver::create, SwordTrailDriver.Template.class);
         DriverRegistry.INSTANCE.register("mobends:spider_idle_legs", SpiderIdleLegsDriver::create, SpiderIdleLegsTemplate.class);

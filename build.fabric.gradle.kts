@@ -30,7 +30,8 @@ repositories {
             includeGroup("com.eliotlash.mclib")
         }
     }
-    // Fantasy Armor and Cloth Config, for trying GeckoLib's armour on in the development client.
+    // Fantasy Armor and Cloth Config, for trying GeckoLib's armour on in the development client, and
+    // Player Animation Library and Better Combat.
     maven("https://api.modrinth.com/maven") {
         name = "Modrinth"
         content { includeGroup("maven.modrinth") }
@@ -70,13 +71,30 @@ dependencies {
         modLocalRuntime("net.fabricmc.fabric-api:fabric-api:${sc.properties["deps.fabric_api"]}")
         if (sc.current.parsed >= "26.1") {
             modLocalRuntime("maven.modrinth:fantasy_armor:${sc.properties["deps.fantasy_armor"]}") { isTransitive = false }
-            modLocalRuntime("maven.modrinth:cloth-config:${sc.properties["deps.cloth_config"]}") { isTransitive = false }
         }
         // GeckoLib 4.8 (1.20.1) reads its files with mclib, which its jar bundles but the
         // non-transitive dependency above leaves out of the development client.
         if (sc.current.parsed < "1.21") {
             localRuntime("com.eliotlash.mclib:mclib:20")
         }
+    }
+    // Player Animation Library, whose pose core:vanilla_pose can build on (standard.compat.pal); not
+    // needed. 26.x only.
+    val pal = { "maven.modrinth:player-animation-library:${sc.properties["deps.player_animation_library"]}" }
+    if (sc.current.parsed >= "26.1") {
+        modCompileOnly(pal()) { isTransitive = false }
+    }
+    // Better Combat, which plays its attacks with PAL: run the client with -PbetterCombat to see how
+    // they get along with Mo' Bends' (26.x only).
+    val betterCombat = providers.gradleProperty("betterCombat").isPresent && sc.current.parsed >= "26.1"
+    if (betterCombat) {
+        modLocalRuntime("maven.modrinth:better-combat:${sc.properties["deps.better_combat"]}") { isTransitive = false }
+        modLocalRuntime(pal()) { isTransitive = false }
+    }
+    // Fabric API and Cloth Config, which Fantasy Armor and Better Combat need.
+    if (sc.current.parsed >= "26.1" && (providers.gradleProperty("geckolib").isPresent || betterCombat)) {
+        modLocalRuntime("maven.modrinth:cloth-config:${sc.properties["deps.cloth_config"]}") { isTransitive = false }
+        if (betterCombat) modLocalRuntime("net.fabricmc.fabric-api:fabric-api:${sc.properties["deps.fabric_api"]}")
     }
 
     // The core's @Nullable. NeoForge has it on the classpath, Fabric doesn't; not needed at runtime.

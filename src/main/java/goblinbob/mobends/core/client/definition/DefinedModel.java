@@ -143,6 +143,11 @@ public final class DefinedModel {
         WORN_CACHE.clear();
     }
 
+    /** Every bone, segment and overlay (by its first piece), each after its parent. */
+    java.util.Collection<DefinedModelPart> partsInOrder() {
+        return parts.values();
+    }
+
     /** Whether the model has a part named {@code name} (a bone, a segment or an overlay). */
     public boolean hasPart(String name) {
         return parts.containsKey(name);

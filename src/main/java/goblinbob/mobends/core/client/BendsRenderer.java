@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import goblinbob.mobends.core.client.definition.DefinedModel;
 import goblinbob.mobends.core.client.definition.DefinedRenderer;
+import goblinbob.mobends.core.client.definition.VanillaPoseReader;
 import goblinbob.mobends.core.client.model.ModelRoots;
 import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.configuration.ClientConfig;
@@ -142,6 +143,19 @@ public final class BendsRenderer {
      */
     @Nullable
     public static DefinedEntityData<?> beforeRender(LivingEntity entity, EntityModel<?> model, float partialTicks) {
+        return beforeRender(entity, model, partialTicks, null);
+    }
+
+    /**
+     * As {@link #beforeRender(LivingEntity, EntityModel, float)}, with the vanilla model's pose for
+     * the animator to read ({@code core:vanilla_pose}).
+     *
+     * @param poseVanilla poses {@code model} as vanilla is about to for this render, setupAnim and
+     *                    all; run only if the animator reads the pose. Null if the model can't be
+     *                    posed ahead of its time: the animator has no vanilla pose to read.
+     */
+    @Nullable
+    public static DefinedEntityData<?> beforeRender(LivingEntity entity, EntityModel<?> model, float partialTicks, @Nullable Runnable poseVanilla) {
         // A preview of the Mo' Bends menu shows its mob, whatever type would win for it in the game.
         boolean preview = PreviewWorld.isPreview(entity);
         EntityTypeRegistry.Selection selection = preview ? PreviewWorld.getSelection(entity) : EntityTypeRegistry.INSTANCE.select(entity);
@@ -166,8 +180,35 @@ public final class BendsRenderer {
             return null;
         }
         captureRenderArguments(entity, partialTicks, definedData);
-        definedData.animate();
+        VanillaPoseReader vanillaPose = poseVanilla == null ? null : openVanillaPose(definedData, model, poseVanilla);
+        try {
+            definedData.animate();
+        } finally {
+            if (vanillaPose != null) {
+                vanillaPose.close();
+                definedData.setVanillaPose(null);
+            }
+        }
         return definedData.wantsVanilla() ? null : definedData;
+    }
+
+    /** Lets the data's animator read {@code model}'s vanilla pose while it animates; null if the model isn't drawn bent. */
+    @Nullable
+    private static VanillaPoseReader openVanillaPose(DefinedEntityData<?> data, EntityModel<?> model, Runnable poseVanilla) {
+        DefinedModel parts = partsFor(data, model);
+        if (parts == null) {
+            return null;
+        }
+        VanillaPoseReader reader;
+        if (data.getVanillaPoseSource() instanceof VanillaPoseReader kept) {
+            reader = kept;
+        } else {
+            reader = new VanillaPoseReader(data);
+            data.setVanillaPoseSource(reader);
+        }
+        reader.open(parts, poseVanilla);
+        data.setVanillaPose(reader);
+        return reader;
     }
 
     /**

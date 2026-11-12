@@ -5,12 +5,15 @@ import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.EntityComponents;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.kumo.bind.EntityBone;
+import goblinbob.mobends.core.kumo.bind.IVanillaPose;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.Ids;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+
+import javax.annotation.Nullable;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,6 +37,12 @@ public class DefinedEntityData<E extends LivingEntity> extends LivingEntityData<
     private final ResourceLocation animator;
     /** What the positions were last adopted from (one per vanilla model), or null. */
     private Object positionsSource;
+    /** The vanilla model's pose, which a {@code core:vanilla_pose} node reads; null while there's none to read. */
+    @Nullable
+    private IVanillaPose vanillaPose;
+    /** Whatever the renderer keeps to read it with, from one frame to the next (see {@link #getVanillaPoseSource}). */
+    @Nullable
+    private Object vanillaPoseSource;
 
     public DefinedEntityData(EntityModelDefinition definition, E entity) {
         super(entity);
@@ -158,6 +167,27 @@ public class DefinedEntityData<E extends LivingEntity> extends LivingEntityData<
             }
         }
         positionsSource = source;
+    }
+
+    @Override
+    @Nullable
+    public IVanillaPose getVanillaPose() {
+        return vanillaPose;
+    }
+
+    /** Gives the animator the vanilla model's pose to read, while it animates; null for none. */
+    public void setVanillaPose(@Nullable IVanillaPose vanillaPose) {
+        this.vanillaPose = vanillaPose;
+    }
+
+    /** What the renderer reads the vanilla pose with, kept with the entity's data; null until it sets one. */
+    @Nullable
+    public Object getVanillaPoseSource() {
+        return vanillaPoseSource;
+    }
+
+    public void setVanillaPoseSource(@Nullable Object source) {
+        this.vanillaPoseSource = source;
     }
 
     public boolean hasAdoptedPositionsOf(Object source) {

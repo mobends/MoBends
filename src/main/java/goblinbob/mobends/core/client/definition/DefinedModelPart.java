@@ -50,6 +50,14 @@ public class DefinedModelPart {
     final ModelPart visibleWith;
     @Nullable
     Quaternion restRotation;
+    /**
+     * For a bone that takes over a vanilla part: the vanilla parts from the model's root (left out)
+     * down to that part, whose poses place it ({@link VanillaPoseReader}); null for anything else.
+     */
+    @Nullable
+    ModelPart[] vanillaChain;
+    /** Whether it's a further segment of a split bone (a forearm), which vanilla's part draws straight. */
+    boolean segment;
     /** Drawn through its parents' transforms, not by its parent (see {@code BoneDefinition#drawnAlone}). */
     boolean drawnAlone;
 

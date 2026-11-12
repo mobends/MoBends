@@ -142,6 +142,9 @@ final class DefinedModelBuilder {
             shifts.put(bone.name, shift);
 
             DefinedModelPart part = new DefinedModelPart(bone.name, parent, vanilla);
+            if (vanilla != null && over == null) {
+                part.vanillaChain = chainTo(vanilla);
+            }
             float[] position = parent == null ? pivot : subtract(pivot, pivots.get(bone.parent));
             part.position.set(position[0], position[1], position[2]);
             positions.put(bone.name, position);
@@ -167,6 +170,7 @@ final class DefinedModelBuilder {
                 for (String name : bone.split.names) {
                     // A segment shows with its bone.
                     DefinedModelPart segment = new DefinedModelPart(name, previous, vanilla);
+                    segment.segment = true;
                     previous.children.add(segment);
                     part.segments.add(segment);
                     parts.put(name, segment);
@@ -431,6 +435,25 @@ final class DefinedModelBuilder {
     }
 
     /** Adds the rest offsets of the parts from {@code from} (left out) down to {@code part} to {@code at}; false if it isn't under {@code from}. */
+    /** The parts from the model's root (left out) down to {@code part}, which is the last; just {@code part} if it isn't found under the root. */
+    private ModelPart[] chainTo(ModelPart part) {
+        List<ModelPart> chain = new ArrayList<>();
+        if (!addChain(root, part, chain)) {
+            chain.add(part);
+        }
+        return chain.toArray(new ModelPart[0]);
+    }
+
+    private static boolean addChain(ModelPart from, ModelPart part, List<ModelPart> chain) {
+        for (ModelPart child : childrenOf(from)) {
+            if (child == part || addChain(child, part, chain)) {
+                chain.add(0, child);
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static boolean addRestOffsets(ModelPart from, ModelPart part, float[] at) {
         for (ModelPart child : childrenOf(from)) {
             if (child == part || addRestOffsets(child, part, at)) {
