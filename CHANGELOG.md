@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- A left-handed player spins the right way in the sword combo's last hit. It spun the way a
+  right-handed one does, with its head and sword turned against the spin.
+
 ## 2.0.0-alpha.4
 
 The first Mo' Bends for Minecraft 1.20.1 (Forge and Fabric) and 26.3 (Fabric and NeoForge),
