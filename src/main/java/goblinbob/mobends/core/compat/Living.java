@@ -78,7 +78,7 @@ public final class Living
     /** The ticks the item has been used for (1.12's {@code getItemInUseMaxCount}, which is misnamed). */
     public static int getItemInUseMaxCount(EntityLivingBase entity)
     {
-        return entity instanceof EntityPlayer && ((EntityPlayer) entity).isUsingItem() ? ((EntityPlayer) entity).getItemInUseDuration() : 0;
+        return entity instanceof EntityPlayer ? ((EntityPlayer) entity).getItemInUseDuration() : 0;
     }
 
     /** Always false: 1.8.9 has no elytra. */
