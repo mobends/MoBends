@@ -8,7 +8,15 @@
     "GoblinBob"
   ],
   "contributors": [
-    "Tommsy64"
+    "Tommsy64",
+    {
+      "name": "ThatSoulyGuy",
+      "contact": { "homepage": "https://github.com/ThatSoulyGuy" }
+    },
+    {
+      "name": "Sxilverr",
+      "contact": { "homepage": "https://github.com/Sxilverrr" }
+    }
   ],
   "contact": {
     "homepage": "https://mobends.com",
