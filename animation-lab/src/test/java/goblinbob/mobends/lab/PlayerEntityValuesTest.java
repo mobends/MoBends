@@ -18,7 +18,7 @@ import goblinbob.mobends.lab.sim.VanillaModelInputs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import org.junit.jupiter.api.Test;
 
@@ -127,8 +127,8 @@ public class PlayerEntityValuesTest
         LabBootstrap.ensure();
         net.minecraft.entity.Entity.resetIds();
         World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        Minecraft.getMinecraft().theWorld = world;
+        Minecraft.getMinecraft().thePlayer = new EntityPlayerSP(world);
         AbstractClientPlayer player = new AbstractClientPlayer(world);
         ScriptedEntity scripted = new ScriptedEntity(player, world);
         Reference data = new Reference(EntityKind.PLAYER.loadDefinition(), player);

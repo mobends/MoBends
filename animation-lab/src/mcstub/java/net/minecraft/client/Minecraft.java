@@ -8,8 +8,8 @@ public class Minecraft
 {
     private static final Minecraft INSTANCE = new Minecraft();
 
-    public World world;
-    public EntityPlayerSP player;
+    public World theWorld;
+    public EntityPlayerSP thePlayer;
     public boolean gamePaused;
     private final RenderManager renderManager = new RenderManager();
 

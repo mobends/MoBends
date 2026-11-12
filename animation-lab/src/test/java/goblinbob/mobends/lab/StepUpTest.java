@@ -4,7 +4,7 @@ import goblinbob.mobends.core.kumo.StepUpDriver;
 import goblinbob.mobends.core.kumo.StepUpDriver.Result;
 import goblinbob.mobends.lab.sim.LabWorlds;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import org.junit.jupiter.api.Test;
 
@@ -97,7 +97,7 @@ class StepUpTest
         World world = new World();
         LabWorlds.placeStone(world, -2, 0, 3, 2, 0, 3);
         // A hole in the floor in row 1, between it and the step.
-        world.setBlockState(new BlockPos(0, -1, 1), Blocks.AIR.getDefaultState());
+        world.setBlockState(new BlockPos(0, -1, 1), Blocks.air.getDefaultState());
         assertEquals(Result.NONE, search(world, 0, 1, new int[5]));
     }
 
@@ -105,7 +105,7 @@ class StepUpTest
     void waterIsNoStep()
     {
         World world = new World();
-        for (int x = -1; x <= 1; x++) world.setBlockState(new BlockPos(x, 0, 2), Blocks.WATER.getDefaultState());
+        for (int x = -1; x <= 1; x++) world.setBlockState(new BlockPos(x, 0, 2), Blocks.water.getDefaultState());
         assertEquals(Result.NONE, search(world, 0, 1, new int[5]));
     }
 

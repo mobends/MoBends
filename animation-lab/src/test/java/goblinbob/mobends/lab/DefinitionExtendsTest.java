@@ -73,8 +73,8 @@ public class DefinitionExtendsTest
     {
         LabBootstrap.ensure();
         JsonObject applied = DefinitionMerge.applyVariants(json("{'childScale': 0.5, 'renderer': {'sneakOffset': 5}, '@variants': ["
-                + " {'@when': {'core:minecraft_version': ['>', '1.12.2']}, 'childScale': 0.25},"
-                + " {'@when': {'core:minecraft_version': ['==', '1.12.2']}, 'renderer': {'flyingSneakOffset': 4}}]}"));
+                + " {'@when': {'core:minecraft_version': ['>', '1.8.9']}, 'childScale': 0.25},"
+                + " {'@when': {'core:minecraft_version': ['==', '1.8.9']}, 'renderer': {'flyingSneakOffset': 4}}]}"));
         assertFalse(applied.has("@variants"));
         assertEquals(0.5, applied.get("childScale").getAsDouble(), 0);
         assertEquals(json("{'sneakOffset': 5, 'flyingSneakOffset': 4}"), applied.get("renderer"));

@@ -178,7 +178,7 @@ public class PlayerStepTurnTest
             }
         };
         player.run(160, tick -> {
-            player.inputs.mainHand = new net.minecraft.item.ItemStack(net.minecraft.init.Items.IRON_SWORD);
+            player.inputs.mainHand = new net.minecraft.item.ItemStack(net.minecraft.init.Items.iron_sword);
             player.inputs.attack = tick == 30;
         });
         // In the stance the feet stand more than twice as far apart, planted as the stance lowers and

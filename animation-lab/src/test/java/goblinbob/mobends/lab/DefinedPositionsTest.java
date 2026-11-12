@@ -35,8 +35,8 @@ public class DefinedPositionsTest
     {
         LabBootstrap.ensure();
         World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        Minecraft.getMinecraft().theWorld = world;
+        Minecraft.getMinecraft().thePlayer = new EntityPlayerSP(world);
         DefinedEntityData<EntityZombie> data = DefinedEntityData.create(definition(""), new EntityZombie(world));
         Object wide = new Object(), slim = new Object();
         Map<String, float[]> widePositions = Collections.singletonMap("arm", new float[] { -5, -10, 0 });

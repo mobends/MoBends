@@ -4,7 +4,7 @@ import net.minecraft.block.BlockLadder;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 /** Block placement helpers for scenarios (ladders to climb, water to swim in, stone to climb onto). */
@@ -22,7 +22,7 @@ public class LabWorlds
         int z = (int) Math.floor(entity.posZ);
         for (int y = (int) Math.floor(world.floorY); y < world.floorY + height; y++)
         {
-            world.setBlockState(new BlockPos(x, y, z), Blocks.LADDER.getDefaultState().withProperty(BlockLadder.FACING, EnumFacing.NORTH));
+            world.setBlockState(new BlockPos(x, y, z), Blocks.ladder.getDefaultState().withProperty(BlockLadder.FACING, EnumFacing.NORTH));
         }
     }
 
@@ -32,7 +32,7 @@ public class LabWorlds
         for (int x = x0; x <= x1; x++)
             for (int y = y0; y <= y1; y++)
                 for (int z = z0; z <= z1; z++)
-                    world.setBlockState(new BlockPos(x, y, z), Blocks.STONE.getDefaultState());
+                    world.setBlockState(new BlockPos(x, y, z), Blocks.stone.getDefaultState());
     }
 
     /** Fills a 3x3 column of still water around the entity from the floor upwards. */
@@ -43,6 +43,6 @@ public class LabWorlds
         for (int x = cx - 1; x <= cx + 1; x++)
             for (int z = cz - 1; z <= cz + 1; z++)
                 for (int y = (int) Math.floor(world.floorY); y < world.floorY + height; y++)
-                    world.setBlockState(new BlockPos(x, y, z), Blocks.WATER.getDefaultState());
+                    world.setBlockState(new BlockPos(x, y, z), Blocks.water.getDefaultState());
     }
 }

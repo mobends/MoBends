@@ -1,11 +1,9 @@
 package net.minecraft.entity;
 
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumHandSide;
 import net.minecraft.world.World;
 
+/** 1.8.9's: one held item (no off hand), equipment by number, no item use (only players use items) and no elytra. */
 public class EntityLivingBase extends Entity
 {
     public float renderYawOffset, prevRenderYawOffset;
@@ -14,44 +12,21 @@ public class EntityLivingBase extends Entity
     public float swingProgress, prevSwingProgress;
     public boolean isSwingInProgress;
     public int swingProgressInt;
-
     public float health = 20.0F;
     public boolean child;
-    public EnumHandSide primaryHand = EnumHandSide.RIGHT;
-    public ItemStack mainHand = ItemStack.EMPTY;
-    public ItemStack offHand = ItemStack.EMPTY;
-    public EnumHand activeHand = EnumHand.MAIN_HAND;
-    public int itemInUseCount;
-    public int itemInUseMaxCount;
+    /** 0 the held item, then the armour from the feet up. */
+    public final ItemStack[] equipment = new ItemStack[5];
     public boolean playerSleeping;
 
     public EntityLivingBase(World world) { super(world); }
 
     public float getHealth() { return health; }
     public boolean isChild() { return child; }
-    public EnumHandSide getPrimaryHand() { return primaryHand; }
-    public ItemStack getHeldItem(EnumHand hand) { return hand == EnumHand.MAIN_HAND ? mainHand : offHand; }
-    public ItemStack getHeldItemMainhand() { return mainHand; }
-    public ItemStack getHeldItemOffhand() { return offHand; }
-    public EnumHand getActiveHand() { return activeHand; }
-    public ItemStack getActiveItemStack() { return itemInUseCount > 0 ? getHeldItem(activeHand) : ItemStack.EMPTY; }
-    public int getItemInUseCount() { return itemInUseCount; }
-    public int getItemInUseMaxCount() { return itemInUseMaxCount; }
+    public ItemStack getHeldItem() { return equipment[0]; }
+    public ItemStack getEquipmentInSlot(int slot) { return equipment[slot]; }
+    public ItemStack getCurrentArmor(int slot) { return equipment[slot + 1]; }
+    public void setCurrentItemOrArmor(int slot, ItemStack stack) { equipment[slot] = stack; }
     public boolean isPlayerSleeping() { return playerSleeping; }
-    /** Vanilla counts these while the elytra flag is set; the lab sets the count, and the flag follows it. */
-    public int ticksElytraFlying;
-    public int getTicksElytraFlying() { return ticksElytraFlying; }
-    public boolean isElytraFlying() { return ticksElytraFlying > 0; }
-
-    public ItemStack getItemStackFromSlot(EntityEquipmentSlot slot)
-    {
-        switch (slot)
-        {
-            case MAINHAND: return mainHand;
-            case OFFHAND: return offHand;
-            default: return ItemStack.EMPTY;
-        }
-    }
 
     public float getSwingProgress(float partialTicks)
     {

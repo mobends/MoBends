@@ -1,6 +1,6 @@
 package net.minecraft.util;
 
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.Vec3i;
 
 public enum EnumFacing
 {
@@ -24,5 +24,4 @@ public enum EnumFacing
     public int getHorizontalIndex() { return horizontalIndex; }
 
     /** Same formula as the game: (horizontalIndex & 3) * 90. */
-    public float getHorizontalAngle() { return (float) ((horizontalIndex & 3) * 90); }
 }

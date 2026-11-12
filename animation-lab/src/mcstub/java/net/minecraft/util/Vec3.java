@@ -1,30 +1,30 @@
-package net.minecraft.util.math;
+package net.minecraft.util;
 
-public class Vec3d
+public class Vec3
 {
-    public final double x, y, z;
+    public final double xCoord, yCoord, zCoord;
 
-    public Vec3d(double x, double y, double z)
+    public Vec3(double x, double y, double z)
     {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.xCoord = x;
+        this.yCoord = y;
+        this.zCoord = z;
     }
 
-    public Vec3d normalize()
+    public Vec3 normalize()
     {
-        double d0 = Math.sqrt(x * x + y * y + z * z);
-        return d0 < 1.0E-4D ? new Vec3d(0, 0, 0) : new Vec3d(x / d0, y / d0, z / d0);
+        double d0 = Math.sqrt(xCoord * xCoord + yCoord * yCoord + zCoord * zCoord);
+        return d0 < 1.0E-4D ? new Vec3(0, 0, 0) : new Vec3(xCoord / d0, yCoord / d0, zCoord / d0);
     }
 
-    public Vec3d rotateYaw(float yaw)
+    public Vec3 rotateYaw(float yaw)
     {
         float f = MathHelper.cos(yaw);
         float f1 = MathHelper.sin(yaw);
-        double d0 = x * (double) f + z * (double) f1;
-        double d2 = z * (double) f - x * (double) f1;
-        return new Vec3d(d0, y, d2);
+        double d0 = xCoord * (double) f + zCoord * (double) f1;
+        double d2 = zCoord * (double) f - xCoord * (double) f1;
+        return new Vec3(d0, yCoord, d2);
     }
 
-    public double lengthVector() { return Math.sqrt(x * x + y * y + z * z); }
+    public double lengthVector() { return Math.sqrt(xCoord * xCoord + yCoord * yCoord + zCoord * zCoord); }
 }

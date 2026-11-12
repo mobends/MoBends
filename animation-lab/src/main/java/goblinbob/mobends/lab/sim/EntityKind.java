@@ -12,7 +12,6 @@ import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.entity.monster.EntityZombieVillager;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.util.ResourceLocation;
@@ -29,7 +28,12 @@ public enum EntityKind
 {
     PLAYER("mobends:player", "player", AbstractClientPlayer::new),
     ZOMBIE("mobends:zombie", "zombie", EntityZombie::new),
-    ZOMBIE_VILLAGER("mobends:zombie_villager", "zombie_villager", EntityZombieVillager::new),
+    // A zombie that is a villager, in 1.8.9.
+    ZOMBIE_VILLAGER("mobends:zombie_villager", "zombie_villager", world -> {
+        EntityZombie zombie = new EntityZombie(world);
+        zombie.setVillager(true);
+        return zombie;
+    }),
     SKELETON("mobends:skeleton", "skeleton", EntitySkeleton::new),
     PIG_ZOMBIE("mobends:zombie_pigman", "pig_zombie", EntityPigZombie::new),
     SPIDER("mobends:spider", "spider", EntitySpider::new),

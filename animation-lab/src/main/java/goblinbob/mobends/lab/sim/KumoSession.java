@@ -14,7 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 import java.io.IOException;
@@ -106,8 +106,8 @@ public class KumoSession
         net.minecraft.entity.Entity.resetIds();
         this.scenario = scenario;
         this.world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        Minecraft.getMinecraft().theWorld = world;
+        Minecraft.getMinecraft().thePlayer = new EntityPlayerSP(world);
 
         EntityLivingBase entity = scenario.kind.createEntity(world);
         this.scripted = new ScriptedEntity(entity, world);
@@ -127,8 +127,8 @@ public class KumoSession
         net.minecraft.entity.Entity.resetIds();
         this.scenario = scenario;
         this.world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        Minecraft.getMinecraft().theWorld = world;
+        Minecraft.getMinecraft().thePlayer = new EntityPlayerSP(world);
 
         EntityLivingBase entity = scenario.kind.createEntity(world);
         this.scripted = new ScriptedEntity(entity, world);
@@ -173,8 +173,8 @@ public class KumoSession
         data.update(clock.getPartialTicks());
 
         modelInputs.compute(scripted.entity, clock.getPartialTicks());
-        data.headYaw = MathHelper.wrapDegrees(modelInputs.headYaw);
-        data.headPitch = MathHelper.wrapDegrees(modelInputs.headPitch);
+        data.headYaw = MathHelper.wrapAngleTo180_float(modelInputs.headYaw);
+        data.headPitch = MathHelper.wrapAngleTo180_float(modelInputs.headPitch);
         data.limbSwing = modelInputs.limbSwing;
         data.limbSwingAmount = modelInputs.limbSwingAmount;
         data.swingProgress = modelInputs.swingProgress;

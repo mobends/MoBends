@@ -1,7 +1,7 @@
-package net.minecraft.util.math;
+package net.minecraft.util;
 
 /**
- * Stub of Minecraft 1.12.2's MathHelper. sin/cos use the same 65536-entry lookup table as the game
+ * Stub of Minecraft 1.8.9's MathHelper. sin/cos use the same 65536-entry lookup table as the game
  * so the animation output carries the same quantisation as in the game.
  */
 public class MathHelper
@@ -26,29 +26,29 @@ public class MathHelper
         return SIN_TABLE[(int) (value * 10430.378F + 16384.0F) & 65535];
     }
 
-    public static float sqrt(float value) { return (float) Math.sqrt((double) value); }
-    public static float sqrt(double value) { return (float) Math.sqrt(value); }
+    public static float sqrt_float(float value) { return (float) Math.sqrt((double) value); }
+    public static float sqrt_double(double value) { return (float) Math.sqrt(value); }
 
-    public static int floor(float value)
+    public static int floor_float(float value)
     {
         int i = (int) value;
         return value < (float) i ? i - 1 : i;
     }
 
-    public static int floor(double value)
+    public static int floor_double(double value)
     {
         int i = (int) value;
         return value < (double) i ? i - 1 : i;
     }
 
     public static float abs(float value) { return value >= 0.0F ? value : -value; }
-    public static int abs(int value) { return value >= 0 ? value : -value; }
+    public static int abs_int(int value) { return value >= 0 ? value : -value; }
 
-    public static int clamp(int num, int min, int max) { return num < min ? min : (num > max ? max : num); }
-    public static float clamp(float num, float min, float max) { return num < min ? min : (num > max ? max : num); }
-    public static double clamp(double num, double min, double max) { return num < min ? min : (num > max ? max : num); }
+    public static int clamp_int(int num, int min, int max) { return num < min ? min : (num > max ? max : num); }
+    public static float clamp_float(float num, float min, float max) { return num < min ? min : (num > max ? max : num); }
+    public static double clamp_double(double num, double min, double max) { return num < min ? min : (num > max ? max : num); }
 
-    public static float wrapDegrees(float value)
+    public static float wrapAngleTo180_float(float value)
     {
         value = value % 360.0F;
         if (value >= 180.0F) value -= 360.0F;
@@ -56,7 +56,7 @@ public class MathHelper
         return value;
     }
 
-    public static double wrapDegrees(double value)
+    public static double wrapAngleTo180_double(double value)
     {
         value = value % 360.0D;
         if (value >= 180.0D) value -= 360.0D;
@@ -64,13 +64,6 @@ public class MathHelper
         return value;
     }
 
-    public static int wrapDegrees(int angle)
-    {
-        angle = angle % 360;
-        if (angle >= 180) angle -= 360;
-        if (angle < -180) angle += 360;
-        return angle;
-    }
 
     /**
      * The game uses a fast table-based approximation here. The exact version is used in the lab;
@@ -79,5 +72,4 @@ public class MathHelper
      */
     public static double atan2(double y, double x) { return Math.atan2(y, x); }
 
-    public static double atan(double value) { return Math.atan(value); }
 }

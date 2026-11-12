@@ -1,18 +1,18 @@
-package net.minecraft.util.math;
+package net.minecraft.util;
 
 import net.minecraft.util.EnumFacing;
 
-public class RayTraceResult
+public class MovingObjectPosition
 {
-    public enum Type { MISS, BLOCK, ENTITY }
+    public enum MovingObjectType { MISS, BLOCK, ENTITY }
 
-    public Type typeOfHit;
+    public MovingObjectType typeOfHit;
     public EnumFacing sideHit;
-    public Vec3d hitVec;
+    public Vec3 hitVec;
 
-    public RayTraceResult(Vec3d hitVec, EnumFacing sideHit)
+    public MovingObjectPosition(Vec3 hitVec, EnumFacing sideHit)
     {
-        this.typeOfHit = Type.BLOCK;
+        this.typeOfHit = MovingObjectType.BLOCK;
         this.hitVec = hitVec;
         this.sideHit = sideHit;
     }

@@ -1,7 +1,7 @@
 package net.minecraft.entity.passive;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 public class EntityWolf extends EntityLivingBase

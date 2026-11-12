@@ -21,7 +21,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
@@ -59,7 +59,7 @@ public class DefinedModelsTest
 
     static
     {
-        for (String name : new String[] { "chicken", "cow", "mooshroom", "pig", "polar_bear", "sheep" })
+        for (String name : new String[] { "chicken", "cow", "mooshroom", "pig", "sheep" })
         {
             UNRELEASED_MODELS.put("mobends:" + name, new ResourceLocation("mobends", "bends/models/" + name + ".json"));
         }
@@ -183,8 +183,8 @@ public class DefinedModelsTest
         LabBootstrap.ensure();
         net.minecraft.entity.Entity.resetIds();
         World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        Minecraft.getMinecraft().theWorld = world;
+        Minecraft.getMinecraft().thePlayer = new EntityPlayerSP(world);
         EntityLivingBase entity = entityOf(definition, world);
         ScriptedEntity scripted = new ScriptedEntity(entity, world);
         DefinedEntityData<EntityLivingBase> data = DefinedEntityData.create(definition, entity);
@@ -232,8 +232,8 @@ public class DefinedModelsTest
             }
             data.update(clock.getPartialTicks());
             modelInputs.compute(entity, clock.getPartialTicks());
-            data.headYaw = MathHelper.wrapDegrees(modelInputs.headYaw);
-            data.headPitch = MathHelper.wrapDegrees(modelInputs.headPitch);
+            data.headYaw = MathHelper.wrapAngleTo180_float(modelInputs.headYaw);
+            data.headPitch = MathHelper.wrapAngleTo180_float(modelInputs.headPitch);
             data.limbSwing = modelInputs.limbSwing;
             data.limbSwingAmount = modelInputs.limbSwingAmount;
             data.swingProgress = modelInputs.swingProgress;

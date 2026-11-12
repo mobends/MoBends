@@ -1,8 +1,8 @@
 package net.minecraft.entity;
 
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 /**
@@ -13,7 +13,7 @@ public class Entity
 {
     private static int nextId = 1;
 
-    public World world;
+    public World worldObj;
     public double posX, posY, posZ;
     public double prevPosX, prevPosY, prevPosZ;
     public double motionX, motionY, motionZ;
@@ -30,7 +30,7 @@ public class Entity
 
     public Entity(World world)
     {
-        this.world = world;
+        this.worldObj = world;
         this.entityId = nextId++;
         if (world != null) world.addEntity(this);
     }
@@ -53,7 +53,6 @@ public class Entity
     public boolean isEntityAlive() { return alive; }
     public boolean isOnLadder() { return onLadder; }
     public boolean isRiding() { return ridingEntity != null; }
-    public Entity getRidingEntity() { return ridingEntity; }
     public boolean shouldRiderSit() { return riderShouldSit; }
 
     public void setLocationAndAngles(double x, double y, double z, float yaw, float pitch)
@@ -66,13 +65,13 @@ public class Entity
     }
 
     /** Same maths as the game's Entity.getLook(1.0F). */
-    public Vec3d getLookVec()
+    public Vec3 getLookVec()
     {
         return getLook(1.0F);
     }
 
     /** Same maths as the game's Entity.getLook: the look, interpolated by partialTicks. */
-    public Vec3d getLook(float partialTicks)
+    public Vec3 getLook(float partialTicks)
     {
         if (partialTicks == 1.0F)
         {
@@ -83,12 +82,12 @@ public class Entity
         return getVectorForRotation(pitch, yaw);
     }
 
-    protected final Vec3d getVectorForRotation(float pitch, float yaw)
+    protected final Vec3 getVectorForRotation(float pitch, float yaw)
     {
         float f = MathHelper.cos(-yaw * 0.017453292F - (float) Math.PI);
         float f1 = MathHelper.sin(-yaw * 0.017453292F - (float) Math.PI);
         float f2 = -MathHelper.cos(-pitch * 0.017453292F);
         float f3 = MathHelper.sin(-pitch * 0.017453292F);
-        return new Vec3d((double) (f1 * f2), (double) f3, (double) (f * f2));
+        return new Vec3((double) (f1 * f2), (double) f3, (double) (f * f2));
     }
 }

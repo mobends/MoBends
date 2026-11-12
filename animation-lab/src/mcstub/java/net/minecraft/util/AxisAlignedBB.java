@@ -1,4 +1,4 @@
-package net.minecraft.util.math;
+package net.minecraft.util;
 
 public class AxisAlignedBB
 {

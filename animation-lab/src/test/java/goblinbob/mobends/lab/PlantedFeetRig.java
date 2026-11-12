@@ -16,7 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 import java.util.Collections;
@@ -113,8 +113,8 @@ class PlantedFeetRig
         LabBootstrap.ensure();
         net.minecraft.entity.Entity.resetIds();
         World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        Minecraft.getMinecraft().theWorld = world;
+        Minecraft.getMinecraft().thePlayer = new EntityPlayerSP(world);
         entity = create.apply(world);
         if (id != 0)
         {
@@ -159,8 +159,8 @@ class PlantedFeetRig
             float pt = clock.getPartialTicks();
             data.update(pt);
             modelInputs.compute(entity, pt);
-            data.headYaw = MathHelper.wrapDegrees(modelInputs.headYaw);
-            data.headPitch = MathHelper.wrapDegrees(modelInputs.headPitch);
+            data.headYaw = MathHelper.wrapAngleTo180_float(modelInputs.headYaw);
+            data.headPitch = MathHelper.wrapAngleTo180_float(modelInputs.headPitch);
             data.limbSwing = modelInputs.limbSwing;
             data.limbSwingAmount = modelInputs.limbSwingAmount;
             data.swingProgress = modelInputs.swingProgress;

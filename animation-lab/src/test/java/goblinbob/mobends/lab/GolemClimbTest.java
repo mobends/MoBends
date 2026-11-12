@@ -114,7 +114,7 @@ class GolemClimbTest
         Scenario scenario = new Scenario(EntityKind.IRON_GOLEM, "climb_gap", Scenarios.FPS, 140, (tick, in) -> {
             if (tick >= 20 && tick < 110) Scripts.walk(in, Scripts.GOLEM_SPEED);
             if (tick == 42) in.jump = true;
-        }, data -> LabWorlds.placeStone(data.getEntity().world, 0, 0, 3, 2, 0, 4));
+        }, data -> LabWorlds.placeStone(data.getEntity().worldObj, 0, 0, 3, 2, 0, 4));
         double[] grabbed = null;
         for (double[] frame : climb(scenario))
         {
@@ -137,7 +137,7 @@ class GolemClimbTest
         Scenario scenario = new Scenario(EntityKind.IRON_GOLEM, "climb_early", Scenarios.FPS, 140, (tick, in) -> {
             if (tick >= 20 && tick < 110) Scripts.walk(in, Scripts.GOLEM_SPEED);
             if (tick == 34) in.jump = true;
-        }, data -> LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, 0, 4));
+        }, data -> LabWorlds.placeStone(data.getEntity().worldObj, -2, 0, 3, 2, 0, 4));
         int held = 0;
         for (double[] frame : climb(scenario))
         {
@@ -157,7 +157,7 @@ class GolemClimbTest
             if (tick >= 20 && tick < 40) Scripts.walk(in, Scripts.GOLEM_SPEED);
             if (tick >= 42 && tick < 60) Scripts.walk(in, -Scripts.GOLEM_SPEED);
             if (tick == 46) in.jump = true;
-        }, data -> LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, 0, 4));
+        }, data -> LabWorlds.placeStone(data.getEntity().worldObj, -2, 0, 3, 2, 0, 4));
         assertTrue(climb(scenario).isEmpty(), "no climb");
     }
 
@@ -169,7 +169,7 @@ class GolemClimbTest
             in.bodyYaw = -90;
             if (tick >= 20 && tick < 60) Scripts.walk(in, Scripts.GOLEM_SPEED);
             if (tick == 40) in.jump = true;
-        }, data -> LabWorlds.placeStone(data.getEntity().world, -10, 0, 2, 10, 0, 3));
+        }, data -> LabWorlds.placeStone(data.getEntity().worldObj, -10, 0, 2, 10, 0, 3));
         assertTrue(climb(scenario).isEmpty(), "no climb");
     }
 
@@ -183,8 +183,8 @@ class GolemClimbTest
                 if (tick >= 20 && tick < 90) Scripts.walk(in, Scripts.GOLEM_SPEED);
                 if (tick == 42) in.jump = true;
             }, data -> {
-                LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, which.equals("wall") ? 1 : 0, 4);
-                if (which.equals("ceiling")) LabWorlds.placeStone(data.getEntity().world, -2, 3, 3, 2, 3, 4);
+                LabWorlds.placeStone(data.getEntity().worldObj, -2, 0, 3, 2, which.equals("wall") ? 1 : 0, 4);
+                if (which.equals("ceiling")) LabWorlds.placeStone(data.getEntity().worldObj, -2, 3, 3, 2, 3, 4);
             });
             assertTrue(climb(scenario).isEmpty(), "no climb at the " + which);
         }
@@ -198,7 +198,7 @@ class GolemClimbTest
         Scenario scenario = new Scenario(EntityKind.IRON_GOLEM, "climb_backing_off", Scenarios.FPS, 140, (tick, in) -> {
             if (tick >= 20 && tick < 110) Scripts.walk(in, tick >= 44 ? -Scripts.GOLEM_SPEED : Scripts.GOLEM_SPEED);
             if (tick == 42) in.jump = true;
-        }, data -> LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, 0, 4));
+        }, data -> LabWorlds.placeStone(data.getEntity().worldObj, -2, 0, 3, 2, 0, 4));
         double given = climbLength(scenario);
         assertTrue(kept >= 15, "climb_ledge climbs on: " + kept + " ticks");
         assertTrue(given >= 3 && given < 10, "given up before it is drawn up onto the ledge: " + given + " ticks");

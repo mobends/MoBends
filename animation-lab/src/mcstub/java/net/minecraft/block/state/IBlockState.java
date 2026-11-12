@@ -2,10 +2,6 @@ package net.minecraft.block.state;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,11 +16,6 @@ public class IBlockState
 
     public Block getBlock() { return block; }
 
-    /** The box things collide with, or null ({@code Block.NULL_AABB}): stone's is the full cube, as the world has it. */
-    public AxisAlignedBB getCollisionBoundingBox(IBlockAccess world, BlockPos pos)
-    {
-        return block == Blocks.STONE ? new AxisAlignedBB(0, 0, 0, 1, 1, 1) : null;
-    }
 
     public <T> IBlockState withProperty(IProperty<T> property, T value)
     {

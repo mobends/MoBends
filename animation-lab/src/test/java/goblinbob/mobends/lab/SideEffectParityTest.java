@@ -20,7 +20,7 @@ public class SideEffectParityTest
     {
         assertTrail("player/sword_combo", 40, 5);
         assertTrail("player/sword_moves", 86, 5);
-        assertTrail("player/offhand_use", 5, 1);
+        // player/offhand_use, recorded on 1.12.2, needs an off hand, which 1.8.9 doesn't have.
     }
 
     private static void assertTrail(String id, int samples, int resets) throws Exception

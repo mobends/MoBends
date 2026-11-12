@@ -5,7 +5,7 @@ import goblinbob.mobends.lab.sim.LabWorlds;
 import goblinbob.mobends.lab.sim.Scenario;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
+import goblinbob.mobends.core.compat.EnumHand;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,14 +62,14 @@ public class Scenarios
         {
             add(new Scenario(EntityKind.SKELETON, left ? "bow_and_sword_left_handed" : "bow_and_sword", FPS, 200, (tick, in) -> {
                 in.leftHanded = left;
-                if (tick >= 5 && tick < 110) in.mainHand = new ItemStack(Items.BOW);
+                if (tick >= 5 && tick < 110) in.mainHand = new ItemStack(Items.bow);
                 if (between(tick, 20, 90))
                 {
                     in.itemUseCount = 72000 - (tick - 20);
                     in.itemUseMaxCount = tick - 20;
                 }
                 if (between(tick, 60, 100)) walk(in, WALK_SPEED);
-                if (tick >= 110) in.mainHand = new ItemStack(Items.IRON_SWORD);
+                if (tick >= 110) in.mainHand = new ItemStack(Items.iron_sword);
                 if (tick == 120 || tick == 132 || tick == 144) in.attack = true;
                 if (between(tick, 170, 200)) walk(in, WALK_SPEED);
                 if (tick == 175) in.attack = true;
@@ -79,14 +79,14 @@ public class Scenarios
 
         add(new Scenario(EntityKind.PIG_ZOMBIE, "walk_attack_left_handed", FPS, 120, (tick, in) -> {
             in.leftHanded = true;
-            in.mainHand = new ItemStack(Items.IRON_SWORD);
+            in.mainHand = new ItemStack(Items.iron_sword);
             if (between(tick, 10, 60)) walk(in, WALK_SPEED);
             if (tick == 40 || tick == 80) in.attack = true;
             lookAround(in, tick);
         }));
 
         add(new Scenario(EntityKind.PIG_ZOMBIE, "walk_attack", FPS, 120, (tick, in) -> {
-            in.mainHand = new ItemStack(Items.IRON_SWORD);
+            in.mainHand = new ItemStack(Items.iron_sword);
             if (between(tick, 10, 120)) walk(in, WALK_SPEED);
             if (tick == 40 || tick == 70) in.attack = true;
         }));
@@ -100,7 +100,7 @@ public class Scenarios
         }));
 
         add(new Scenario(EntityKind.PLAYER, "sword_combo", FPS, 160, (tick, in) -> {
-            in.mainHand = new ItemStack(Items.IRON_SWORD);
+            in.mainHand = new ItemStack(Items.iron_sword);
             if (tick == 20 || tick == 32 || tick == 44 || tick == 56 || tick == 68) in.attack = true;
             if (between(tick, 100, 160)) walk(in, WALK_SPEED);
             if (tick == 120) in.attack = true;
@@ -108,12 +108,12 @@ public class Scenarios
 
         add(new Scenario(EntityKind.PLAYER, "sword_combo_left_handed", FPS, 110, (tick, in) -> {
             in.leftHanded = true;
-            in.mainHand = new ItemStack(Items.IRON_SWORD);
+            in.mainHand = new ItemStack(Items.iron_sword);
             if (tick == 20 || tick == 32 || tick == 44 || tick == 56 || tick == 68) in.attack = true;
         }));
 
         add(new Scenario(EntityKind.PLAYER, "jump_fall_torch", FPS, 200, (tick, in) -> {
-            in.mainHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.TORCH));
+            in.mainHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.torch));
             if (tick == 20) in.jump = true;
             // A long fall: no floor contact for a while.
             if (between(tick, 60, 130)) { in.noGravity = true; in.verticalSpeed = -0.5D; }
@@ -124,13 +124,13 @@ public class Scenarios
         // ticks used so far as getItemInUseMaxCount().
         // The item is switched to a few ticks before it is used, as a player would.
         add(new Scenario(EntityKind.PLAYER, "bow_and_eat", FPS, 160, (tick, in) -> {
-            if (between(tick, 5, 80)) in.mainHand = new ItemStack(Items.BOW);
+            if (between(tick, 5, 80)) in.mainHand = new ItemStack(Items.bow);
             if (between(tick, 10, 70))
             {
                 in.itemUseCount = 72000 - (tick - 10);
                 in.itemUseMaxCount = tick - 10;
             }
-            if (between(tick, 85, 160)) in.mainHand = new ItemStack(Items.APPLE);
+            if (between(tick, 85, 160)) in.mainHand = new ItemStack(Items.apple);
             if (between(tick, 90, 150))
             {
                 in.itemUseCount = Math.max(0, 32 - (tick - 90));
@@ -140,7 +140,7 @@ public class Scenarios
         }));
 
         add(new Scenario(EntityKind.PLAYER, "sword_moves", FPS, 200, (tick, in) -> {
-            in.mainHand = new ItemStack(Items.IRON_SWORD);
+            in.mainHand = new ItemStack(Items.iron_sword);
             // Two hits, a pause longer than the combo window, then the combo starts over.
             if (tick == 10 || tick == 22 || tick == 60) in.attack = true;
             // The sprinting stance.
@@ -158,7 +158,7 @@ public class Scenarios
             if (between(tick, 50, 90)) walk(in, WALK_SPEED);
             if (tick == 60) in.attack = true;
             // A pickaxe: swings standing, then while sneaking.
-            if (tick >= 110) in.mainHand = new ItemStack(Items.IRON_PICKAXE);
+            if (tick >= 110) in.mainHand = new ItemStack(Items.iron_pickaxe);
             if (tick == 120 || tick == 132) in.attack = true;
             if (between(tick, 150, 200)) { walk(in, SNEAK_SPEED); in.sneaking = true; }
             if (tick == 160 || tick == 175) in.attack = true;
@@ -166,8 +166,8 @@ public class Scenarios
         }));
 
         add(new Scenario(EntityKind.PLAYER, "offhand_use", FPS, 160, (tick, in) -> {
-            in.mainHand = new ItemStack(Items.IRON_SWORD);
-            in.offHand = new ItemStack(Items.SHIELD);
+            in.mainHand = new ItemStack(Items.iron_sword);
+            in.offHand = new ItemStack(new net.minecraft.item.Item("shield").setUseAction(net.minecraft.item.EnumAction.BLOCK)) /* no shield in 1.8.9: the scenario is 1.12.2's */;
             // Blocking with the off-hand shield, then a slash once it is lowered.
             if (between(tick, 10, 60))
             {
@@ -180,7 +180,7 @@ public class Scenarios
             // Eating from the off hand.
             if (between(tick, 110, 160))
             {
-                in.offHand = new ItemStack(Items.APPLE);
+                in.offHand = new ItemStack(Items.apple);
                 in.activeHand = EnumHand.OFF_HAND;
                 in.itemUseCount = Math.max(0, 32 - (tick - 110));
                 in.itemUseMaxCount = tick - 110;
@@ -221,7 +221,7 @@ public class Scenarios
         add(new Scenario(EntityKind.PLAYER, "riding", FPS, 160, (tick, in) -> {
             in.noGravity = true;
             in.riding = true;
-            in.mainHand = new ItemStack(Items.IRON_SWORD);
+            in.mainHand = new ItemStack(Items.iron_sword);
             lookAround(in, tick);
             // A slash from the saddle: the still-standing legs must not apply.
             if (tick == 20) in.attack = true;
@@ -244,7 +244,7 @@ public class Scenarios
 
         add(new Scenario(EntityKind.PLAYER, "ladder_bow", FPS, 140, (tick, in) -> {
             in.ladderColumn = true;
-            in.mainHand = new ItemStack(Items.BOW);
+            in.mainHand = new ItemStack(Items.bow);
             if (between(tick, 10, 130))
             {
                 in.onLadder = true;
@@ -296,24 +296,24 @@ public class Scenarios
         // A left-handed player: the attack bits mirror on the primary hand, the use actions follow the active hand.
         add(new Scenario(EntityKind.PLAYER, "left_handed", FPS, 260, (tick, in) -> {
             in.leftHanded = true;
-            in.mainHand = new ItemStack(Items.IRON_SWORD);
+            in.mainHand = new ItemStack(Items.iron_sword);
             if (tick == 10 || tick == 22 || tick == 34) in.attack = true;
             if (between(tick, 60, 100)) walk(in, WALK_SPEED);
             if (tick == 70) in.attack = true;
             if (between(tick, 100, 130)) { walk(in, SPRINT_SPEED); in.sprinting = true; }
             if (tick == 110) in.attack = true;
-            if (tick >= 140) in.mainHand = new ItemStack(Items.IRON_PICKAXE);
+            if (tick >= 140) in.mainHand = new ItemStack(Items.iron_pickaxe);
             if (tick == 150 || tick == 162) in.attack = true;
-            if (tick >= 180) in.mainHand = ItemStack.EMPTY;
+            if (tick >= 180) in.mainHand = null;
             if (tick == 190 || tick == 202) in.attack = true;
             // a torch, in the main hand then the off hand
-            if (between(tick, 220, 240)) in.mainHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.TORCH));
-            if (between(tick, 240, 260)) in.offHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.TORCH));
+            if (between(tick, 220, 240)) in.mainHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.torch));
+            if (between(tick, 240, 260)) in.offHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.torch));
             lookAround(in, tick);
         }));
 
         add(new Scenario(EntityKind.PLAYER, "right_handed_torch_offhand", FPS, 80, (tick, in) -> {
-            if (between(tick, 10, 70)) in.offHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.TORCH));
+            if (between(tick, 10, 70)) in.offHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.torch));
             if (between(tick, 40, 70)) walk(in, WALK_SPEED);
             lookAround(in, tick);
         }));
@@ -357,14 +357,14 @@ public class Scenarios
             if (between(tick, 20, 110)) walk(in, GOLEM_SPEED);
             if (tick == 42) in.jump = true;
             lookAround(in, tick);
-        }, data -> LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, 0, 4)));
+        }, data -> LabWorlds.placeStone(data.getEntity().worldObj, -2, 0, 3, 2, 0, 4)));
 
         // The same climb, but once up it hurries on: far from where the climb draws it, the climb
         // gives up and the golem glides back to where it is.
         add(new Scenario(EntityKind.IRON_GOLEM, "climb_given_up", FPS, 100, (tick, in) -> {
             if (between(tick, 20, 90)) walk(in, tick > 50 ? SPRINT_SPEED : GOLEM_SPEED);
             if (tick == 42) in.jump = true;
-        }, data -> LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, 0, 8)));
+        }, data -> LabWorlds.placeStone(data.getEntity().worldObj, -2, 0, 3, 2, 0, 8)));
 
         // --- Squid ------------------------------------------------------------------------------
         add(new Scenario(EntityKind.SQUID, "swim", FPS, 120, (tick, in) -> {
@@ -379,9 +379,30 @@ public class Scenarios
         ALL.add(scenario);
     }
 
+    /** The scenarios 1.8.9 can play: not those that need what it lacks (see {@link #laterVersionsOnly}). */
     public static List<Scenario> all()
     {
-        return Collections.unmodifiableList(ALL);
+        List<Scenario> playable = new ArrayList<>();
+        for (Scenario scenario : ALL)
+        {
+            if (scenario.laterVersionsOnly() == null) playable.add(scenario);
+        }
+        return Collections.unmodifiableList(playable);
+    }
+
+    /**
+     * The scenarios recorded on 1.12.2 that need what 1.8.9 lacks (an off hand, the elytra, left-handed entities,
+     * items used by mobs), by id, with what they need. Their goldens stay for the 1.12.2 branch.
+     */
+    public static java.util.Map<String, String> laterVersionsOnly()
+    {
+        java.util.Map<String, String> skipped = new java.util.LinkedHashMap<>();
+        for (Scenario scenario : ALL)
+        {
+            String reason = scenario.laterVersionsOnly();
+            if (reason != null) skipped.put(scenario.id(), reason);
+        }
+        return skipped;
     }
 
     public static Scenario byId(String id)

@@ -10,7 +10,7 @@ public class Item
     private static final Map<Block, Item> BLOCK_ITEMS = new HashMap<>();
 
     /** Minimal stand-in for the game's item registry: names are "minecraft:<name>". */
-    public static final Registry REGISTRY = new Registry();
+    public static final Registry itemRegistry = new Registry();
 
     public static class Registry
     {
