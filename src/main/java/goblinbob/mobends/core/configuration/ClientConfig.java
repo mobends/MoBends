@@ -19,11 +19,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 /**
  * The client's settings, in {@code config/mobends.json} (see docs/config.md): what 1.12 kept in
@@ -48,16 +51,27 @@ public final class ClientConfig {
         List<String> itemAttackClassifications = new ArrayList<>();
         /** Item patterns: armour that stays as vanilla draws it on a bent entity. */
         List<String> keepArmorAsVanilla = new ArrayList<>();
-        /** Entity type patterns: entities that stay vanilla, whatever their type says. */
-        List<String> keepEntityAsVanilla = new ArrayList<>();
-        /** Per animated mob (its key, {@code mobends:player}): whether it's animated; absent means it is. */
-        Map<String, Boolean> animated = new TreeMap<>();
+        /** Per entity type (today's id, {@code minecraft:husk}): whether it's animated; absent means it is. */
+        Map<String, Boolean> animatedEntities = new TreeMap<>();
         /** The order the user gave the entity types, by type id; absent means 0. */
         Map<String, Integer> typeRanks = new TreeMap<>();
         /** The order the user gave the extensions, by extension id; absent means 0. */
         Map<String, Integer> extensionRanks = new TreeMap<>();
         /** The values the user gave options, by key ({@code <owner>#<name>}); absent means the default. */
         Map<String, Double> options = new TreeMap<>();
+        /**
+         * 2.0.0-alpha.4 and before: per animated mob (its model's key, {@code mobends:zombie}),
+         * whether it's animated. Moved to {@link #animatedEntities} (see {@link #migrateLegacySwitches});
+         * null (left out of the file) once it's empty.
+         */
+        @Nullable
+        Map<String, Boolean> animated;
+        /**
+         * 2.0.0-alpha.4 and before: entity type patterns that stay vanilla. Moved to
+         * {@link #animatedEntities}; null (left out of the file) once it is.
+         */
+        @Nullable
+        List<String> keepEntityAsVanilla;
     }
 
     private Values values = new Values();
@@ -101,8 +115,8 @@ public final class ClientConfig {
         if (read.itemUseClassifications == null) read.itemUseClassifications = defaults.itemUseClassifications;
         if (read.itemAttackClassifications == null) read.itemAttackClassifications = defaults.itemAttackClassifications;
         if (read.keepArmorAsVanilla == null) read.keepArmorAsVanilla = defaults.keepArmorAsVanilla;
-        if (read.keepEntityAsVanilla == null) read.keepEntityAsVanilla = defaults.keepEntityAsVanilla;
-        read.animated = read.animated == null ? defaults.animated : new TreeMap<>(read.animated);
+        read.animatedEntities = read.animatedEntities == null ? defaults.animatedEntities : new TreeMap<>(read.animatedEntities);
+        if (read.animated != null) read.animated = new TreeMap<>(read.animated);
         read.typeRanks = read.typeRanks == null ? defaults.typeRanks : new TreeMap<>(read.typeRanks);
         read.extensionRanks = read.extensionRanks == null ? defaults.extensionRanks : new TreeMap<>(read.extensionRanks);
         read.options = read.options == null ? defaults.options : new TreeMap<>(read.options);
@@ -153,8 +167,7 @@ public final class ClientConfig {
     public enum PatternList {
         ITEM_USE_CLASSIFICATIONS,
         ITEM_ATTACK_CLASSIFICATIONS,
-        KEEP_ARMOR_AS_VANILLA,
-        KEEP_ENTITY_AS_VANILLA
+        KEEP_ARMOR_AS_VANILLA
     }
 
     /** The entries of a list, in order (a copy). */
@@ -177,29 +190,78 @@ public final class ClientConfig {
             case ITEM_USE_CLASSIFICATIONS -> values.itemUseClassifications;
             case ITEM_ATTACK_CLASSIFICATIONS -> values.itemAttackClassifications;
             case KEEP_ARMOR_AS_VANILLA -> values.keepArmorAsVanilla;
-            case KEEP_ENTITY_AS_VANILLA -> values.keepEntityAsVanilla;
         };
     }
 
     // --- what's animated ----------------------------------------------------------------------------
 
-    /** Whether the mob with this key ({@code mobends:player}) is animated. */
-    public boolean isAnimated(String key) {
-        return values.animated.getOrDefault(key, true);
+    /** Whether entities of this type (today's id, {@code minecraft:husk}) are animated. */
+    public boolean isEntityAnimated(String entityType) {
+        return values.animatedEntities.getOrDefault(entityType, true);
     }
 
-    public void setAnimated(String key, boolean animated) {
+    public void setEntityAnimated(String entityType, boolean animated) {
         if (animated) {
-            values.animated.remove(key);
+            values.animatedEntities.remove(entityType);
         } else {
-            values.animated.put(key, false);
+            values.animatedEntities.put(entityType, false);
         }
         save();
     }
 
-    /** Whether an entity of this type ({@code minecraft:zombie}) stays vanilla, whatever its type says. */
-    public boolean keepsEntityVanilla(String entityType) {
-        return matchesAny(entityType, values.keepEntityAsVanilla);
+    /**
+     * Moves the switches of 2.0.0-alpha.4 and before to the entity types they switched off, once the
+     * types are loaded: a mob switched off ({@code animated}, by its model's key) switches off every
+     * entity type it animates, and {@code keepEntityAsVanilla} every registered entity type one of
+     * its patterns matches. A mob no type brings now (its pack is off, or the server denies packs)
+     * stays in {@code animated} until one does.
+     *
+     * @param registeredEntityTypes every entity type of the game, by id
+     * @param entityTypesOfModel    the entity types a model (by key) animates; empty if no type brings it
+     */
+    public void migrateLegacySwitches(Collection<String> registeredEntityTypes, Function<String, Collection<String>> entityTypesOfModel) {
+        boolean changed = false;
+        if (values.keepEntityAsVanilla != null) {
+            for (String entityType : registeredEntityTypes) {
+                if (matchesAny(entityType, values.keepEntityAsVanilla)) {
+                    values.animatedEntities.put(entityType, false);
+                }
+            }
+            MoBends.LOGGER.info("Mo' Bends: keepEntityAsVanilla {} in {} is now a switch per entity type (animatedEntities).",
+                    values.keepEntityAsVanilla, FILE_NAME);
+            values.keepEntityAsVanilla = null;
+            changed = true;
+        }
+        if (values.animated != null) {
+            Iterator<Map.Entry<String, Boolean>> entries = values.animated.entrySet().iterator();
+            while (entries.hasNext()) {
+                Map.Entry<String, Boolean> entry = entries.next();
+                if (Boolean.TRUE.equals(entry.getValue())) {
+                    // Animated is what an entity is anyway.
+                    entries.remove();
+                    changed = true;
+                    continue;
+                }
+                Collection<String> entityTypes = entityTypesOfModel.apply(entry.getKey());
+                if (entityTypes.isEmpty()) {
+                    continue;
+                }
+                for (String entityType : entityTypes) {
+                    values.animatedEntities.put(entityType, false);
+                }
+                MoBends.LOGGER.info("Mo' Bends: the switched off {} in {} is now switched off per entity type: {}.",
+                        entry.getKey(), FILE_NAME, entityTypes);
+                entries.remove();
+                changed = true;
+            }
+            if (values.animated.isEmpty()) {
+                values.animated = null;
+                changed = true;
+            }
+        }
+        if (changed) {
+            save();
+        }
     }
 
     /** Whether this armour item ({@code minecraft:iron_chestplate}) stays as vanilla draws it on a bent entity. */

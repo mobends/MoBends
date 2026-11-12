@@ -28,10 +28,10 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * The Settings window of the Mo' Bends menu: every animated mob, with its preview, whether it's
- * animated, and the buttons that open the order of its types and extensions and its options;
- * searchable by name. More Settings opens the rest of the client's settings ({@link GuiMoreSettings}).
- * Every change is saved at once ({@code ClientConfig}).
+ * The Settings window of the Mo' Bends menu: every entity type an animated mob gives its model,
+ * with its preview and whether it's animated, and the buttons that open the order of the mob's
+ * types and extensions and its options; searchable by name. More Settings opens the rest of the
+ * client's settings ({@link GuiMoreSettings}). Every change is saved at once ({@code ClientConfig}).
  */
 public class GuiSettingsWindow extends Screen {
     public static final ResourceLocation BACKGROUND_TEXTURE = Ids.of(MoBends.MOD_ID, "textures/gui/settings_window.png");
@@ -52,8 +52,12 @@ public class GuiSettingsWindow extends Screen {
 
     /** Where the mobs of the rows stand, closed with the window. */
     private final PreviewWorld previewWorld = new PreviewWorld();
-    /** Each mob's preview, kept while searching. */
-    private final Map<DefinedEntity, EntityPreview> previews = new HashMap<>();
+    /** Each row's preview, kept while searching. */
+    private final Map<Row, EntityPreview> previews = new HashMap<>();
+
+    /** A row: an entity type the mob animates. */
+    private record Row(DefinedEntity defined, ResourceLocation entityType) {
+    }
 
     private String query = "";
     /** Where leaving the Mo' Bends menus goes: the game (null), or the mod list it was opened from. */
@@ -202,25 +206,31 @@ public class GuiSettingsWindow extends Screen {
         return false;
     }
 
-    /** The mobs whose name holds the query, by key. */
-    private List<DefinedEntity> search() {
-        List<DefinedEntity> found = new ArrayList<>(EntityTypeRegistry.INSTANCE.getDefinedEntities());
+    /** The rows whose name holds the query: the mobs by key, each one's entity types in its order. */
+    private List<Row> search() {
+        List<DefinedEntity> mobs = new ArrayList<>(EntityTypeRegistry.INSTANCE.getDefinedEntities());
+        mobs.sort(Comparator.comparing(DefinedEntity::key));
         String lowerCase = query.toLowerCase(Locale.ROOT);
-        if (!lowerCase.isEmpty()) {
-            found.removeIf(defined -> !GuiBenderSettings.nameOf(defined).getString().toLowerCase(Locale.ROOT).contains(lowerCase));
+        List<Row> found = new ArrayList<>();
+        for (DefinedEntity defined : mobs) {
+            for (ResourceLocation entityType : EntityTypeRegistry.INSTANCE.getEntityTypesOf(defined)) {
+                if (lowerCase.isEmpty() || GuiBenderSettings.nameOf(defined, entityType).getString().toLowerCase(Locale.ROOT).contains(lowerCase)) {
+                    found.add(new Row(defined, entityType));
+                }
+            }
         }
-        found.sort(Comparator.comparing(DefinedEntity::key));
         return found;
     }
 
     public void fetchBenders() {
         bendsSettingsListUI.clearElements();
-        for (DefinedEntity defined : search()) {
+        for (Row row : search()) {
+            DefinedEntity defined = row.defined();
             int typeCount = EntityTypeRegistry.INSTANCE.getTypesFor(defined).size();
             int extensionCount = EntityTypeRegistry.INSTANCE.getExtensionsFor(defined).size();
             int optionCount = GuiOptionsWindow.optionsOf(defined).size();
-            EntityPreview preview = previews.computeIfAbsent(defined, d -> new EntityPreview(previewWorld, d));
-            bendsSettingsListUI.addElement(new GuiBenderSettings(bendsSettingsListUI, defined, preview,
+            EntityPreview preview = previews.computeIfAbsent(row, r -> new EntityPreview(previewWorld, r.defined(), r.entityType()));
+            bendsSettingsListUI.addElement(new GuiBenderSettings(bendsSettingsListUI, defined, row.entityType(), preview,
                     typeCount, () -> Screens.open(GuiOrderWindow.forTypes(defined, exit)),
                     extensionCount, () -> Screens.open(GuiOrderWindow.forExtensions(defined, exit)),
                     optionCount, () -> Screens.open(new GuiOptionsWindow(defined, exit))));

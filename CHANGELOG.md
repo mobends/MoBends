@@ -8,6 +8,15 @@
   where 1.12 had the mob (`minecraft:zombie_pigman`), which is read as today's. A class name is a
   load error. An id names that entity type alone, so Mo' Bends' zombie definition lists the husk
   and the drowned, its spider the cave spider and its squid the glow squid. Keys are unchanged.
+- The Settings window has a row, and a switch, for every entity type a mob animates: the zombie's
+  model gives the zombie, the husk and the drowned a row each, the spider's the cave spider, the
+  squid's the glow squid. The config keeps them in `animatedEntities`, by entity type.
+
+### Removed
+
+- `keepEntityAsVanilla`, which the switches per entity type replace. A config from 2.0.0-alpha.4
+  or before keeps what it switched off: its patterns, and its mobs switched off (`animated`, per
+  model), become switches of the entity types they cover.
 
 ## 2.0.0-alpha.4
 

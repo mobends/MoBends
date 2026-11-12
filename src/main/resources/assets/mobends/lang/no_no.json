@@ -49,7 +49,6 @@
   "mobends.config.item_attack_classifications": "Klassifisering av gjenstander (angrep)",
   "mobends.config.item_attack_classifications.tooltip": "En liste med \"gjenstand=klassifisering\".",
   "mobends.config.keep_armor_as_vanilla": "Rustning som forblir vanilla",
-  "mobends.config.keep_entity_as_vanilla": "Enheter som forblir vanilla",
   "mobends.gui.reset": "Tilbakestill",
   "mobends.gui.settings.via": "%s · via %s",
   "mobends.gui.settings.from_pack": "%s · fra %s",

@@ -1236,8 +1236,8 @@ its `key` or else the entity's id (`mobends:player`, `mobends:zombie`, `mobends:
 another mod than Minecraft keeps its namespace in the path, `mobends:othermod/beast`). Another
 type names it by that key, whichever pack's type file named it by path, read before or after its
 own: every type file is read, and every model one names by path made, before any key is looked
-up. Mo' Bends gives each of its types its model's key as id, so extensions, ranks, switches and
-options name a mob the same way.
+up. Mo' Bends gives each of its types its model's key as id, so extensions, ranks and options name
+a mob the same way.
 
 ## Selectors
 
@@ -1348,8 +1348,10 @@ decides what resource packs may do, and sends it to every client with Mo' Bends 
   types or extensions declare options. It lists them with where they come from and their
   default; a change applies at once and is stored in the client config (`Options`); *Reset* puts
   every one back to its default.
-* **On/off.** The existing per-bender switch (`Animated`) decides whether the chosen type animates
-  at all. When the winning type's bender is off, the entity is rendered vanilla.
+* **On/off.** Settings lists every entity type a model animates as a row of its own (the
+  zombie's gives the zombie, the husk and the drowned one each), with a switch stored in the
+  client config (`animatedEntities`, by entity type). When an entity's type is switched off, it's
+  rendered vanilla, whichever type wins for it.
 
 ## Extensions
 

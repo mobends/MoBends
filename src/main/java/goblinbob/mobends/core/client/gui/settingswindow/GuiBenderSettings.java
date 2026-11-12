@@ -23,10 +23,11 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- * A row of the Settings window: the mob animated in its frame, its name and where it comes from,
- * the toggle that animates it, the buttons that order its types and extensions, and the one that
- * opens its options. The mob walks while the row is hovered, and the row is dimmed while the mob
- * isn't animated.
+ * A row of the Settings window, one per entity type a mob animates (the zombie's model gives the
+ * zombie, the husk and the drowned a row each): the entity animated in its frame, its name and
+ * where it comes from, the toggle that animates it, the buttons that order the mob's types and
+ * extensions, and the one that opens its options. The entity walks while the row is hovered, and
+ * the row is dimmed while it isn't animated.
  */
 public class GuiBenderSettings implements IGuiListElement {
     private static final int HEIGHT = 40;
@@ -40,7 +41,8 @@ public class GuiBenderSettings implements IGuiListElement {
 
     private final GuiBenderList list;
     private final DefinedEntity defined;
-    private final String key;
+    /** The entity type the row switches ({@code minecraft:husk}). */
+    private final String entityType;
     private final EntityPreview preview;
     private final String name;
     private final String source;
@@ -65,18 +67,18 @@ public class GuiBenderSettings implements IGuiListElement {
     private boolean hovered;
     private int listOrder;
 
-    public GuiBenderSettings(GuiBenderList list, DefinedEntity defined, EntityPreview preview,
+    public GuiBenderSettings(GuiBenderList list, DefinedEntity defined, ResourceLocation entityType, EntityPreview preview,
                              int typeCount, Runnable onOpenOrder, int extensionCount, Runnable onOpenExtensions,
                              int optionCount, Runnable onOpenOptions) {
         this.list = list;
         this.defined = defined;
-        this.key = defined.key();
+        this.entityType = entityType.toString();
         this.preview = preview;
-        this.name = nameOf(defined).getString();
-        this.source = sourceOf(defined);
+        this.name = nameOf(defined, entityType).getString();
+        this.source = sourceOf(defined, entityType);
         this.mc = Minecraft.getInstance();
         this.toggleButton = new GuiSmallToggleButton();
-        this.toggleButton.setToggleState(ClientConfig.INSTANCE.isAnimated(key));
+        this.toggleButton.setToggleState(ClientConfig.INSTANCE.isEntityAnimated(this.entityType));
         this.orderButton = typeCount > 1 ? compactButton(Component.translatable("mobends.gui.typeorder.button", typeCount)) : null;
         this.onOpenOrder = onOpenOrder;
         this.extensionsButton = extensionCount > 1 ? compactButton(Component.translatable("mobends.gui.extensionorder.button", extensionCount)) : null;
@@ -93,7 +95,11 @@ public class GuiBenderSettings implements IGuiListElement {
 
     /** The mob's name: its entity type's, or else its key. */
     public static Component nameOf(DefinedEntity defined) {
-        ResourceLocation id = defined.entityTypeId();
+        return nameOf(defined, defined.entityTypeId());
+    }
+
+    /** The name of the entity type {@code id}, or else the mob's key. */
+    public static Component nameOf(DefinedEntity defined, @Nullable ResourceLocation id) {
         if (id != null) {
             Optional<net.minecraft.world.entity.EntityType<?>> type = BuiltInRegistries.ENTITY_TYPE.getOptional(id);
             if (type.isPresent()) {
@@ -138,7 +144,7 @@ public class GuiBenderSettings implements IGuiListElement {
     public boolean handleMouseClicked(int originX, int originY, double mouseX, double mouseY, int button) {
         layOut(originX, originY);
         if (toggleButton.mousePressed(mouseX, mouseY, button)) {
-            ClientConfig.INSTANCE.setAnimated(key, toggleButton.getToggleState());
+            ClientConfig.INSTANCE.setEntityAnimated(entityType, toggleButton.getToggleState());
             return true;
         }
         if (orderButton != null && orderButton.mousePressed(mouseX, mouseY, button)) {
@@ -165,7 +171,7 @@ public class GuiBenderSettings implements IGuiListElement {
     @Override
     public void draw(GuiGraphics graphics, int originX, int originY, int mouseX, int mouseY, float partialTicks) {
         layOut(originX, originY);
-        boolean animated = ClientConfig.INSTANCE.isAnimated(key);
+        boolean animated = ClientConfig.INSTANCE.isEntityAnimated(entityType);
         int rowX = originX + x;
         int rowY = originY + y;
         Font font = mc.font;
@@ -220,9 +226,8 @@ public class GuiBenderSettings implements IGuiListElement {
      * Some Pack"), or else by the mod that does ("Twilight Forest · via Some Addon") unless that is
      * the same mod, or Mo' Bends.
      */
-    private static String sourceOf(DefinedEntity defined) {
-        ResourceLocation entityId = defined.entityTypeId();
-        String entityMod = entityId == null ? "minecraft" : entityId.getNamespace();
+    private static String sourceOf(DefinedEntity defined, ResourceLocation entityId) {
+        String entityMod = entityId.getNamespace();
         String resourcePack = resourcePackOf(defined.location());
         if (resourcePack != null) {
             return Component.translatable("mobends.gui.settings.from_pack", modName(entityMod), resourcePack).getString();

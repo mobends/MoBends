@@ -62,6 +62,9 @@ public class EntityPreview {
     @Nullable
     private final PreviewWorld world;
     private final DefinedEntity defined;
+    /** The entity type shown; null for the definition's own. */
+    @Nullable
+    private final ResourceLocation entityType;
     /** Called with the entity once it is made, before it is first drawn. */
     private final Consumer<LivingEntity> setUp;
 
@@ -78,14 +81,30 @@ public class EntityPreview {
 
     /** @param world Where the mob stands; null to always show the fallback. */
     public EntityPreview(@Nullable PreviewWorld world, DefinedEntity defined) {
-        this(world, defined, entity -> {});
+        this(world, defined, null, entity -> {});
+    }
+
+    /** @param entityType The entity type shown (one the mob's types name); null for the definition's own. */
+    public EntityPreview(@Nullable PreviewWorld world, DefinedEntity defined, @Nullable ResourceLocation entityType) {
+        this(world, defined, entityType, entity -> {});
     }
 
     /** @param setUp Called with the entity once it is made, before it is first drawn. */
     public EntityPreview(@Nullable PreviewWorld world, DefinedEntity defined, Consumer<LivingEntity> setUp) {
+        this(world, defined, null, setUp);
+    }
+
+    private EntityPreview(@Nullable PreviewWorld world, DefinedEntity defined, @Nullable ResourceLocation entityType, Consumer<LivingEntity> setUp) {
         this.world = world;
         this.defined = defined;
+        this.entityType = entityType;
         this.setUp = setUp;
+    }
+
+    /** The entity type shown: the one asked for, or else the definition's own. */
+    @Nullable
+    private ResourceLocation entityTypeId() {
+        return entityType != null ? entityType : defined.entityTypeId();
     }
 
     /** The entity shown, once it is made (on the first draw); null before, or if it can't be. */
@@ -179,7 +198,7 @@ public class EntityPreview {
             made = true;
             entity = world != null ? make(world) : null;
             if (entity == null) {
-                fallbackIcon = spawnEggOf(defined);
+                fallbackIcon = spawnEgg();
             }
         }
 
@@ -192,7 +211,7 @@ public class EntityPreview {
                     world.remove(entity);
                 }
                 entity = null;
-                fallbackIcon = spawnEggOf(defined);
+                fallbackIcon = spawnEgg();
                 //? if <26.1 {
                 Minecraft.getInstance().getEntityRenderDispatcher().setRenderShadow(true);
                 Lighting.setupFor3DItems();
@@ -292,7 +311,7 @@ public class EntityPreview {
         try {
             LivingEntity made = construct(level, player);
             if (made == null) {
-                MoBends.LOGGER.warn("Unable to preview {}: no entity of {} can be made.", defined.key(), defined.entityTypeId());
+                MoBends.LOGGER.warn("Unable to preview {}: no entity of {} can be made.", defined.key(), entityTypeId());
                 return null;
             }
             // Standing where the player stands, so what the animators find around it is ground.
@@ -321,10 +340,10 @@ public class EntityPreview {
     @Nullable
     private LivingEntity construct(ClientLevel level, LocalPlayer player) {
         // A player is never made from its entity type: it's a copy of the player.
-        if (Ids.minecraft("player").equals(defined.entityTypeId())) {
+        if (Ids.minecraft("player").equals(entityTypeId())) {
             return new PreviewPlayer(level, player);
         }
-        EntityType<?> type = entityTypeOf(defined);
+        EntityType<?> type = entityType();
         if (type == null) {
             return null;
         }
@@ -337,14 +356,14 @@ public class EntityPreview {
     }
 
     @Nullable
-    private static EntityType<?> entityTypeOf(DefinedEntity defined) {
-        ResourceLocation id = defined.entityTypeId();
+    private EntityType<?> entityType() {
+        ResourceLocation id = entityTypeId();
         return id == null ? null : BuiltInRegistries.ENTITY_TYPE.getOptional(id).orElse(null);
     }
 
     @Nullable
-    private static ItemStack spawnEggOf(DefinedEntity defined) {
-        EntityType<?> type = entityTypeOf(defined);
+    private ItemStack spawnEgg() {
+        EntityType<?> type = entityType();
         if (type == null) {
             return null;
         }
