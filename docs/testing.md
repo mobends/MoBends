@@ -44,6 +44,11 @@ scenarios where a layer switches on or off (the player's sneak, torch and action
 skeleton's strafe, the zombie pigman's stance and slash) were re-recorded when those layers got a
 `@fade`. Every other golden is the original code's output.
 
+Mo' Bends Compat+ (`misc/compat-plus-pack`) has no goldens: `CompatPlusPackTest` loads its extension
+on the player's animator with and without the mods it is for installed, and checks it leaves the
+player to Mo' Bends while they play nothing. (The lab has no Player Animation Library, so handing the
+player to vanilla while it plays is tried in the game.)
+
 The Legacy Mo' Bends pack (`misc/legacy-pack`) is a snapshot of the player's, the zombie's and the
 zombie villager's animators without the layer that stands them on their feet, with their model
 definitions as they were (heads that turn with the body) and its own copies of every clip they play

@@ -10,6 +10,7 @@ on:
       - "src/main/java/**"
       - "src/main/resources/assets/mobends/bends/**"
       - "misc/legacy-pack/**"
+      - "misc/compat-plus-pack/**"
       - ".github/workflows/animation-lab.yml"
   pull_request:
     paths:
@@ -18,6 +19,7 @@ on:
       - "src/main/java/**"
       - "src/main/resources/assets/mobends/bends/**"
       - "misc/legacy-pack/**"
+      - "misc/compat-plus-pack/**"
       - ".github/workflows/animation-lab.yml"
 
 jobs:

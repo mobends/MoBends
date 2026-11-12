@@ -719,6 +719,8 @@ Operations nest freely:
 | `toDouble`, `toFloat` | one number / one double: the same value as a double / as a number (rounded to a float) | double / number |
 | `rose`, `fell` | one boolean: holds on the frame it turns true / false | boolean |
 | `core:minecraft_version` | `[comparison, version]`: `>`, `>=`, `<`, `<=`, `==` or `!=`, and a version written out (`"1.12.2"`) | boolean: whether the running Minecraft version compares so with it |
+| `core:mod_loaded` | one or more mod ids: `["bettercombat"]` | boolean: whether a mod with one of these ids is installed |
+| `core:mod_version` | `[modId, comparison, version]`: a mod id, a comparison as `core:minecraft_version` takes, and a version written out (`"3.0"`) | boolean: whether the mod is installed and its version compares so with it |
 
 **Nothing short-circuits**: `and`, `or` and `if` evaluate every argument, both branches of an
 `if` included, so an edge trigger inside never misses a frame.
@@ -730,6 +732,18 @@ compared segment by segment as numbers, a missing segment counting as 0: `1.21` 
 once, when the expression is compiled (and folds with the constants around it); it is
 selector-safe too. The mod tells the engine the version at start-up (`MinecraftVersion.set`);
 a host that doesn't makes every use of it a load error.
+
+**`core:mod_loaded`** and **`core:mod_version`** let an asset turn on what it has for another mod
+only where that mod is installed: a compat pack's layer, a type for a mod's mob, a variant.
+`{"core:mod_loaded": ["bettercombat"]}` holds if Better Combat is installed; give every id the mod has
+on the loaders and versions it targets (`["bettercombat", "better_combat"]`), as it holds for any of
+them. `{"core:mod_version": ["bettercombat", ">=", "3.0"]}` compares the dot-separated numbers the mod's
+version starts with (`3.2.2+26.3-fabric` is `3.2.2`, `1.12.2-14.23.5.2860` is `1.12.2`), as
+`core:minecraft_version` compares, and holds for nothing if the mod isn't installed or its version
+doesn't start with a number. Both are computed once, when the expression is compiled (they fold, and
+are selector-safe), from what the mod loader says is installed (`InstalledMods.set`; a host that
+doesn't set it makes every use a load error). An operation another mod registers is still checked
+when the animator loads, even under a condition that folds to false: give it a `@fallback`.
 
 `decreased`, `rose` and `fell` remember their value from the previous evaluation. Each place one
 is written keeps its own memory (two uses keep two memories), and it starts over, noting the
@@ -784,6 +798,7 @@ another class, it takes its `@fallback`, or the animator fails to load. (Mods ad
 | `core:ledge_ahead` | none | a block in front of the entity's feet, at most 1.5 blocks high, with room for the entity on top: what it climbs onto as it jumps (front is the way its body faces). Read as it lifts off, it tells a climb from a jump | living entities |
 | `mobends:use_action` | `[action]`: `food`, `bow` or `shield` | the item in use is used as that (Mo' Bends' classification, which the config can change) | living entities |
 | `mobends:attack_action` | `[action]`: `fists`, `sword` or `tool` | the held item attacks as that | living entities |
+| `mobends:compat_pal_animation_playing` | none | Player Animation Library plays an animation on the player (any of its layers is active: Better Combat's attacks and weapon poses, emotes). Read on 26.x; without the library, or before 26.1, it holds for nothing | players |
 | `mobends:is_sitting` | none | the wolf sits | wolves |
 | `mobends:wolf_interested_angle` | none | the head's tilt while begging, in degrees (a number) | wolves |
 | `mobends:wolf_shake_angle` | `[offset]`, a number written out: how far behind the head the part shakes (vanilla's: head 0, mane −0.08, tail −0.2) | the part's roll while shaking off water, in degrees (a number) | wolves |
@@ -1165,7 +1180,7 @@ The chicken's definition also declares the values its animator reads, over the e
 | `bones[].boxes` | the bone's own boxes, drawn instead of its vanilla part's (which still gives the texture size): each `{"uv": [u, v], "from": [x, y, z], "size": [x, y, z]}` as vanilla's `addBox` takes them, in the bone's frame, plus optionally `drawnSize` (the size it is drawn at, its texture stretched over it), `offset`, `inflate` ([x, y, z]), `mirror`, `hide` (faces: `left`, `right`, `top`, `bottom`, `front`, `back`) and `faces` (per face, `uvOffset` [u, v], `flip` (`true` mirrors its texture left to right, before it is turned: vanilla draws a box's bottom face mirrored, so a box laid along another axis than vanilla's, like the wolf's body, needs it where that face lands) and `rotate`: `clockwise`, `counter_clockwise`, `half_turn`). The spider's longer legs; a bone with no vanilla part of its own (a spider's foreleg). Can't be split or an overlay |
 | `@define`, `@on` | the entity scope: what the mob exposes to its animators and extensions (`entity.wingAngle`) and remembers across frames, as an animator's scopes declare theirs (see *Definitions and statements*). The only place `field` and `exists` are written (see *Reading the entity*) |
 | `options` | options the user sets in the Mo' Bends menu, which the entity's animator reads as `option.x` (see *Options*); extensions don't see them |
-| `@variants` | conditional values: a list of objects, each an `@when` and the fields it merges into the definition when that holds, in order, the way a definition is merged into the one it `extends` (see `extends` above; a variant can't set `extends`, `formatVersion` or `@variants`). An `@when` is a boolean expression that has to be known when the definition loads: constants and constant operations only, such as `core:minecraft_version` (anything else is a load error). Variants are merged after `extends`, and a parent's into the parent first, so a child's own fields and variants override them |
+| `@variants` | conditional values: a list of objects, each an `@when` and the fields it merges into the definition when that holds, in order, the way a definition is merged into the one it `extends` (see `extends` above; a variant can't set `extends`, `formatVersion` or `@variants`). An `@when` is a boolean expression that has to be known when the definition loads: constants and constant operations only, such as `core:minecraft_version` or `core:mod_loaded` (anything else is a load error). Variants are merged after `extends`, and a parent's into the parent first, so a child's own fields and variants override them |
 | `@comment` | a note, ignored |
 
 The zombie pigman is drawn with the piglin's model after 1.12.2, so its variant names that model
@@ -1308,6 +1323,7 @@ an edge trigger (`decreased`, `rose`, `fell`), which would have nothing to remem
 | `core:player_name` | one or more names | a player whose profile name (never the display name) is one of these, ignoring case |
 | `core:player_uuid` | one or more UUIDs | a player with one of these UUIDs, which stay the same when it renames |
 | `mobends:skin_variant` | `default` or `slim` | a player whose skin has these arms |
+| `core:minecraft_version`, `core:mod_loaded`, `core:mod_version` | see *Expressions* | the same for every entity |
 
 ```json
 "selector": {"and": [{"core:entity_type": ["minecraft:player"]},

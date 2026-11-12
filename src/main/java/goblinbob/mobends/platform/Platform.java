@@ -28,6 +28,13 @@ public interface Platform {
 
     boolean isModLoaded(String modId);
 
+    /**
+     * The version of the mod with this id, as the mod declares it ({@code 3.2.2+26.3-fabric}), or
+     * null if no mod has this id. What {@code core:mod_loaded} and {@code core:mod_version} ask.
+     */
+    @Nullable
+    String modVersion(String modId);
+
     /** The name a mod gives itself ({@code minecraft}'s is Minecraft), or null if no mod has this id. */
     @Nullable
     String modName(String modId);

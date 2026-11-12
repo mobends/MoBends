@@ -47,7 +47,7 @@ public class DefaultAddon implements IAddon {
         // The operations and drivers the animators name; an animator naming one that isn't
         // registered fails to load.
         MoBendsOperations.register();
-        // Player Animation Library's (mobends:compat_pal_...).
+        // Player Animation Library's (mobends:compat_pal_...), which the Mo' Bends Compat+ pack reads.
         PalOperations.register();
         registry.registerDriver("cape", CapeDriver::create, CapeDriver.Template.class);
         registry.registerDriver("sword_trail", SwordTrailDriver::create, SwordTrailDriver.Template.class);

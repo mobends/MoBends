@@ -1,6 +1,7 @@
 package goblinbob.mobends;
 
 import goblinbob.mobends.core.CoreClient;
+import goblinbob.mobends.core.kumo.InstalledMods;
 import goblinbob.mobends.core.kumo.MinecraftVersion;
 import goblinbob.mobends.core.network.ServerRules;
 import goblinbob.mobends.platform.Platform;
@@ -26,6 +27,8 @@ public final class MoBends {
         LOGGER.info("Mo' Bends {} for Minecraft {} on {}", VERSION, MINECRAFT, platform().loaderName());
         // What core:minecraft_version compares with, before any animator or definition loads.
         MinecraftVersion.set(MINECRAFT);
+        // What core:mod_loaded and core:mod_version ask about, asked when an expression is compiled.
+        InstalledMods.set(modId -> platform().modVersion(modId));
         // What this side's server (a dedicated one, or the integrated one opened to LAN) tells its players.
         ServerRules.loadServerFile(platform().configDir());
         if (platform().isClient()) {

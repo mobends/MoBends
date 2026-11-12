@@ -49,6 +49,12 @@ public final class ForgePlatform implements Platform {
 
     @Override
     @Nullable
+    public String modVersion(String modId) {
+        return ModList.get().getModContainerById(modId).map(mod -> mod.getModInfo().getVersion().toString()).orElse(null);
+    }
+
+    @Override
+    @Nullable
     public String modName(String modId) {
         return ModList.get().getModContainerById(modId).map(mod -> mod.getModInfo().getDisplayName()).orElse(null);
     }

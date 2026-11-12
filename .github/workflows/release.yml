@@ -1,9 +1,10 @@
 name: Release
 
 # Releases Mo' Bends for the modern Minecraft versions for every release tag v<version> on main
-# (e.g. v2.0.0 or v2.0.0-alpha.2): builds every version node at once and the signed Legacy Mo' Bends
-# resource pack (misc/legacy-pack, for 1.12.2 and the modern versions alike), attaches them to the
-# tag's GitHub release, and uploads them to Modrinth and CurseForge. See CONTRIBUTING.md,
+# (e.g. v2.0.0 or v2.0.0-alpha.2): builds every version node at once and Mo' Bends' signed resource
+# packs (Legacy Mo' Bends, misc/legacy-pack, and Mo' Bends Compat+, misc/compat-plus-pack, each for
+# 1.12.2 and the modern versions alike), attaches them to the tag's GitHub release, and uploads the
+# jars to Modrinth and CurseForge (the packs not yet, see TODO.md). See CONTRIBUTING.md,
 # *Releasing the mod*. The 1.12.2 tags (v<version>-1.12.2) are released from forge-1.12, and the
 # core's (core-<version>) by publish-core.yml.
 #
@@ -135,9 +136,16 @@ jobs:
           name: release-notes
           path: release-notes.md
 
-  legacy-pack:
+  # Mo' Bends' own resource packs, each signed so servers that refuse resource packs' animation
+  # still trust it (docs/content.md).
+  packs:
     needs: build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pack:
+          - { artifact: legacy-pack, folder: misc/legacy-pack, file: Legacy-Mo-Bends }
+          - { artifact: compat-plus-pack, folder: misc/compat-plus-pack, file: Mo-Bends-Compat-Plus }
 
     steps:
       - name: Checkout repository
@@ -162,18 +170,18 @@ jobs:
         run: |
           mkdir -p build/packs
           java -cp "core/build/tools/*" goblinbob.mobends.tools.SignPack \
-            misc/legacy-pack "build/packs/Legacy-Mo-Bends-${{ needs.build.outputs.version }}.zip"
+            "${{ matrix.pack.folder }}" "build/packs/${{ matrix.pack.file }}-${{ needs.build.outputs.version }}.zip"
         env:
           MOBENDS_PACK_SIGNING_KEY: ${{ secrets.MOBENDS_PACK_SIGNING_KEY }}
 
       - name: Upload the pack
         uses: actions/upload-artifact@v4
         with:
-          name: legacy-pack
-          path: build/packs/Legacy-Mo-Bends-${{ needs.build.outputs.version }}.zip
+          name: ${{ matrix.pack.artifact }}
+          path: build/packs/${{ matrix.pack.file }}-${{ needs.build.outputs.version }}.zip
 
   github-release:
-    needs: [build, legacy-pack]
+    needs: [build, packs]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -184,7 +192,7 @@ jobs:
         with:
           path: release
 
-      - name: Attach the jars and the pack to the release
+      - name: Attach the jars and the packs to the release
         run: |
           if ! gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
             prerelease=()
@@ -193,7 +201,7 @@ jobs:
               --title "Mo' Bends ${{ needs.build.outputs.version }} for Minecraft ${{ needs.build.outputs.minecraft }}" \
               --notes-file release/release-notes/release-notes.md "${prerelease[@]}"
           fi
-          gh release upload "$GITHUB_REF_NAME" release/mod/*.jar release/legacy-pack/*.zip --clobber
+          gh release upload "$GITHUB_REF_NAME" release/mod/*.jar release/legacy-pack/*.zip release/compat-plus-pack/*.zip --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
@@ -273,7 +281,7 @@ jobs:
           java: ${{ matrix.node.java }}
 
   publish-legacy-pack:
-    needs: [build, legacy-pack]
+    needs: [build, packs]
     # TODO: Off until the pack has its Modrinth and CurseForge pages (see TODO.md, *Legacy Mo' Bends
     # pack*). To turn it on, delete this `if`.
     if: false

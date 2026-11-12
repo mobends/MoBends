@@ -33,6 +33,23 @@ switched off for now.
       and switch the job back on: delete its `if: false`. Check the first upload on CurseForge,
       where a resource pack takes no loader.
 
+## Mo' Bends Compat+ pack
+
+CI builds and signs the pack (`misc/compat-plus-pack`) on release tags of `main` and attaches it to
+the GitHub release, beside the Legacy Mo' Bends pack. It isn't on Modrinth or CurseForge.
+
+- [ ] Publish it on Modrinth and CurseForge: give it its own pages, set
+      `COMPAT_PLUS_PACK_MODRINTH_PROJECT_ID` and `COMPAT_PLUS_PACK_CURSEFORGE_PROJECT_ID`, and give
+      `.github/workflows/release.yml` a `publish-compat-plus-pack` job like `publish-legacy-pack`
+      (the `compat-plus-pack` artifact). Its game versions are only those whose Mo' Bends has
+      `core:mod_loaded` (not 1.12.2 until `forge-1.12` takes the core that has it).
+- [ ] Better Combat on 1.21.1 and 1.20.1: its animations play with Player Animation Library 1.1.x
+      there (or playerAnimator), which `mobends:compat_pal_animation_playing` doesn't read yet (it
+      holds for nothing before 26.1).
+- [ ] `mobends:compat_pal_animation_playing` holds for any active PAL layer, Better Combat's idle
+      weapon poses included, so a player holding a Better Combat weapon is vanilla while it poses.
+      If that's too much, tell the attacks apart (Better Combat's own layer).
+
 ## Animations
 
 - [ ] IK for cows and sheep (feet planted on the ground), switched off while they run.
