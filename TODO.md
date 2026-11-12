@@ -42,39 +42,6 @@ comes with a pull request here that adds its steps below, under the `main` PR's 
 CONTRIBUTING.md, *Branches*). Steps that need a new `core` wait for its release; the others can be
 done right away. Once a group is done and merged here, delete it.
 
-### #443: Node smoothing, enterPose and mirrored clips
-
-Needs the first `core` release after 2.0.0-alpha.3. On `main` three things in the engine work as
-the format says: a bone's own node or layer smoothing wins over `@default` (`{"@default": 10,
-"head": {"rotation": 0}}` snaps the head), a relative `enterPose` (`pre` / `post`, an additive
-position or offset) builds on the layers below instead of starting from itself, and an item with
-`@mirror` reads the layers below mirrored (a weighted clip blends from them, not from rest). Nothing
-changes in the assets; the lab's goldens didn't move on `main`.
-
-- [ ] Build with that release (`core_version` in gradle.properties).
-- [ ] Copy the three passages of `misc/kumo-format.md` that say so from `main`: the layer's
-      `smoothing` row, the `enterPose` sentence under *Nodes*, and the paragraph under *Mirroring*.
-- [ ] Check that the animation lab passes without re-recording anything, and in the game that a
-      left-handed player and skeleton still swing and draw the bow as the right-handed ones,
-      mirrored.
-
-### #446: enterPose axes and node smoothing per channel
-
-Needs the first `core` release after 2.0.0-alpha.3. On `main` three things in the engine work as the format
-says: an `override` translate in an `enterPose` that leaves axes out starts them from the layers below
-(it started them from NaN), a node's or layer's smoothing smooths a bone's rotation and position each
-on their own (an item that smoothed one of them made it skip both), and an expression in a node's or
-layer's `smoothing`, which was read and then ignored, is now a load error (an item's `@smoothing`
-still takes one). No animator here or on `main` has such an expression; the lab's goldens didn't
-move on `main`.
-
-- [ ] Build with that release (`core_version` in gradle.properties).
-- [ ] Copy the two passages of `misc/kumo-format.md` that say so from `main`: the layer's
-      `smoothing` row, and the `enterPose` sentence under *Nodes*.
-- [ ] Check that the animation lab passes without re-recording anything, and that a resource pack's
-      animator with an expression in a node's `smoothing` fails to load with a message naming the
-      bone.
-
 ### #392: The pig zombie's variant for later versions
 
 Doesn't need a new `core`. On `main` the zombified piglin bends: `pig_zombie.json` (the mod's and the
@@ -107,57 +74,6 @@ definition names `EntitySkeleton`, which the wither skeleton isn't (both extend 
 - [ ] Check in the game (`/summon wither_skeleton`): it walks, attacks with its stone sword and stands
       on its feet as the skeleton does, at its bigger size, and the Settings menu lists it with its
       own switch. The skeleton, the stray and the wither (the boss) are unchanged.
-
-### #434: Fixes from reviewing KUMO's TypeScript port
-
-Needs the first `core` release after 2.0.0-alpha.3. On `main` KUMO checks a function's `string` and
-`choice` arguments where it's called, starts a scope's memories and a node's clock over properly,
-keeps machines alive and updated while their nodes fade out, runs a transition's lists in the order
-the format gives, and fixes the leg IK when a leg points straight away from its target. All of it is
-in `core`; no asset changes. `core` adds `INodeState.resetClock` (a no-op by default), which this
-branch doesn't need to implement.
-
-- [ ] Bump `core_version` (gradle.properties) to that release.
-- [ ] Bring `misc/kumo-format.md` up to `main`'s in four places (this branch's copy differs elsewhere,
-      so don't copy the whole file): *Functions* (what a `string` or `choice` argument says is checked
-      at each call), *Connections* (a connection into a machine whose scope exists leaves it first),
-      *Every frame* (the `exit` lists before the `do`, innermost first, and machines entered from the
-      outermost in), and *Definitions and statements* (a scope created again keeps nothing of its
-      previous entry).
-- [ ] Run the animation lab. Its goldens shouldn't change (`main`'s didn't); if one does, check with
-      `compare` that it's one of the fixes above before re-recording it.
-- [ ] Check in the game that the player and the mobs animate as before, the sword combo and anything
-      else in a machine included, and the legs on stairs and ledges.
-
-### #450: Chain IK follows its parents' scale
-
-Needs the first `core` release after 2.0.0-alpha.3. On `main` `core:two_bone_ik` and
-`core:three_bone_ik` follow the scale of the bones in `parents`: a chain on a scaled body reaches
-its target, and `stretch` stays in blocks. All of it is in `core`. `core` adds
-`PoseWriter.scaleSoFar`, which this branch doesn't implement anywhere.
-
-- [ ] Bump `core_version` (gradle.properties) to that release.
-- [ ] Bring `misc/kumo-format.md`'s *Reaching into the world* up to `main`'s: `parents` are followed
-      moved, turned and scaled, and the chain's own bones are assumed to have no scale (this
-      branch's copy differs elsewhere, so don't copy the whole file).
-- [ ] Run the animation lab. Its goldens shouldn't change (`main`'s didn't).
-- [ ] Check in the game that the iron golem still grabs the ledge and climbs.
-
-### #463: A node's enterPose scales parts
-
-Needs the `core` release after 2.0.0-alpha.3. On `main` a `core:scale` in a node's `enterPose` scales
-the part on the frame the node is entered (it did nothing), unless the node's `pose` scales it too;
-a relative one scales what the layers below have, and an `override` one's left-out axes keep theirs.
-The entry is also posed on top of the layers below now, so an `override` after a relative item in the
-same `enterPose` keeps that item's factor (or a `core:translate`'s move) on the axes it leaves out.
-No animator here or on `main` scales a part in `enterPose`, so nothing changes in the assets, and the
-lab's goldens didn't move on `main`.
-
-- [ ] Build with that release (`core_version` in gradle.properties).
-- [ ] Copy the two passages of `misc/kumo-format.md` that say so from `main`: the sentence about
-      `enterPose` at the end of the `core:scale` row, and "translate or scale" in the `enterPose`
-      sentence under *Nodes*.
-- [ ] Check that the animation lab passes without re-recording anything.
 
 ## Other tasks
 
