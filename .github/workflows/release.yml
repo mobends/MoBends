@@ -1,7 +1,7 @@
 name: Release
 
-# Releases Mo' Bends for 1.12.2 for every release tag (v<version>-1.12.2, e.g. v2.0.0-1.12.2 or
-# v2.0.0-alpha.1-1.12.2): builds the mod's jar, attaches it to the tag's GitHub release, and uploads
+# Releases Mo' Bends for 1.8.9 for every release tag (v<version>-1.8.9, e.g. v2.0.0-1.8.9 or
+# v2.0.0-alpha.1-1.8.9): builds the mod's jar, attaches it to the tag's GitHub release, and uploads
 # it to Modrinth and CurseForge. See CONTRIBUTING.md, *Releasing the mod*. The Legacy Mo' Bends
 # resource pack (misc/legacy-pack) is signed and released from main.
 #
@@ -10,7 +10,7 @@ name: Release
 on:
   push:
     tags:
-      - "v*-1.12.2"
+      - "v*-1.8.9"
 
 permissions:
   contents: read
@@ -32,8 +32,8 @@ jobs:
         id: version
         run: |
           version="$(sed -n 's/^mod_version *= *//p' gradle.properties | tr -d '[:space:]')"
-          if [ "$GITHUB_REF_NAME" != "v${version}-1.12.2" ]; then
-            echo "::error::Tag '$GITHUB_REF_NAME' doesn't match mod_version $version in gradle.properties (expected v${version}-1.12.2)"
+          if [ "$GITHUB_REF_NAME" != "v${version}-1.8.9" ]; then
+            echo "::error::Tag '$GITHUB_REF_NAME' doesn't match mod_version $version in gradle.properties (expected v${version}-1.8.9)"
             exit 1
           fi
           case "$version" in
@@ -77,10 +77,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 8
+      # The mod is compiled for Java 8 (the toolchain); Gradle runs on 17, the last JDK set up.
+      - name: Set up JDK 8 and 17
         uses: actions/setup-java@v4
         with:
-          java-version: "8"
+          java-version: |
+            8
+            17
           distribution: "temurin"
 
       - name: Grant execute permission for gradlew
@@ -89,20 +92,24 @@ jobs:
       # No Gradle cache here: a cache written by another workflow run could change the jar that is
       # published.
       - name: Build the mod
-        run: ./gradlew build shadowJar
+        run: ./gradlew build
         env:
           # Reads mobends-core from GitHub Packages.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Name the jar
         run: |
-          jars=(build/libs/*-all.jar)
+          # The remapped jar (remapJar), not the sources.
+          jars=()
+          for jar in build/libs/MoBends_1.8.9-*.jar; do
+            case "$jar" in *-sources.jar) ;; *) jars+=("$jar") ;; esac
+          done
           if [ "${#jars[@]}" != 1 ] || [ ! -f "${jars[0]}" ]; then
-            echo "::error::Expected one *-all.jar in build/libs, found: ${jars[*]}"
+            echo "::error::Expected one remapped jar in build/libs, found: ${jars[*]}"
             exit 1
           fi
           mkdir dist
-          cp "${jars[0]}" "dist/MoBends_1.12.2-${{ needs.version.outputs.version }}.jar"
+          cp "${jars[0]}" "dist/MoBends_1.8.9-${{ needs.version.outputs.version }}.jar"
 
       - name: Upload the jar
         uses: actions/upload-artifact@v4
@@ -127,7 +134,7 @@ jobs:
           if ! gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
             prerelease=()
             if [ "${{ needs.version.outputs.version-type }}" != release ]; then prerelease=(--prerelease); fi
-            gh release create "$GITHUB_REF_NAME" --verify-tag --title "Mo' Bends ${{ needs.version.outputs.version }} for Minecraft 1.12.2" \
+            gh release create "$GITHUB_REF_NAME" --verify-tag --title "Mo' Bends ${{ needs.version.outputs.version }} for Minecraft 1.8.9" \
               --notes-file release/release-notes/release-notes.md "${prerelease[@]}"
           fi
           gh release upload "$GITHUB_REF_NAME" release/mod/*.jar --clobber
@@ -183,10 +190,10 @@ jobs:
           curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           files: release/*.jar
-          name: Mo' Bends ${{ needs.version.outputs.version }} for Minecraft 1.12.2
-          version: ${{ needs.version.outputs.version }}+1.12.2
+          name: Mo' Bends ${{ needs.version.outputs.version }} for Minecraft 1.8.9
+          version: ${{ needs.version.outputs.version }}+1.8.9
           version-type: ${{ needs.version.outputs.version-type }}
           changelog-file: release/release-notes.md
           loaders: forge
-          game-versions: 1.12.2
+          game-versions: 1.8.9
           java: 8

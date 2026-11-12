@@ -17,33 +17,28 @@ If you'd like to be a part of Mo' Bends' development, see the progress, or just 
 Say you came from GitHub if you decide to come by! Hope to see you there
 
 ## Local Development Setup
-Install a Java Development Kit (JDK) appropriate for the Minecraft version you are developing for. For Minecraft 1.12.2, use JDK 8.
-I personally use the [Eclipse Temurin JDK](https://adoptium.net/temurin/releases?version=8&os=any&arch=any).
-If you use [mise](https://mise.jdx.dev), `mise.toml` picks JDK 8 for you (Azul Zulu, which has a build for Apple Silicon).
+This branch is Mo' Bends for Minecraft 1.8.9 (Forge). Gradle runs on JDK 17 or later; the mod is compiled
+for Java 8, and Gradle downloads a JDK 8 for that if it can't find one.
+I personally use the [Eclipse Temurin JDK](https://adoptium.net/temurin/releases?version=17&os=any&arch=any).
+If you use [mise](https://mise.jdx.dev), `mise.toml` picks JDK 17 to run Gradle.
 Put personal overrides in `mise.local.toml`, which is ignored.
 
 The animation engine is downloaded from GitHub Packages, which needs a GitHub token even to read:
 see [CONTRIBUTING.md](CONTRIBUTING.md#a-token-for-github-packages).
 
-Run the game with `./gradlew runClient` (or `./gradlew runServer`), or from IntelliJ IDEA with the run configurations
-`./gradlew genIntellijRuns` makes. `./gradlew build` builds the mod (`build/libs/*-all.jar` is the one to install) and runs
-the tests; the animation lab (`animation-lab/`, see its README) checks the animations against recorded traces.
-On Apple Silicon, [run-arm64/](run-arm64/README.md) runs the client natively.
+Run the game with `./gradlew runClient`, or from IntelliJ IDEA with the run configurations
+`./gradlew genIntellijRuns` makes. `./gradlew build` builds the mod (`build/libs/MoBends_1.8.9-<version>.jar` is
+the one to install) and runs the tests; the animation lab (`animation-lab/`, see its README) checks the animations
+against recorded traces.
+On Apple Silicon, LWJGL 2's natives need an x86-64 JDK 8 (run under Rosetta):
+`./gradlew runClient -Pclient_java_home=/Library/Java/JavaVirtualMachines/temurin-8.jdk/Contents/Home`.
 [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/](docs/) explain how the project is put together.
 
 ### Playing under a fixed name
 The development client picks a random name (`Player123`) on every launch. To test entity types that
 select players by name (see `misc/examples/player-name-type`), pick one:
-- Gradle: `./gradlew runClient -Pmc_username=BendyTester` (also works with `run-arm64/runClient.sh -Pmc_username=BendyTester`).
+- Gradle: `./gradlew runClient -Pmc_username=BendyTester`.
 - IntelliJ IDEA: add `--username BendyTester` to the *Program arguments* of the client run configuration.
-
-### Running with GeckoLib
-Mo' Bends poses armour made with GeckoLib when GeckoLib is installed, but the development client
-runs without it. To test that, add `-Pwith_geckolib`: GeckoLib and its example items (the potato
-armour among them, in the *GeckoLib Examples* creative tab) are then loaded too.
-- Gradle: `./gradlew runClient -Pwith_geckolib` (also works with `run-arm64/runClient.sh -Pwith_geckolib`).
-- IntelliJ IDEA (which takes the classpath from its Gradle sync): add `with_geckolib=true` to your
-  own `~/.gradle/gradle.properties` and reload the Gradle project; `with_geckolib=false` turns it off again.
 
 ### Troubleshooting
 - IntelliJ freaks out and can't find symbols in the project, but compiles fine.

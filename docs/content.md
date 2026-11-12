@@ -74,11 +74,12 @@ which mutate the copy by the same definition and pose it as the mob is.
 ### Vanilla field names in production
 
 Definitions name fields by their development (MCP) names, which don't exist in a production
-(SRG) runtime. `src/tools/kotlin/.../GenVanillaFields.kt` (`gradle generateVanillaFields`) reads
-the SRG Forge jar and the mappings from `build/fg_cache` and generates `core/vanilla/VanillaModelParts`
+(SRG) runtime. `src/tools/java/.../GenVanillaFields.java` (`./gradlew generateVanillaFields`) reads
+the SRG-named Minecraft jar Loom prepares and MCP's field names, and generates `core/vanilla/VanillaModelParts`
 and `core/vanilla/VanillaEntityFields`: a string switch from `owner#name` to a lambda that reads
-the field directly, so reobfuscation renames every access. Non-public fields are opened by a
-generated section of `META-INF/accesstransformer.cfg`, below a marker line. `DefinedFields` looks
+the field directly, so reobfuscation renames every access. Every field it reads is opened by a
+generated section of `META-INF/accesstransformer.cfg`, below a marker line (Loom applies that file to the
+jar the tool reads, so the jar can't tell which were public). `DefinedFields` looks
 a field up in the generated table for each class in the hierarchy first and falls back to
 reflection, which is how fields of modded entities and models are found. The build fails when the
 generated files were made for another Minecraft, Forge or mappings version (`checkVanillaFields`).
