@@ -78,9 +78,9 @@ public class GuiOrderEntry implements IGuiListElement
     {
         GlStateManager.color(1F, 1F, 1F);
 
-        mc.fontRenderer.drawStringWithShadow((position + 1) + ".", this.x + 4, this.y + 6, 0xaaaaaa);
-        mc.fontRenderer.drawStringWithShadow(mc.fontRenderer.trimStringToWidth(id, 170), this.x + 20, this.y + 6, 0xffffff);
-        mc.fontRenderer.drawString(mc.fontRenderer.trimStringToWidth(description, 170), this.x + 20, this.y + 18, 0x9a9a9a);
+        mc.fontRendererObj.drawStringWithShadow((position + 1) + ".", this.x + 4, this.y + 6, 0xaaaaaa);
+        mc.fontRendererObj.drawStringWithShadow(mc.fontRendererObj.trimStringToWidth(id, 170), this.x + 20, this.y + 6, 0xffffff);
+        mc.fontRendererObj.drawString(mc.fontRendererObj.trimStringToWidth(description, 170), this.x + 20, this.y + 18, 0x9a9a9a);
 
         upButton.drawButton(mouseX, mouseY, partialTicks);
         downButton.drawButton(mouseX, mouseY, partialTicks);

@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.data;
 
+import goblinbob.mobends.core.compat.Living;
 
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.util.GUtil;
@@ -8,12 +9,10 @@ import net.minecraft.block.BlockLadder;
 import net.minecraft.block.BlockVine;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumHandSide;
+import goblinbob.mobends.core.compat.EnumHand;
+import goblinbob.mobends.core.compat.EnumHandSide;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.BlockPos;
@@ -83,39 +82,39 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         registerVariable("entityClimbingRotation", this::getClimbingRotation);
         // Vanilla's names are backwards: getItemInUseMaxCount is the ticks used so far. These count
         // whole ticks, so they go on by partialTicks while they count.
-        registerVariable("entityItemUseTicks", () -> entity != null && entity.getItemInUseCount() > 0
-                ? entity.getItemInUseMaxCount() + DataUpdateHandler.partialTicks : 0);
-        registerVariable("entityItemUseTicksLeft", () -> entity != null && entity.getItemInUseCount() > 0
-                ? Math.max(0, entity.getItemInUseCount() - DataUpdateHandler.partialTicks) : 0);
-        registerVariable("entityTicksElytraFlying", () -> entity != null && entity.getTicksElytraFlying() > 0
-                ? entity.getTicksElytraFlying() + DataUpdateHandler.partialTicks : 0);
+        registerVariable("entityItemUseTicks", () -> entity != null && Living.getItemInUseCount(entity) > 0
+                ? Living.getItemInUseMaxCount(entity) + DataUpdateHandler.partialTicks : 0);
+        registerVariable("entityItemUseTicksLeft", () -> entity != null && Living.getItemInUseCount(entity) > 0
+                ? Math.max(0, Living.getItemInUseCount(entity) - DataUpdateHandler.partialTicks) : 0);
+        registerVariable("entityTicksElytraFlying", () -> entity != null && Living.getTicksElytraFlying(entity) > 0
+                ? Living.getTicksElytraFlying(entity) + DataUpdateHandler.partialTicks : 0);
 
         registerState("entityIsClimbing", this::isClimbing);
         registerState("entityIsDrawingBow", this::isDrawingBow);
         registerState("entityIsSwinging", () -> entity != null && entity.isSwingInProgress);
         registerState("entityIsChild", () -> entity != null && entity.isChild());
-        registerState("entityIsRidingLiving", () -> entity != null && entity.getRidingEntity() instanceof EntityLivingBase);
-        registerState("entityIsLeftHanded", () -> entity != null && entity.getPrimaryHand() == EnumHandSide.LEFT);
+        registerState("entityIsRidingLiving", () -> entity != null && entity.ridingEntity instanceof EntityLivingBase);
+        registerState("entityIsLeftHanded", () -> entity != null && Living.getPrimaryHand(entity) == EnumHandSide.LEFT);
         registerState("entityIsSleeping", () -> entity != null && entity.isEntityAlive() && entity.isPlayerSleeping());
-        registerState("entityIsElytraFlying", () -> entity != null && entity.isElytraFlying());
+        registerState("entityIsElytraFlying", () -> entity != null && Living.isElytraFlying(entity));
 
         // The yaw vanilla turns the body to, interpolated as the renderer does.
         registerVariable("entityBodyYaw", this::getBodyYaw);
-        registerVariable("entityClimbingRenderYaw", () -> entity != null ? MathHelper.wrapDegrees(getYaw() - headYaw - getClimbingRotation()) : 0);
+        registerVariable("entityClimbingRenderYaw", () -> entity != null ? MathHelper.wrapAngleTo180_float(getYaw() - headYaw - getClimbingRotation()) : 0);
         registerVariable("entityClimbingBodyYaw", () -> entity != null
-                ? MathHelper.wrapDegrees(headYaw + MathHelper.wrapDegrees(getYaw() - headYaw - getClimbingRotation())) : 0);
+                ? MathHelper.wrapAngleTo180_float(headYaw + MathHelper.wrapAngleTo180_float(getYaw() - headYaw - getClimbingRotation())) : 0);
         registerVariable("entityClimbingHeadYaw", () -> {
             if (entity == null) return 0;
-            float turnY = MathHelper.wrapDegrees(getYaw() - headYaw - getClimbingRotation());
-            return Math.max(-90F, Math.min(90F, MathHelper.wrapDegrees(headYaw + turnY)));
+            float turnY = MathHelper.wrapAngleTo180_float(getYaw() - headYaw - getClimbingRotation());
+            return Math.max(-90F, Math.min(90F, MathHelper.wrapAngleTo180_float(headYaw + turnY)));
         });
         registerVariable("entityRidingRelativeHeadYaw", () -> {
-            if (entity == null || !(entity.getRidingEntity() instanceof EntityLivingBase)) return 0;
-            return MathHelper.wrapDegrees(getYaw() - getMountBodyYaw());
+            if (entity == null || !(entity.ridingEntity instanceof EntityLivingBase)) return 0;
+            return MathHelper.wrapAngleTo180_float(getYaw() - getMountBodyYaw());
         });
         registerVariable("entityRidingRelativeYaw", () -> {
-            if (entity == null || !(entity.getRidingEntity() instanceof EntityLivingBase)) return 0;
-            return MathHelper.wrapDegrees(getYaw() - headYaw - getMountBodyYaw());
+            if (entity == null || !(entity.ridingEntity instanceof EntityLivingBase)) return 0;
+            return MathHelper.wrapAngleTo180_float(getYaw() - headYaw - getMountBodyYaw());
         });
     }
 
@@ -172,8 +171,8 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         if (this.entity instanceof EntityOtherPlayerMP)
         {
             EntityOtherPlayerMP player = (EntityOtherPlayerMP) this.entity;
-            this.remoteFlight.update(player.isCreative() || player.isSpectator(),
-                    !this.onGround && !this.climbing && !player.isRiding() && !player.isElytraFlying()
+            this.remoteFlight.update(Living.isCreative(player) || player.isSpectator(),
+                    !this.onGround && !this.climbing && !player.isRiding() && !Living.isElytraFlying(player)
                             && !player.isInWater() && !player.isInLava(),
                     this.motionY);
         }
@@ -221,7 +220,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
     /** The body yaw of the living entity this one rides, interpolated as the renderer does. */
     private float getMountBodyYaw()
     {
-        EntityLivingBase mount = (EntityLivingBase) entity.getRidingEntity();
+        EntityLivingBase mount = (EntityLivingBase) entity.ridingEntity;
         return GUtil.interpolateRotation(mount.prevRenderYawOffset, mount.renderYawOffset, DataUpdateHandler.partialTicks);
     }
 
@@ -244,13 +243,13 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
      */
     public float getHeadYawSinceAnimated()
     {
-        return MathHelper.wrapDegrees(headYaw - animatedHeadYaw);
+        return MathHelper.wrapAngleTo180_float(headYaw - animatedHeadYaw);
     }
 
     /** See {@link #getHeadYawSinceAnimated}. */
     public float getHeadPitchSinceAnimated()
     {
-        return MathHelper.wrapDegrees(headPitch - animatedHeadPitch);
+        return MathHelper.wrapAngleTo180_float(headPitch - animatedHeadPitch);
     }
 
     @Override
@@ -303,7 +302,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
     public void onAttack()
     {
         if (attackComboTicks > 0 && ticksAfterAttack <= attackComboTicks
-                && entity.getHeldItem(EnumHand.MAIN_HAND).getItem() != Items.AIR)
+                && !Living.isEmpty(Living.getHeldItem(entity, EnumHand.MAIN_HAND)))
         {
             return;
         }
@@ -322,7 +321,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 
     public float getClimbingRotation()
     {
-        return getLadderFacing().getHorizontalAngle() + 180.0F;
+        return getLadderFacing().getHorizontalIndex() * 90.0F + 180.0F;
     }
 
     private static boolean isBlockClimbable(IBlockState state)
@@ -355,9 +354,9 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
     {
         BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
 
-        IBlockState block = entity.world.getBlockState(position);
-        IBlockState blockBelow = entity.world.getBlockState(position.add(0, -1, 0));
-        IBlockState blockBelow2 = entity.world.getBlockState(position.add(0, -2, 0));
+        IBlockState block = entity.worldObj.getBlockState(position);
+        IBlockState blockBelow = entity.worldObj.getBlockState(position.add(0, -1, 0));
+        IBlockState blockBelow2 = entity.worldObj.getBlockState(position.add(0, -2, 0));
 
         EnumFacing facing = EnumFacing.NORTH;
         facing = getClimbableBlockFacing(block);
@@ -371,14 +370,14 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 
     public boolean calcClimbing()
     {
-        if (entity == null || entity.world == null)
+        if (entity == null || entity.worldObj == null)
             return false;
 
         BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
 
-        IBlockState block = entity.world.getBlockState(position);
-        IBlockState blockBelow = entity.world.getBlockState(position.add(0, -1, 0));
-        IBlockState blockBelow2 = entity.world.getBlockState(position.add(0, -2, 0));
+        IBlockState block = entity.worldObj.getBlockState(position);
+        IBlockState blockBelow = entity.worldObj.getBlockState(position.add(0, -1, 0));
+        IBlockState blockBelow2 = entity.worldObj.getBlockState(position.add(0, -2, 0));
 
         return entity.isOnLadder() && !this.isOnGround() && (isBlockClimbable(block) || isBlockClimbable(blockBelow) || isBlockClimbable(blockBelow2));
     }
@@ -389,9 +388,9 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 
         final BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
 
-        IBlockState block = entity.world.getBlockState(position.add(0, 2, 0));
-        IBlockState blockBelow = entity.world.getBlockState(position.add(0, 1, 0));
-        IBlockState blockBelow2 = entity.world.getBlockState(position.add(0, 0, 0));
+        IBlockState block = entity.worldObj.getBlockState(position.add(0, 2, 0));
+        IBlockState blockBelow = entity.worldObj.getBlockState(position.add(0, 1, 0));
+        IBlockState blockBelow2 = entity.worldObj.getBlockState(position.add(0, 0, 0));
         if (!isBlockClimbable(block))
         {
             if (!isBlockClimbable(blockBelow))
@@ -412,12 +411,12 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 
     public boolean isDrawingBow()
     {
-        if (entity.getItemInUseCount() > 0)
+        if (Living.getItemInUseCount(entity) > 0)
         {
-            ItemStack mainItemStack = entity.getHeldItemMainhand();
-            ItemStack offItemStack = entity.getHeldItemOffhand();
-            if ((!mainItemStack.isEmpty() && mainItemStack.getItemUseAction() == EnumAction.BOW)
-                    || (!offItemStack.isEmpty() && offItemStack.getItemUseAction() == EnumAction.BOW))
+            ItemStack mainItemStack = Living.getHeldItemMainhand(entity);
+            ItemStack offItemStack = Living.getHeldItemOffhand(entity);
+            if ((!Living.isEmpty(mainItemStack) && mainItemStack.getItemUseAction() == EnumAction.BOW)
+                    || (!Living.isEmpty(offItemStack) && offItemStack.getItemUseAction() == EnumAction.BOW))
             {
                 return true;
             }

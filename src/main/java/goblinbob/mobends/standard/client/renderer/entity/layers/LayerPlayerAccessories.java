@@ -12,16 +12,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.client.resources.model.SimpleBakedModel;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.client.model.pipeline.LightUtil;
+
+import java.util.List;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,17 +31,12 @@ import java.util.Set;
 public class LayerPlayerAccessories implements LayerRenderer<AbstractClientPlayer>
 {
     private final RendererLivingEntity<?> renderPlayer;
-    private final RenderItem itemRenderer;
-    private final ModelManager modelManager;
     private final TextureManager textureManager;
-    private final ItemStack emptyItemStack = new ItemStack(Items.AIR);
 
     public LayerPlayerAccessories(RendererLivingEntity<?> renderPlayer)
     {
         Minecraft mc = Minecraft.getMinecraft();
         this.renderPlayer = renderPlayer;
-        this.itemRenderer = mc.getRenderItem();
-        this.modelManager = mc.getRenderItem().getItemModelMesher().getModelManager();
         this.textureManager = mc.getTextureManager();
     }
 
@@ -129,16 +126,25 @@ public class LayerPlayerAccessories implements LayerRenderer<AbstractClientPlaye
     private void drawModel(IBakedModel model, int color)
     {
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer bufferbuilder = tessellator.getBuffer();
+        WorldRenderer bufferbuilder = tessellator.getWorldRenderer();
         bufferbuilder.begin(7, DefaultVertexFormats.ITEM);
 
         for (EnumFacing enumfacing : EnumFacing.values())
         {
-            itemRenderer.renderQuads(bufferbuilder, model.getQuads(null, enumfacing, 0L), color, emptyItemStack);
+            renderQuads(bufferbuilder, model.getFaceQuads(enumfacing), color);
         }
 
-        itemRenderer.renderQuads(bufferbuilder, model.getQuads(null, null, 0L), color, emptyItemStack);
+        renderQuads(bufferbuilder, model.getGeneralQuads(), color);
         tessellator.draw();
+    }
+
+    /** As RenderItem#renderQuads, for quads without a tint. */
+    private static void renderQuads(WorldRenderer buffer, List<BakedQuad> quads, int color)
+    {
+        for (BakedQuad quad : quads)
+        {
+            LightUtil.renderQuadColor(buffer, quad, color);
+        }
     }
 
     private void applyBindPointTransform(LivingEntityData<?> data, BindPoint bindPoint, float scale)

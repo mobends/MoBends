@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.client.renderer.entity;
 
+import org.lwjgl.opengl.GL11;
 import goblinbob.mobends.core.ModStatics;
 import net.minecraft.client.model.PositionTextureVertex;
 import net.minecraft.client.model.TexturedQuad;
@@ -187,15 +188,15 @@ public class BendsCapeRenderer
         private void compileDisplayList(float scale)
         {
             this.displayList = GLAllocation.generateDisplayLists(1);
-            GlStateManager.glNewList(this.displayList, 4864);
-            WorldRenderer bufferbuilder = Tessellator.getInstance().getBuffer();
+            GL11.glNewList(this.displayList, 4864);
+            WorldRenderer bufferbuilder = Tessellator.getInstance().getWorldRenderer();
 
             for (TexturedQuad texturedquad : this.quadList)
             {
                 texturedquad.draw(bufferbuilder, scale);
             }
 
-            GlStateManager.glEndList();
+            GL11.glEndList();
             this.compiled = true;
         }
 

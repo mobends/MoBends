@@ -33,7 +33,7 @@ public class RayGizmoRenderer
         if (count == 0 || view == null)
             return;
 
-        final float pt = event.getPartialTicks();
+        final float pt = event.partialTicks;
         final double viewX = view.lastTickPosX + (view.posX - view.lastTickPosX) * pt;
         final double viewY = view.lastTickPosY + (view.posY - view.lastTickPosY) * pt;
         final double viewZ = view.lastTickPosZ + (view.posZ - view.lastTickPosZ) * pt;
@@ -46,10 +46,10 @@ public class RayGizmoRenderer
         GlStateManager.depthMask(false);
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GlStateManager.glLineWidth(2F);
+        GL11.glLineWidth(2F);
 
         final Tessellator tessellator = Tessellator.getInstance();
-        final WorldRenderer buffer = tessellator.getBuffer();
+        final WorldRenderer buffer = tessellator.getWorldRenderer();
         buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
         for (int i = 0; i < count; i++)
         {
@@ -82,7 +82,7 @@ public class RayGizmoRenderer
         }
         tessellator.draw();
 
-        GlStateManager.glLineWidth(1F);
+        GL11.glLineWidth(1F);
         GlStateManager.disableBlend();
         GlStateManager.depthMask(true);
         GlStateManager.enableDepth();

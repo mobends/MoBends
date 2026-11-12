@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.client.event;
 
+import goblinbob.mobends.core.compat.RenderPartialTicks;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.RendererState;
@@ -45,8 +46,8 @@ public class EntityRenderHandler
     @SuppressWarnings("unchecked")
     public void beforeLivingRender(RenderLivingEvent.Pre<? extends EntityLivingBase> event)
     {
-        final EntityLivingBase living = event.getEntity();
-        final RendererLivingEntity<EntityLivingBase> renderer = (RendererLivingEntity<EntityLivingBase>) event.getRenderer();
+        final EntityLivingBase living = event.entity;
+        final RendererLivingEntity<EntityLivingBase> renderer = (RendererLivingEntity<EntityLivingBase>) event.renderer;
 
         // A renderer the game doesn't draw this entity with belongs to another mod that draws it its
         // own way (Idō draws swimming and crawling players with a renderer of its own, made each
@@ -65,7 +66,7 @@ public class EntityRenderHandler
         }
 
         final EntityBender<EntityLivingBase> entityBender = (EntityBender<EntityLivingBase>) selection.bender;
-        final float pt = event.getPartialRenderTick();
+        final float pt = RenderPartialTicks.get();
 
         GlStateManager.pushMatrix();
         renders.push(new Render(living, entityBender));
@@ -81,7 +82,7 @@ public class EntityRenderHandler
     @SubscribeEvent
     public void beforeLivingSpecials(RenderLivingEvent.Specials.Pre<? extends EntityLivingBase> event)
     {
-        if (event.getEntity().world instanceof PreviewWorld)
+        if (event.entity.worldObj instanceof PreviewWorld)
         {
             event.setCanceled(true);
         }
@@ -94,13 +95,13 @@ public class EntityRenderHandler
         while (!renders.isEmpty())
         {
             Render render = renders.pop();
-            if (render.entity == event.getEntity())
+            if (render.entity == event.entity)
             {
                 GlStateManager.popMatrix();
                 break;
             }
         }
 
-        RendererState.restoreVanilla(event.getRenderer());
+        RendererState.restoreVanilla(event.renderer);
     }
 }

@@ -15,6 +15,9 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
+import goblinbob.mobends.core.configuration.CoreConfig;
+import net.minecraftforge.common.config.ConfigElement;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.client.config.GuiConfig;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -78,9 +81,9 @@ public class GuiSettingsWindow extends GuiScreen
         buttonList.add(new GuiButton(COMPONENT_BUTTON_BACK, 10, height - 30, 60, 20, I18n.format("mobends.gui.back")));
         // Forge's screen for the mod's configuration file.
         final String moreSettings = I18n.format("mobends.gui.more_settings");
-        final int moreSettingsWidth = this.fontRenderer.getStringWidth(moreSettings) + 20;
+        final int moreSettingsWidth = this.fontRendererObj.getStringWidth(moreSettings) + 20;
         buttonList.add(new GuiButton(COMPONENT_BUTTON_MORE_SETTINGS, width - 10 - moreSettingsWidth, height - 30, moreSettingsWidth, 20, moreSettings));
-        filterQueryInput = new GuiCompactTextField(COMPONENT_QUERY_INPUT, this.fontRenderer, x + 6, y + 6, 150, 16);
+        filterQueryInput = new GuiCompactTextField(COMPONENT_QUERY_INPUT, this.fontRendererObj, x + 6, y + 6, 150, 16);
         filterQueryInput.setFocused(true);
         filterQueryInput.setPlaceholderText(I18n.format("mobends.gui.search"));
         bendsSettingsListUI.setHeight(editorHeight - 10 - 20);
@@ -102,7 +105,7 @@ public class GuiSettingsWindow extends GuiScreen
 
         bendsSettingsListUI.draw(DataUpdateHandler.partialTicks);
 
-        fontRenderer.drawStringWithShadow(I18n.format("mobends.gui.settings"), this.x + 6, this.y - 9, 0xffffff);
+        fontRendererObj.drawStringWithShadow(I18n.format("mobends.gui.settings"), this.x + 6, this.y - 9, 0xffffff);
         filterQueryInput.drawTextBox();
 
         super.drawScreen(mouseX, mouseY, partialTicks);
@@ -177,7 +180,10 @@ public class GuiSettingsWindow extends GuiScreen
             case COMPONENT_BUTTON_MORE_SETTINGS:
                 Core.saveConfiguration();
                 // A new window to come back to: leaving this one closes the world of its previews.
-                this.mc.displayGuiScreen(new GuiConfig(new GuiSettingsWindow(exit), ModStatics.MODID, ModStatics.NAME));
+                // Forge's screen for the options of the general category (ModConfig).
+                this.mc.displayGuiScreen(new GuiConfig(new GuiSettingsWindow(exit),
+                        new ConfigElement(CoreConfig.sharedConfiguration().getCategory(Configuration.CATEGORY_GENERAL)).getChildElements(),
+                        ModStatics.MODID, false, false, ModStatics.NAME));
                 break;
             default:
                 break;

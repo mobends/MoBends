@@ -144,11 +144,11 @@ public class GuiSectionButton
         {
             float iconCenterX = x + ICON_PADDING + icon.texWidth / 2;
             float glintMiddle = glintFront - GLINT_SLANT / 2F;
-            iconPop = MathHelper.clamp((glintMiddle - iconCenterX) / ICON_POP_DISTANCE, 0, 1);
+            iconPop = MathHelper.clamp_float((glintMiddle - iconCenterX) / ICON_POP_DISTANCE, 0, 1);
         }
 
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
         GlStateManager.enableAlpha();
         if (iconPop > 0)
         {
@@ -172,10 +172,10 @@ public class GuiSectionButton
 
         GlStateManager.disableTexture2D();
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
         GlStateManager.color(1, 1, 1, 1);
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer buffer = tessellator.getBuffer();
+        WorldRenderer buffer = tessellator.getWorldRenderer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
         slantedQuad(buffer, left, right, slant, y, shadeTop, color.r, color.g, color.b, color.a, color.a);
         slantedQuad(buffer, left, right, slant, shadeTop, y + HEIGHT, color.r * shade, color.g * shade, color.b * shade, color.a, color.a);
@@ -201,7 +201,7 @@ public class GuiSectionButton
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
         GlStateManager.color(1, 1, 1, 1);
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer buffer = tessellator.getBuffer();
+        WorldRenderer buffer = tessellator.getWorldRenderer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
         slantedQuad(buffer, front - GLINT_WIDTH, front, GLINT_SLANT, y, y + HEIGHT, 1, 1, 1, 0, GLINT_ALPHA);
         tessellator.draw();
@@ -247,7 +247,7 @@ public class GuiSectionButton
         float left = x + iconRoom;
         float maxWidth = width - iconRoom - 2 * LABEL_PADDING;
 
-        int textWidth = mc.fontRenderer.getStringWidth(this.label);
+        int textWidth = mc.fontRendererObj.getStringWidth(this.label);
         float scale = Math.min(1, maxWidth / textWidth);
         float centerX = left + (x + width - left) / 2F;
 
@@ -256,14 +256,14 @@ public class GuiSectionButton
         {
             // On whole pixels: off them, the font's letters (drawn twice a pixel apart, in bold)
             // show seams.
-            mc.fontRenderer.drawStringWithShadow(this.label, Math.round(centerX - textWidth / 2F), textY, 0xFFFFFF);
+            mc.fontRendererObj.drawStringWithShadow(this.label, Math.round(centerX - textWidth / 2F), textY, 0xFFFFFF);
             return;
         }
 
         GlStateManager.pushMatrix();
         GlStateManager.translate(Math.round(centerX), textY + 4, 0);
         GlStateManager.scale(scale, scale, 1);
-        mc.fontRenderer.drawStringWithShadow(this.label, -textWidth / 2, -4, 0xFFFFFF);
+        mc.fontRendererObj.drawStringWithShadow(this.label, -textWidth / 2, -4, 0xFFFFFF);
         GlStateManager.popMatrix();
     }
 

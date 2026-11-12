@@ -25,6 +25,7 @@ public class MoBends
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+        ModConfig.load(event.getSuggestedConfigurationFile());
         proxy.createCore();
         Core.getInstance().preInit(event);
         proxy.preInit();

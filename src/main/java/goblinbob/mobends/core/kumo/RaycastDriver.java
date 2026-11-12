@@ -100,7 +100,7 @@ public final class RaycastDriver
     static World world(goblinbob.mobends.core.kumo.api.EvalContext context)
     {
         Object entity = context.entity();
-        return entity instanceof Entity ? ((Entity) entity).world : null;
+        return entity instanceof Entity ? ((Entity) entity).worldObj : null;
     }
 
     /** The block face the segment crosses first, as vanilla traces it; null where it crosses none. */
@@ -111,7 +111,7 @@ public final class RaycastDriver
             return null;
         }
         MovingObjectPosition hit = world.rayTraceBlocks(new Vec3(x, y, z), new Vec3(endX, endY, endZ), liquids, true, false);
-        return hit != null && hit.typeOfHit == MovingObjectPosition.Type.BLOCK && hit.sideHit != null ? hit : null;
+        return hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && hit.sideHit != null ? hit : null;
     }
 
     /** Records the ray for {@link RayGizmos}: up to {@code hit}, or, where it is null, to {@code end}. */
@@ -123,7 +123,7 @@ public final class RaycastDriver
             return;
         }
         Vec3i normal = hit.sideHit.getDirectionVec();
-        RayGizmos.add(kind, x, y, z, hit.hitVec.x, hit.hitVec.y, hit.hitVec.z, normal.getX(), normal.getY(), normal.getZ());
+        RayGizmos.add(kind, x, y, z, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, normal.getX(), normal.getY(), normal.getZ());
     }
 
     /** The outputs of a ray, mapped to states: where it hit and which way the surface faces. */
@@ -149,9 +149,9 @@ public final class RaycastDriver
             Vec3i normal = null;
             if (hit != null)
             {
-                endX = hit.hitVec.x;
-                endY = hit.hitVec.y;
-                endZ = hit.hitVec.z;
+                endX = hit.hitVec.xCoord;
+                endY = hit.hitVec.yCoord;
+                endZ = hit.hitVec.zCoord;
                 normal = hit.sideHit.getDirectionVec();
             }
             if (hitX != null) hitX.set(context, endX);

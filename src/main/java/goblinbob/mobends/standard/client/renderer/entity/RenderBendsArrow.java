@@ -7,21 +7,23 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/** Vanilla's arrow, with a trail behind it. */
 @SideOnly(Side.CLIENT)
-public abstract class RenderBendsArrow<T extends EntityArrow> extends RenderArrow<T>
+public class RenderBendsArrow extends RenderArrow
 {
-	
-    public RenderBendsArrow(RenderManager renderManagerIn) {
-		super(renderManagerIn);
-	}
-    
-    @Override
-    public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks)
-    {
-    	if(ModConfig.showArrowTrails)
-    		ArrowTrailManager.renderTrail(entity, x, y, z, partialTicks);
 
-    	super.doRender(entity, x, y, z, entityYaw, partialTicks);
+    public RenderBendsArrow(RenderManager renderManagerIn)
+    {
+        super(renderManagerIn);
     }
-    
+
+    @Override
+    public void doRender(EntityArrow entity, double x, double y, double z, float entityYaw, float partialTicks)
+    {
+        if (ModConfig.showArrowTrails)
+            ArrowTrailManager.renderTrail(entity, x, y, z, partialTicks);
+
+        super.doRender(entity, x, y, z, entityYaw, partialTicks);
+    }
+
 }

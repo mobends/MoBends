@@ -96,7 +96,7 @@ public final class StepUpDriver
             if (entity instanceof Entity)
             {
                 Entity e = (Entity) entity;
-                result = search(e.world, e.posX, e.posY, e.posZ, directionX.get(context), directionZ.get(context),
+                result = search(e.worldObj, e.posX, e.posY, e.posZ, directionX.get(context), directionZ.get(context),
                         distance.get(context), height.get(context), solid, step);
                 if (debug)
                 {

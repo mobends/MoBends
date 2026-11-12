@@ -56,7 +56,7 @@ public class GuiDropDownList<T> implements IObservable
 	
 	public GuiDropDownList()
 	{
-		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
+		this.fontRenderer = Minecraft.getMinecraft().fontRendererObj;
 		this.entries = new ArrayList<>();
 		this.selectedIndex = 0;
 		this.width = 94;

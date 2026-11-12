@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import org.lwjgl.opengl.GL11;
 
@@ -89,15 +90,15 @@ public class ArrowTrail
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer vertexbuffer = tessellator.getBuffer();
+        WorldRenderer vertexbuffer = tessellator.getWorldRenderer();
         vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         for (int i = 1; i < MAX_LENGTH; i++)
         {
             TrailNode node0 = nodes[i - 1];
             TrailNode node1 = nodes[i];
 
-            Vec3 pos0 = new Vec3(node0.x - viewPos.x, node0.y - viewPos.y, node0.z - viewPos.z);
-            Vec3 pos1 = new Vec3(node1.x - viewPos.x, node1.y - viewPos.y, node1.z - viewPos.z);
+            Vec3 pos0 = new Vec3(node0.x - viewPos.xCoord, node0.y - viewPos.yCoord, node0.z - viewPos.zCoord);
+            Vec3 pos1 = new Vec3(node1.x - viewPos.xCoord, node1.y - viewPos.yCoord, node1.z - viewPos.zCoord);
             float scale0 = ((float) (MAX_LENGTH - i)) / MAX_LENGTH * .1F;
             float scale1 = ((float) MAX_LENGTH - i - 1.0f) / MAX_LENGTH * .1F;
             if (i == 1)
@@ -110,23 +111,23 @@ public class ArrowTrail
             final Vec3f right1 = node1.right;
 
             vertexbuffer
-                    .pos(pos0.x + (-right0.x) * scale0, pos0.y + (-right0.y) * scale0, pos0.z + (-right0.z) * scale0)
+                    .pos(pos0.xCoord + (-right0.x) * scale0, pos0.yCoord + (-right0.y) * scale0, pos0.zCoord + (-right0.z) * scale0)
                     .tex(0.0D, 0.15625D).endVertex();
-            vertexbuffer.pos(pos0.x + (right0.x) * scale0, pos0.y + (right0.y) * scale0, pos0.z + (right0.z) * scale0)
+            vertexbuffer.pos(pos0.xCoord + (right0.x) * scale0, pos0.yCoord + (right0.y) * scale0, pos0.zCoord + (right0.z) * scale0)
                     .tex(0.0D, 0.15625D).endVertex();
-            vertexbuffer.pos(pos1.x + (right1.x) * scale1, pos1.y + (right1.y) * scale1, pos1.z + (right1.z) * scale1)
+            vertexbuffer.pos(pos1.xCoord + (right1.x) * scale1, pos1.yCoord + (right1.y) * scale1, pos1.zCoord + (right1.z) * scale1)
                     .tex(0.0D, 0.15625D).endVertex();
             vertexbuffer
-                    .pos(pos1.x + (-right1.x) * scale1, pos1.y + (-right1.y) * scale1, pos1.z + (-right1.z) * scale1)
+                    .pos(pos1.xCoord + (-right1.x) * scale1, pos1.yCoord + (-right1.y) * scale1, pos1.zCoord + (-right1.z) * scale1)
                     .tex(0.0D, 0.15625D).endVertex();
 
-            vertexbuffer.pos(pos0.x + (-up0.x) * scale0, pos0.y + (-up0.y) * scale0, pos0.z + (-up0.z) * scale0)
+            vertexbuffer.pos(pos0.xCoord + (-up0.x) * scale0, pos0.yCoord + (-up0.y) * scale0, pos0.zCoord + (-up0.z) * scale0)
                     .tex(0.0D, 0.15625D).endVertex();
-            vertexbuffer.pos(pos0.x + (up0.x) * scale0, pos0.y + (up0.y) * scale0, pos0.z + (up0.z) * scale0)
+            vertexbuffer.pos(pos0.xCoord + (up0.x) * scale0, pos0.yCoord + (up0.y) * scale0, pos0.zCoord + (up0.z) * scale0)
                     .tex(0.0D, 0.15625D).endVertex();
-            vertexbuffer.pos(pos1.x + (up1.x) * scale1, pos1.y + (up1.y) * scale1, pos1.z + (up1.z) * scale1)
+            vertexbuffer.pos(pos1.xCoord + (up1.x) * scale1, pos1.yCoord + (up1.y) * scale1, pos1.zCoord + (up1.z) * scale1)
                     .tex(0.0D, 0.15625D).endVertex();
-            vertexbuffer.pos(pos1.x + (-up1.x) * scale1, pos1.y + (-up1.y) * scale1, pos1.z + (-up1.z) * scale1)
+            vertexbuffer.pos(pos1.xCoord + (-up1.x) * scale1, pos1.yCoord + (-up1.y) * scale1, pos1.zCoord + (-up1.z) * scale1)
                     .tex(0.0D, 0.15625D).endVertex();
         }
         tessellator.draw();
@@ -137,6 +138,16 @@ public class ArrowTrail
         GlStateManager.popMatrix();
     }
 
+    /** The unit vector of a pitch and a yaw (in degrees), as 1.12's Vec3d#fromPitchYaw makes it. */
+    private static Vec3 fromPitchYaw(float pitch, float yaw)
+    {
+        final float cosYaw = MathHelper.cos(-yaw * 0.017453292F - (float) Math.PI);
+        final float sinYaw = MathHelper.sin(-yaw * 0.017453292F - (float) Math.PI);
+        final float cosPitch = -MathHelper.cos(-pitch * 0.017453292F);
+        final float sinPitch = MathHelper.sin(-pitch * 0.017453292F);
+        return new Vec3(sinYaw * cosPitch, sinPitch, cosYaw * cosPitch);
+    }
+
     /**
      * Used for debugging.
      * @param x
@@ -145,10 +156,10 @@ public class ArrowTrail
      */
     public void renderAxis(double x, double y, double z)
     {
-        Vec3 forward = trackedArrow.getForward();
-        forward = new Vec3(-forward.x, -forward.y, forward.z);
-        Vec3 up = Vec3.fromPitchYaw(trackedArrow.rotationPitch + 90.0f, trackedArrow.rotationYaw);
-        up = new Vec3(-up.x, -up.y, up.z);
+        Vec3 forward = fromPitchYaw(trackedArrow.rotationPitch, trackedArrow.rotationYaw);
+        forward = new Vec3(-forward.xCoord, -forward.yCoord, forward.zCoord);
+        Vec3 up = fromPitchYaw(trackedArrow.rotationPitch + 90.0f, trackedArrow.rotationYaw);
+        up = new Vec3(-up.xCoord, -up.yCoord, up.zCoord);
         Vec3 right = forward.crossProduct(up);
 
         GlStateManager.pushMatrix();
@@ -158,21 +169,21 @@ public class ArrowTrail
         GlStateManager.depthFunc(GL11.GL_ALWAYS);
         GlStateManager.translate(x, y, z);
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer vertexbuffer = tessellator.getBuffer();
+        WorldRenderer vertexbuffer = tessellator.getWorldRenderer();
         GlStateManager.color(1, 0, 0, 1);
         vertexbuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_TEX);
         vertexbuffer.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0.15625D).endVertex();
-        vertexbuffer.pos(right.x, right.y, right.z).tex(0.15625D, 0.15625D).endVertex();
+        vertexbuffer.pos(right.xCoord, right.yCoord, right.zCoord).tex(0.15625D, 0.15625D).endVertex();
         tessellator.draw();
         GlStateManager.color(0, 1, 0, 1);
         vertexbuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_TEX);
         vertexbuffer.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0.15625D).endVertex();
-        vertexbuffer.pos(up.x, up.y, up.z).tex(0.15625D, 0.15625D).endVertex();
+        vertexbuffer.pos(up.xCoord, up.yCoord, up.zCoord).tex(0.15625D, 0.15625D).endVertex();
         tessellator.draw();
         GlStateManager.color(0, 0, 1, 1);
         vertexbuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_TEX);
         vertexbuffer.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0.15625D).endVertex();
-        vertexbuffer.pos(forward.x, forward.y, forward.z).tex(0.15625D, 0.15625D).endVertex();
+        vertexbuffer.pos(forward.xCoord, forward.yCoord, forward.zCoord).tex(0.15625D, 0.15625D).endVertex();
         tessellator.draw();
         GlStateManager.depthFunc(GL11.GL_LEQUAL);
         GlStateManager.enableCull();
@@ -183,7 +194,7 @@ public class ArrowTrail
 
     public boolean shouldBeRemoved()
     {
-        return mc.world == null || trackedArrow.isDead;
+        return mc.theWorld == null || trackedArrow.isDead;
     }
 
     static class TrailNode
@@ -218,13 +229,13 @@ public class ArrowTrail
             this.y = arrow.posY;
             this.z = arrow.posZ;
 
-            final Vec3 forward = arrow.getForward();
-            final Vec3 up = Vec3.fromPitchYaw(arrow.rotationPitch + 90F, arrow.rotationYaw);
+            final Vec3 forward = fromPitchYaw(arrow.rotationPitch, arrow.rotationYaw);
+            final Vec3 up = fromPitchYaw(arrow.rotationPitch + 90F, arrow.rotationYaw);
 
-            this.up.set((float) -up.x, (float) -up.y, (float) up.z);
+            this.up.set((float) -up.xCoord, (float) -up.yCoord, (float) up.zCoord);
 
             VectorUtils.cross(
-                    (float) -forward.x, (float) -forward.y, (float) forward.z,
+                    (float) -forward.xCoord, (float) -forward.yCoord, (float) forward.zCoord,
                     this.up.x, this.up.y, this.up.z, this.right);
         }
     }

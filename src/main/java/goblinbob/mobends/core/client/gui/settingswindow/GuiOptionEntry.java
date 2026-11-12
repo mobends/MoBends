@@ -59,7 +59,8 @@ public class GuiOptionEntry implements IGuiListElement
     public static String labelOf(KumoOption option)
     {
         String label = option.getLabel();
-        return label != null && I18n.hasKey(label) ? I18n.format(label) : label != null ? label : option.getName();
+        // I18n.format gives back the key it has no translation of.
+        return label != null ? I18n.format(label) : option.getName();
     }
 
     /** A value as the menu shows it: on or off, or the number without trailing zeros. */
@@ -152,8 +153,8 @@ public class GuiOptionEntry implements IGuiListElement
 
         int textWidth = RIGHT - 3 * BUTTON_SIZE - 12;
         String details = source + " · " + I18n.format("mobends.gui.options.default", format(option, option.getDefault()));
-        mc.fontRenderer.drawStringWithShadow(mc.fontRenderer.trimStringToWidth(labelOf(option), textWidth), x + 6, y + 6, option.isDefault() ? 0xffffff : 0xffe680);
-        mc.fontRenderer.drawString(mc.fontRenderer.trimStringToWidth(details, textWidth), x + 6, y + 18, 0x9a9a9a);
+        mc.fontRendererObj.drawStringWithShadow(mc.fontRendererObj.trimStringToWidth(labelOf(option), textWidth), x + 6, y + 6, option.isDefault() ? 0xffffff : 0xffe680);
+        mc.fontRendererObj.drawString(mc.fontRendererObj.trimStringToWidth(details, textWidth), x + 6, y + 18, 0x9a9a9a);
 
         if (toggle != null)
         {
@@ -163,7 +164,7 @@ public class GuiOptionEntry implements IGuiListElement
         {
             String value = format(option, option.get());
             int center = x + RIGHT - BUTTON_SIZE - 2 - BUTTON_SIZE / 2;
-            mc.fontRenderer.drawStringWithShadow(value, center - mc.fontRenderer.getStringWidth(value) / 2F, y + 11, 0xffffff);
+            mc.fontRendererObj.drawStringWithShadow(value, center - mc.fontRendererObj.getStringWidth(value) / 2F, y + 11, 0xffffff);
             downButton.drawButton(mouseX, mouseY, partialTicks);
             upButton.drawButton(mouseX, mouseY, partialTicks);
         }

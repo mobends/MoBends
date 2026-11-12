@@ -24,7 +24,7 @@ public class GuiCompactTextField extends GuiTextField
     {
         super.drawTextBox();
         if (!this.isFocused() && this.getText().length() == 0)
-            Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(this.placeholderText, this.x + 4, this.y + (this.height - 8) / 2, 0x707070);
+            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(this.placeholderText, this.xPosition + 4, this.yPosition + (this.height - 8) / 2, 0x707070);
     }
 
     public GuiCompactTextField setPlaceholderText(String placeholderText)
@@ -35,8 +35,8 @@ public class GuiCompactTextField extends GuiTextField
 
     public void setPosition(int x, int y)
     {
-        this.x = x;
-        this.y = y;
+        this.xPosition = x;
+        this.yPosition = y;
     }
 
 }

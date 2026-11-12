@@ -63,7 +63,7 @@ public class CapeDriver implements IPoseItem
         double d3 = Math.sin(f * 0.017453292);
         double d4 = -Math.cos(f * 0.017453292);
         double f1 = d1 * 10.0;
-        f1 = MathHelper.clamp(f1, -6.0F, 32.0F);
+        f1 = MathHelper.clamp_double(f1, -6.0F, 32.0F);
         float f2 = (float) (d0 * d3 + d2 * d4) * 100.0F;
         float f3 = (float) (d0 * d4 - d2 * d3) * 100.0F;
 

@@ -108,10 +108,10 @@ public class EntityBenderRegistry
     @Nullable
     public EntityTypeRegistry.Selection getSelection(EntityLivingBase entity)
     {
-        if (entity.world instanceof PreviewWorld)
+        if (entity.worldObj instanceof PreviewWorld)
         {
             // A preview of the Settings window shows its bender, whatever type wins in the game.
-            return ((PreviewWorld) entity.world).getSelection(entity);
+            return ((PreviewWorld) entity.worldObj).getSelection(entity);
         }
 
         CachedCandidates cached = entityToCandidatesMap.get(entity);

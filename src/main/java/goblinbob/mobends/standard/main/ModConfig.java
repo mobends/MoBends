@@ -2,54 +2,48 @@ package goblinbob.mobends.standard.main;
 
 import goblinbob.mobends.core.CoreClient;
 import goblinbob.mobends.core.ModStatics;
+import goblinbob.mobends.core.compat.EntityIds;
+import goblinbob.mobends.core.compat.Events;
+import goblinbob.mobends.core.configuration.CoreConfig;
 import goblinbob.mobends.core.util.ErrorReporter;
 import goblinbob.mobends.standard.AttackActionType;
 import goblinbob.mobends.core.util.WildcardPattern;
 import goblinbob.mobends.standard.UseActionType;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.config.Config;
-import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 
-@Config(modid = ModStatics.MODID)
+/**
+ * The options of Forge's config screen for the mod, in the {@link Configuration#CATEGORY_GENERAL general} category of
+ * the mod's shared configuration file (see {@link CoreConfig#sharedConfiguration}), under the names 1.12.2's
+ * {@code @Config} gave them.
+ */
 public class ModConfig
 {
-    @Config.LangKey(ModStatics.MODID + ".config.show_arrow_trails")
     public static boolean showArrowTrails = true;
-    @Config.LangKey(ModStatics.MODID + ".config.show_sword_trails")
     public static boolean showSwordTrail = true;
-    @Config.LangKey(ModStatics.MODID + ".config.item_use_classifications")
     public static String[] itemUseClassifications = new String[] {};
-    @Config.LangKey(ModStatics.MODID + ".config.item_attack_classifications")
     public static String[] itemAttackClassifications = new String[] {};
-    @Config.LangKey(ModStatics.MODID + ".config.keep_armor_as_vanilla")
     public static String[] keepArmorAsVanilla = new String[] {};
-    @Config.LangKey(ModStatics.MODID + ".config.keep_entity_as_vanilla")
     public static String[] keepEntityAsVanilla = new String[] {};
 
-    @Config.Ignore
+    private static Configuration configuration;
+
     private static Map<Item, Boolean> keepArmorAsVanillaCache;
-    /** By entity class: the answer depends on the entity's type only. */
-    @Config.Ignore
-    private static Map<Class<? extends Entity>, Boolean> keepEntityAsVanillaCache;
-    @Config.Ignore
+    /** By entity type id: the answer depends on the entity's type only (a variant is a type of its own). */
+    private static Map<ResourceLocation, Boolean> keepEntityAsVanillaCache;
     private static Map<Item, UseActionType> itemUseClassificationCache;
-    @Config.Ignore
     private static Map<Item, AttackActionType> itemAttackClassificationCache;
-    @Config.Ignore
     private static LinkedList<ItemClassificationEntry<UseActionType>> itemUseClassificationEntries = new LinkedList<>();
-    @Config.Ignore
     private static LinkedList<ItemClassificationEntry<AttackActionType>> itemAttackClassificationEntries = new LinkedList<>();
 
-    @Config.Ignore
     private static List<Map<?, ?>> caches = Arrays.asList(
         keepArmorAsVanillaCache = new HashMap<>(),
         keepEntityAsVanillaCache = new HashMap<>(),
@@ -57,33 +51,59 @@ public class ModConfig
         itemAttackClassificationCache = new HashMap<>()
     );
 
-    @Mod.EventBusSubscriber(modid = ModStatics.MODID)
-    private static class EventHandler
+    /** Reads the options from the mod's configuration file (config/mobends.cfg), and saves any missing. */
+    public static void load(File file)
+    {
+        configuration = CoreConfig.sharedConfiguration(file);
+        configuration.load();
+        sync();
+        Events.register(new EventHandler());
+    }
+
+    /** Reads the options from the configuration, writing any it lacks, and forgets what was worked out from them. */
+    private static void sync()
+    {
+        final String category = Configuration.CATEGORY_GENERAL;
+        final String lang = ModStatics.MODID + ".config.";
+        showArrowTrails = configuration.getBoolean("showArrowTrails", category, true, "", lang + "show_arrow_trails");
+        showSwordTrail = configuration.getBoolean("showSwordTrail", category, true, "", lang + "show_sword_trails");
+        itemUseClassifications = configuration.getStringList("itemUseClassifications", category, new String[] {}, "", null, lang + "item_use_classifications");
+        itemAttackClassifications = configuration.getStringList("itemAttackClassifications", category, new String[] {}, "", null, lang + "item_attack_classifications");
+        keepArmorAsVanilla = configuration.getStringList("keepArmorAsVanilla", category, new String[] {}, "", null, lang + "keep_armor_as_vanilla");
+        keepEntityAsVanilla = configuration.getStringList("keepEntityAsVanilla", category, new String[] {}, "", null, lang + "keep_entity_as_vanilla");
+        if (configuration.hasChanged())
+        {
+            configuration.save();
+        }
+
+        // Clearing the caches
+        for (Map<?, ?> cache : caches)
+        {
+            cache.clear();
+        }
+
+        itemUseClassificationEntries.clear();
+        getOrMakeEntries(itemUseClassificationEntries, itemUseClassifications, UseActionType::valueOf);
+
+        itemAttackClassificationEntries.clear();
+        getOrMakeEntries(itemAttackClassificationEntries, itemAttackClassifications, AttackActionType::valueOf);
+    }
+
+    public static class EventHandler
     {
         /**
-         * Inject the new values and save to the config file when the config has been changed from the GUI.
+         * Reads the new values when the config has been changed from Forge's screen (which wrote them to the
+         * configuration; saving it is up to the mod).
          *
          * @param event The event
          */
         @SubscribeEvent
-        public static void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event)
+        public void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event)
         {
-            if (event.getModID().equals(ModStatics.MODID))
+            if (event.modID.equals(ModStatics.MODID))
             {
-                ConfigManager.sync(ModStatics.MODID, Config.Type.INSTANCE);
-
-                // Clearing the caches
-                for (Map<?, ?> cache : caches)
-                {
-                    cache.clear();
-                }
-
-                itemUseClassificationEntries.clear();
-                getOrMakeEntries(itemUseClassificationEntries, itemUseClassifications, UseActionType::valueOf);
-
-                itemAttackClassificationEntries.clear();
-                getOrMakeEntries(itemAttackClassificationEntries, itemAttackClassifications, AttackActionType::valueOf);
-
+                configuration.save();
+                sync();
                 CoreClient.refresh();
             }
         }
@@ -141,7 +161,7 @@ public class ModConfig
     {
         // If cached before, returning the cached classification.
         return itemUseClassificationCache.computeIfAbsent(item, (i) -> {
-            ResourceLocation location = item.getRegistryName();
+            ResourceLocation location = Item.itemRegistry.getNameForObject(item);
 
             if (location != null)
             {
@@ -164,7 +184,7 @@ public class ModConfig
     {
         // If cached before, returning the cached classification.
         return itemAttackClassificationCache.computeIfAbsent(item, (i) -> {
-            ResourceLocation location = item.getRegistryName();
+            ResourceLocation location = Item.itemRegistry.getNameForObject(item);
 
             if (location != null)
             {
@@ -186,18 +206,18 @@ public class ModConfig
     public static boolean shouldKeepArmorAsVanilla(Item item)
     {
         // If cached before, returning the cached result.
-        return keepArmorAsVanillaCache.computeIfAbsent(item, (i) -> i.getRegistryName() != null && checkForPatterns(i.getRegistryName(), keepArmorAsVanilla));
+        return keepArmorAsVanillaCache.computeIfAbsent(item, (i) -> {
+            ResourceLocation location = Item.itemRegistry.getNameForObject(i);
+            return location != null && checkForPatterns(location, keepArmorAsVanilla);
+        });
     }
 
     public static boolean shouldKeepEntityAsVanilla(Entity entity)
     {
         // If cached before, returning the cached result.
-        return keepEntityAsVanillaCache.computeIfAbsent(entity.getClass(), (c) -> {
-            ResourceLocation location = EntityList.getKey(c);
-
-            // The player, for example, doesn't have a key.
-            return location != null && checkForPatterns(location, keepEntityAsVanilla);
-        });
+        final ResourceLocation location = EntityIds.of(entity);
+        // An unregistered entity has no id.
+        return location != null && keepEntityAsVanillaCache.computeIfAbsent(location, l -> checkForPatterns(l, keepEntityAsVanilla));
     }
 
     private static class ItemClassificationEntry<T>

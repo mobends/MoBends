@@ -101,7 +101,7 @@ public class GuiBendsMenu extends GuiScreen
 
 		// Refresh reloads the animation and refreshes the addons and modules (see CoreClient#refresh()).
 		String refresh = I18n.format("mobends.gui.refresh");
-		int refreshWidth = this.fontRenderer.getStringWidth(refresh) + 20;
+		int refreshWidth = this.fontRendererObj.getStringWidth(refresh) + 20;
 		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_REFRESH, 10, this.height - 30, refreshWidth, BUTTON_HEIGHT, refresh));
 	}
 
@@ -125,15 +125,15 @@ public class GuiBendsMenu extends GuiScreen
 		}
 
 		String logOut = I18n.format("mobends.gui.link.log_out");
-		int logOutWidth = this.fontRenderer.getStringWidth(logOut) + 20;
+		int logOutWidth = this.fontRendererObj.getStringWidth(logOut) + 20;
 		int nameWidth = width - BUTTON_GAP - logOutWidth;
 		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_LOG_OUT, x + nameWidth + BUTTON_GAP, y, logOutWidth, BUTTON_HEIGHT, logOut));
 
 		String name = session.getDisplayName();
 		int maxNameWidth = nameWidth - 8;
-		if (this.fontRenderer.getStringWidth(name) > maxNameWidth)
+		if (this.fontRendererObj.getStringWidth(name) > maxNameWidth)
 		{
-			name = this.fontRenderer.trimStringToWidth(name, maxNameWidth - this.fontRenderer.getStringWidth("...")) + "...";
+			name = this.fontRendererObj.trimStringToWidth(name, maxNameWidth - this.fontRendererObj.getStringWidth("...")) + "...";
 		}
 		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_ACCOUNT, x, y, nameWidth, BUTTON_HEIGHT, name));
 	}

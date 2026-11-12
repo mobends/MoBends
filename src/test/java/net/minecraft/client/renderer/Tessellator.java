@@ -10,6 +10,6 @@ public class Tessellator
 
     public Tessellator(int size) { }
     public static Tessellator getInstance() { return INSTANCE; }
-    public WorldRenderer getBuffer() { return buffer; }
+    public WorldRenderer getWorldRenderer() { return buffer; }
     public void draw() { CaptureAccess.draw(); }
 }

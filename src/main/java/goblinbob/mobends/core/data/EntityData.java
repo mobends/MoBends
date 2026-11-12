@@ -293,20 +293,20 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         // Checking if we're going down stairs.
         BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
 
-        IBlockState block = entity.world.getBlockState(position);
-        IBlockState blockBelow = entity.world.getBlockState(position.add(0, -1, 0));
+        IBlockState block = entity.worldObj.getBlockState(position);
+        IBlockState blockBelow = entity.worldObj.getBlockState(position.add(0, -1, 0));
     
         if (motionY <= 0 && (block.getBlock() instanceof BlockStairs || blockBelow.getBlock() instanceof BlockStairs))
             return true;
 
         // Checking collisions.
-        List<AxisAlignedBB> list = entity.world.getCollisionBoxes(entity, entity.getEntityBoundingBox().offset(0, -0.125F, 0));
+        List<AxisAlignedBB> list = entity.worldObj.getCollidingBoundingBoxes(entity, entity.getEntityBoundingBox().offset(0, -0.125F, 0));
         return list.size() > 0;
     }
 
     public boolean calcCollidedHorizontally()
     {
-        List<AxisAlignedBB> list = entity.world.getCollisionBoxes(entity,
+        List<AxisAlignedBB> list = entity.worldObj.getCollidingBoundingBoxes(entity,
                 entity.getEntityBoundingBox().offset(this.motionX, 0, this.motionZ));
 
         return list.size() > 0;
@@ -462,7 +462,7 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     public float getLookAngle()
     {
         final Vec3 lookVec = this.entity.getLookVec();
-        return (float) GUtil.angleFromCoordinates(lookVec.x, lookVec.z);
+        return (float) GUtil.angleFromCoordinates(lookVec.xCoord, lookVec.zCoord);
     }
 
     private float getWorldMovementAngle()
@@ -487,8 +487,8 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
             return 0;
 
         final Vec3 lookVec = this.entity.getLook(DataUpdateHandler.partialTicks);
-        final Vec3 lookVecHorizontal = new Vec3(lookVec.x, 0, lookVec.z).normalize();
-        return lookVecHorizontal.x * this.getInterpolatedMotionX() + lookVecHorizontal.z * this.getInterpolatedMotionZ();
+        final Vec3 lookVecHorizontal = new Vec3(lookVec.xCoord, 0, lookVec.zCoord).normalize();
+        return lookVecHorizontal.xCoord * this.getInterpolatedMotionX() + lookVecHorizontal.zCoord * this.getInterpolatedMotionZ();
     }
 
     /** See {@link #getForwardMomentum}: the part to the entity's right. */
@@ -497,8 +497,8 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         if (isStillHorizontallyInterpolated())
             return 0;
         Vec3 rightVec = entity.getLook(DataUpdateHandler.partialTicks).rotateYaw(-GUtil.PI / 2.0F);
-        Vec3 rightVecHorizontal = new Vec3(rightVec.x, 0, rightVec.z).normalize();
-        return rightVecHorizontal.x * this.getInterpolatedMotionX() + rightVecHorizontal.z * this.getInterpolatedMotionZ();
+        Vec3 rightVecHorizontal = new Vec3(rightVec.xCoord, 0, rightVec.zCoord).normalize();
+        return rightVecHorizontal.xCoord * this.getInterpolatedMotionX() + rightVecHorizontal.zCoord * this.getInterpolatedMotionZ();
     }
 
     /** {@link #isStillHorizontally}, of the interpolated motion. */
@@ -526,10 +526,10 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         if (!this.entity.isInWater())
             return false;
 
-        int blockX = MathHelper.floor(this.entity.posX);
-        int blockY = MathHelper.floor(this.entity.posY + 2);
-        int blockZ = MathHelper.floor(this.entity.posZ);
-        IBlockState state = Minecraft.getMinecraft().world.getBlockState(new BlockPos(blockX, blockY, blockZ));
+        int blockX = MathHelper.floor_double(this.entity.posX);
+        int blockY = MathHelper.floor_double(this.entity.posY + 2);
+        int blockZ = MathHelper.floor_double(this.entity.posZ);
+        IBlockState state = Minecraft.getMinecraft().theWorld.getBlockState(new BlockPos(blockX, blockY, blockZ));
         return state.getBlock() instanceof BlockStaticLiquid;
     }
 
@@ -583,7 +583,7 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         this.positionZ = this.entity.posZ;
 
         this.prevDistanceMoved = this.distanceMoved;
-        this.distanceMoved += MathHelper.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
+        this.distanceMoved += MathHelper.sqrt_double(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
 
         for (EntityComponent component : components.values())
         {

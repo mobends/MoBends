@@ -36,7 +36,7 @@ public class DataUpdateHandler
         if (event.phase == Phase.END)
             return;
         ++DataUpdateHandler.frame;
-        if (Minecraft.getMinecraft().world == null || Minecraft.getMinecraft().player == null)
+        if (Minecraft.getMinecraft().theWorld == null || Minecraft.getMinecraft().thePlayer == null)
         {
             updateOutOfWorld(event.renderTickTime);
             return;
@@ -47,9 +47,9 @@ public class DataUpdateHandler
             DataUpdateHandler.partialTicks = event.renderTickTime;
         }
 
-        final float newTicks = Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime;
+        final float newTicks = Minecraft.getMinecraft().thePlayer.ticksExisted + event.renderTickTime;
 
-        if (!(Minecraft.getMinecraft().world.isRemote && Minecraft.getMinecraft().isGamePaused()))
+        if (!(Minecraft.getMinecraft().theWorld.isRemote && Minecraft.getMinecraft().isGamePaused()))
         {
             DataUpdateHandler.ticksPerFrame = Math.min(Math.max(0F, newTicks - DataUpdateHandler.ticks), 1F);
             DataUpdateHandler.ticks = newTicks;
@@ -79,7 +79,7 @@ public class DataUpdateHandler
     {
         if (event.phase == Phase.END)
             return;
-        if (Minecraft.getMinecraft().player == null)
+        if (Minecraft.getMinecraft().thePlayer == null)
         {
             ++ticksOutOfWorld;
             EntityDatabase.instance.updateClient();

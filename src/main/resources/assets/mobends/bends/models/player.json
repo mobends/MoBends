@@ -46,7 +46,6 @@
     "mobends:held_item": {},
     "mobends:custom_head": {"bone": "head"},
     "mobends:cape": {},
-    "mobends:elytra": {},
     "mobends:accessories": {}
   },
   "@define": {

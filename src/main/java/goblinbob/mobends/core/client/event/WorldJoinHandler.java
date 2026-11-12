@@ -15,7 +15,7 @@ public class WorldJoinHandler
     public void onPlayerJoinedServer(EntityJoinWorldEvent event)
     {
         // Only the local player joining means joining a world; other players join it all the time.
-        if (event.getEntity() instanceof EntityPlayerSP)
+        if (event.entity instanceof EntityPlayerSP)
         {
             // The entities of the new world reuse the ids of the old one's.
             EntityBenderRegistry.instance.clearCache();

@@ -148,8 +148,8 @@ public class GuiOptionsWindow extends GuiScreen
         entryList.draw(DataUpdateHandler.partialTicks);
 
         String title = I18n.format("mobends.gui.options.title", bender.getLocalizedName());
-        fontRenderer.drawStringWithShadow(fontRenderer.trimStringToWidth(title, GuiSettingsWindow.EDITOR_WIDTH - 24), this.x + 6, this.y - 9, 0xffffff);
-        fontRenderer.drawStringWithShadow(fontRenderer.trimStringToWidth(I18n.format("mobends.gui.options.hint"), GuiSettingsWindow.EDITOR_WIDTH - 12),
+        fontRendererObj.drawStringWithShadow(fontRendererObj.trimStringToWidth(title, GuiSettingsWindow.EDITOR_WIDTH - 24), this.x + 6, this.y - 9, 0xffffff);
+        fontRendererObj.drawStringWithShadow(fontRendererObj.trimStringToWidth(I18n.format("mobends.gui.options.hint"), GuiSettingsWindow.EDITOR_WIDTH - 12),
                 this.x + 9, this.y + GuiSettingsWindow.EDITOR_HEIGHT + 12, 0xcccccc);
 
         super.drawScreen(mouseX, mouseY, partialTicks);

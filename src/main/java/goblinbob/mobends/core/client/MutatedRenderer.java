@@ -35,7 +35,7 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
         double viewX = entityX, viewY = entityY, viewZ = entityZ;
         // Drawn from where the view is, unless that is in another world (the Main Menu, or the
         // previews of the Settings window, drawn where they are).
-        if (viewEntity != null && viewEntity.world == entity.world)
+        if (viewEntity != null && viewEntity.worldObj == entity.worldObj)
         {
             viewX = viewEntity.prevPosX + (viewEntity.posX - viewEntity.prevPosX) * partialTicks;
             viewY = viewEntity.prevPosY + (viewEntity.posY - viewEntity.prevPosY) * partialTicks;

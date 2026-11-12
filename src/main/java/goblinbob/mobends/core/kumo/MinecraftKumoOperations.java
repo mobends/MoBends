@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.kumo;
 
+import goblinbob.mobends.core.compat.Living;
+import goblinbob.mobends.core.compat.EntityIds;
 import goblinbob.mobends.core.data.RemoteFlight;
 import goblinbob.mobends.core.kumo.api.BindArgs;
 import goblinbob.mobends.core.kumo.api.BooleanEvaluator;
@@ -8,14 +10,13 @@ import goblinbob.mobends.core.kumo.api.KumoRegistry;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionOperations.Kind;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
+import goblinbob.mobends.core.compat.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumHandSide;
+import goblinbob.mobends.core.compat.EnumHand;
+import goblinbob.mobends.core.compat.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
@@ -37,7 +38,7 @@ public final class MinecraftKumoOperations
     private static final String[] HANDS = {"main_hand", "off_hand"};
 
     /** Players have no entity registry id; this one stands for them in {@code core:entity_type}. */
-    public static final ResourceLocation PLAYER = new ResourceLocation("minecraft", "player");
+    public static final ResourceLocation PLAYER = EntityIds.PLAYER;
 
     private MinecraftKumoOperations()
     {
@@ -57,7 +58,7 @@ public final class MinecraftKumoOperations
                     String item = args.string(1);
                     return (BooleanEvaluator) (context, values) -> {
                         EntityLivingBase entity = (EntityLivingBase) context.entity();
-                        return entity != null && item.equals(itemName(entity.getHeldItem(hand)));
+                        return entity != null && item.equals(itemName(Living.getHeldItem(entity, hand)));
                     };
                 }));
         // {"core:holds_any_item": ["off_hand"]}: the hand holds anything.
@@ -69,7 +70,7 @@ public final class MinecraftKumoOperations
                     EnumHand hand = hand(args.string(0));
                     return (BooleanEvaluator) (context, values) -> {
                         EntityLivingBase entity = (EntityLivingBase) context.entity();
-                        return entity != null && itemName(entity.getHeldItem(hand)) != null;
+                        return entity != null && itemName(Living.getHeldItem(entity, hand)) != null;
                     };
                 }));
         // {"core:active_hand_side": ["left"]}: the hand on that side is the one using an item.
@@ -82,7 +83,7 @@ public final class MinecraftKumoOperations
                     return (BooleanEvaluator) (context, values) -> {
                         EntityLivingBase entity = (EntityLivingBase) context.entity();
                         if (entity == null) return false;
-                        EnumHandSide active = entity.getActiveHand() == EnumHand.MAIN_HAND ? entity.getPrimaryHand() : entity.getPrimaryHand().opposite();
+                        EnumHandSide active = Living.getActiveHand(entity) == EnumHand.MAIN_HAND ? Living.getPrimaryHand(entity) : Living.getPrimaryHand(entity).opposite();
                         return active == side;
                     };
                 }));
@@ -111,7 +112,10 @@ public final class MinecraftKumoOperations
                     }
                     return (BooleanEvaluator) (context, values) -> {
                         EntityLivingBase entity = (EntityLivingBase) context.entity();
-                        return entity != null && pattern.matcher(entity.getItemStackFromSlot(slot).getDisplayName()).matches();
+                        if (entity == null) return false;
+                        ItemStack stack = Living.getItemStackFromSlot(entity, slot);
+                        // An empty slot's name is air's ("Air"), as 1.12's empty stack has.
+                        return pattern.matcher(Living.isEmpty(stack) ? "Air" : stack.getDisplayName()).matches();
                     };
                 }));
 
@@ -145,7 +149,7 @@ public final class MinecraftKumoOperations
                     }
                     return (BooleanEvaluator) (context, values) -> {
                         Object entity = context.entity();
-                        ResourceLocation id = entity instanceof EntityPlayer ? PLAYER : entity instanceof Entity ? EntityList.getKey((Entity) entity) : null;
+                        ResourceLocation id = entity instanceof Entity ? EntityIds.of((Entity) entity) : null;
                         return id != null && types.contains(id);
                     };
                 }));
@@ -202,7 +206,7 @@ public final class MinecraftKumoOperations
      */
     public static boolean ledgeAhead(EntityLivingBase entity)
     {
-        if (entity.world == null) return false;
+        if (entity.worldObj == null) return false;
         float yaw = entity.renderYawOffset * 0.017453292F;
         double dx = -MathHelper.sin(yaw) * LEDGE_REACH;
         double dz = MathHelper.cos(yaw) * LEDGE_REACH;
@@ -212,12 +216,12 @@ public final class MinecraftKumoOperations
         // Above the ground the entity stands on (a hair over its feet), up to a jump's height.
         AxisAlignedBB feet = new AxisAlignedBB(ahead.minX, box.minY + 0.01D, ahead.minZ, ahead.maxX, box.minY + LEDGE_MAX_HEIGHT, ahead.maxZ);
         double top = box.minY;
-        for (AxisAlignedBB hit : entity.world.getCollisionBoxes(entity, feet))
+        for (AxisAlignedBB hit : entity.worldObj.getCollidingBoundingBoxes(entity, feet))
         {
             top = Math.max(top, hit.maxY);
         }
         if (top <= box.minY + 0.01D || top > box.minY + LEDGE_MAX_HEIGHT) return false;
-        return entity.world.getCollisionBoxes(entity, ahead.offset(0, top - box.minY + 0.01D, 0)).isEmpty();
+        return entity.worldObj.getCollidingBoundingBoxes(entity, ahead.offset(0, top - box.minY + 0.01D, 0)).isEmpty();
     }
 
     private static EnumHand hand(String hand)
@@ -227,8 +231,8 @@ public final class MinecraftKumoOperations
 
     private static String itemName(ItemStack stack)
     {
-        if (stack == null || stack.isEmpty()) return null;
-        ResourceLocation key = Item.REGISTRY.getNameForObject(stack.getItem());
+        if (Living.isEmpty(stack)) return null;
+        ResourceLocation key = Item.itemRegistry.getNameForObject(stack.getItem());
         return key == null ? null : key.toString();
     }
 

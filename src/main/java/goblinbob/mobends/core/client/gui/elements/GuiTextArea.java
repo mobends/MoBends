@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.client.gui.elements;
 
+import org.lwjgl.opengl.GL11;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import net.minecraft.client.gui.FontRenderer;
@@ -280,7 +281,7 @@ public class GuiTextArea extends Gui
     {
         this.cursorPosition = pos;
         int i = this.text.length();
-        this.cursorPosition = MathHelper.clamp(this.cursorPosition, 0, i);
+        this.cursorPosition = MathHelper.clamp_int(this.cursorPosition, 0, i);
         this.setSelectionPos(this.cursorPosition);
     }
 
@@ -596,11 +597,11 @@ public class GuiTextArea extends Gui
         }
 
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer vertexbuffer = tessellator.getBuffer();
+        WorldRenderer vertexbuffer = tessellator.getWorldRenderer();
         GlStateManager.color(0.0F, 0.0F, 255.0F, 255.0F);
         GlStateManager.disableTexture2D();
         GlStateManager.enableColorLogic();
-        GlStateManager.colorLogicOp(GlStateManager.LogicOp.OR_REVERSE);
+        GlStateManager.colorLogicOp(GL11.GL_OR_REVERSE);
         vertexbuffer.begin(7, DefaultVertexFormats.POSITION);
         vertexbuffer.pos((double)startX, (double)endY, 0.0D).endVertex();
         vertexbuffer.pos((double)endX, (double)endY, 0.0D).endVertex();

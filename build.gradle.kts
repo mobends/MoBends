@@ -86,7 +86,8 @@ dependencies {
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
-    options.compilerArgs.addAll(listOf("-Xmaxerrs", "10000"))
+    // No mixins, so no annotation processing (Loom adds the Mixin processor).
+    options.compilerArgs.addAll(listOf("-Xmaxerrs", "10000", "-proc:none"))
 }
 
 tasks.processResources {

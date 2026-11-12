@@ -2,19 +2,21 @@ package goblinbob.mobends.core.client.preview;
 
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
 import net.minecraft.profiler.Profiler;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.IProgressUpdate;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.WorldSettings.GameType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
+import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunkProvider;
@@ -23,7 +25,10 @@ import net.minecraft.world.storage.SaveHandlerMP;
 import net.minecraft.world.storage.WorldInfo;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,7 +58,7 @@ public class PreviewWorld extends World
     {
         super(new SaveHandlerMP(), new WorldInfo(new WorldSettings(0L, GameType.SURVIVAL, false, false, WorldType.FLAT), "MoBendsPreview"),
                 new WorldProviderSurface(), new Profiler(), true);
-        this.provider.setWorld(this);
+        this.provider.registerWorld(this);
         this.chunkProvider = this.createChunkProvider();
         this.mapStorage = new SaveDataMemoryStorage();
     }
@@ -108,7 +113,7 @@ public class PreviewWorld extends World
     }
 
     @Override
-    public boolean spawnEntity(Entity entity)
+    public boolean spawnEntityInWorld(Entity entity)
     {
         // Nothing an entity's constructor might spawn joins the preview.
         return false;
@@ -126,22 +131,27 @@ public class PreviewWorld extends World
         return true;
     }
 
+    @Override
+    protected int getRenderDistanceChunks()
+    {
+        return 2;
+    }
+
     private class FloorChunkProvider implements IChunkProvider
     {
 
-        private final Long2ObjectMap<Chunk> chunks = new Long2ObjectOpenHashMap<>();
+        private final Map<Long, Chunk> chunks = new HashMap<>();
 
-        @Nullable
         @Override
-        public Chunk getLoadedChunk(int x, int z)
+        public boolean chunkExists(int x, int z)
         {
-            return provideChunk(x, z);
+            return true;
         }
 
         @Override
         public Chunk provideChunk(int x, int z)
         {
-            final long key = ChunkCoordIntPair.asLong(x, z);
+            final long key = ChunkCoordIntPair.chunkXZ2Int(x, z);
             Chunk chunk = chunks.get(key);
             if (chunk == null)
             {
@@ -155,11 +165,17 @@ public class PreviewWorld extends World
             return chunk;
         }
 
+        @Override
+        public Chunk provideChunk(BlockPos pos)
+        {
+            return provideChunk(pos.getX() >> 4, pos.getZ() >> 4);
+        }
+
         private Chunk makeFloor(int x, int z)
         {
             final ChunkPrimer primer = new ChunkPrimer();
-            final IBlockState grass = Blocks.GRASS.getDefaultState();
-            final IBlockState dirt = Blocks.DIRT.getDefaultState();
+            final IBlockState grass = Blocks.grass.getDefaultState();
+            final IBlockState dirt = Blocks.dirt.getDefaultState();
             for (int blockX = 0; blockX < 16; ++blockX)
             {
                 for (int blockZ = 0; blockZ < 16; ++blockZ)
@@ -176,7 +192,30 @@ public class PreviewWorld extends World
         }
 
         @Override
-        public boolean tick()
+        public void populate(IChunkProvider provider, int x, int z)
+        {
+        }
+
+        @Override
+        public boolean populateChunk(IChunkProvider provider, Chunk chunk, int x, int z)
+        {
+            return false;
+        }
+
+        @Override
+        public boolean saveChunks(boolean saveAll, IProgressUpdate progress)
+        {
+            return true;
+        }
+
+        @Override
+        public boolean unloadQueuedChunks()
+        {
+            return false;
+        }
+
+        @Override
+        public boolean canSave()
         {
             return false;
         }
@@ -188,9 +227,31 @@ public class PreviewWorld extends World
         }
 
         @Override
-        public boolean isChunkGeneratedAt(int x, int z)
+        public List<BiomeGenBase.SpawnListEntry> getPossibleCreatures(EnumCreatureType type, BlockPos pos)
         {
-            return true;
+            return Collections.emptyList();
+        }
+
+        @Override
+        public BlockPos getStrongholdGen(World world, String name, BlockPos pos)
+        {
+            return null;
+        }
+
+        @Override
+        public int getLoadedChunkCount()
+        {
+            return chunks.size();
+        }
+
+        @Override
+        public void recreateStructures(Chunk chunk, int x, int z)
+        {
+        }
+
+        @Override
+        public void saveExtraData()
+        {
         }
 
     }

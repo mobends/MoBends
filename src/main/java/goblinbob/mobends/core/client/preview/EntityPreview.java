@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.client.preview;
 
+import goblinbob.mobends.core.compat.RenderPartialTicks;
+import goblinbob.mobends.core.compat.Living;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.bender.EntityBender;
 import net.minecraft.client.Minecraft;
@@ -13,14 +15,10 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.EntityEntry;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
@@ -201,7 +199,7 @@ public class EntityPreview
         renderManager.setRenderShadow(false);
         try
         {
-            renderManager.renderEntity(entity, 0D, 0D, 0D, 0F, partialTicks, false);
+            RenderPartialTicks.drawingWith(partialTicks, () -> renderManager.doRenderEntity(entity, 0D, 0D, 0D, 0F, partialTicks, false));
         }
         finally
         {
@@ -238,7 +236,7 @@ public class EntityPreview
         else
         {
             GlStateManager.scale(2F, 2F, 1F);
-            mc.fontRenderer.drawStringWithShadow("?", -mc.fontRenderer.getStringWidth("?") / 2F + 0.5F, -3.5F, 0x808080);
+            mc.fontRendererObj.drawStringWithShadow("?", -mc.fontRendererObj.getStringWidth("?") / 2F + 0.5F, -3.5F, 0x808080);
         }
         GlStateManager.popMatrix();
         GlStateManager.color(1F, 1F, 1F, 1F);
@@ -272,7 +270,7 @@ public class EntityPreview
     {
         if (EntityPlayer.class.isAssignableFrom(entityClass) && entityClass.isAssignableFrom(EntityOtherPlayerMP.class))
         {
-            final EntityPlayer player = Minecraft.getMinecraft().player;
+            final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
             return player == null ? null : new PreviewPlayer(world, player);
         }
 
@@ -292,9 +290,8 @@ public class EntityPreview
         {
             return entityClass;
         }
-        for (EntityEntry entry : ForgeRegistries.ENTITIES.getValuesCollection())
+        for (Class<? extends Entity> registered : EntityList.classToStringMapping.keySet())
         {
-            final Class<? extends Entity> registered = entry.getEntityClass();
             if (entityClass.isAssignableFrom(registered) && !Modifier.isAbstract(registered.getModifiers()))
             {
                 return (Class<? extends E>) registered;
@@ -307,14 +304,18 @@ public class EntityPreview
     private static ItemStack spawnEggOf(Class<? extends EntityLivingBase> entityClass)
     {
         final Class<? extends EntityLivingBase> concrete = concreteClassOf(entityClass);
-        final ResourceLocation id = concrete == null ? null : EntityList.getKey(concrete);
-        if (id == null || !EntityList.ENTITY_EGGS.containsKey(id))
+        final String name = concrete == null ? null : EntityList.classToStringMapping.get(concrete);
+        if (name == null || !EntityList.isStringValidEntityName(name))
         {
             return null;
         }
-        final ItemStack egg = new ItemStack(Items.SPAWN_EGG);
-        ItemMonsterPlacer.applyEntityIdToItemStack(egg, id);
-        return egg;
+        // 1.8.9's spawn eggs are told apart by damage: the entity's numeric id.
+        final int id = EntityList.getIDFromString(name);
+        if (!EntityList.entityEggs.containsKey(id))
+        {
+            return null;
+        }
+        return new ItemStack(Items.spawn_egg, 1, id);
     }
 
     /** A copy of the player: their skin, the parts of it they show, their hand and what they hold and wear. */
@@ -324,11 +325,12 @@ public class EntityPreview
         PreviewPlayer(World world, EntityPlayer source)
         {
             super(world, source.getGameProfile());
-            this.dataManager.set(PLAYER_MODEL_FLAG, source.getDataManager().get(PLAYER_MODEL_FLAG));
-            this.setPrimaryHand(source.getPrimaryHand());
-            for (EntityEquipmentSlot slot : EntityEquipmentSlot.values())
+            // The parts of the skin shown (EntityPlayer's watched byte 10).
+            this.getDataWatcher().updateObject(10, source.getDataWatcher().getWatchableObjectByte(10));
+            // 0 is the held item, 1 to 4 the armour from the feet up.
+            for (int slot = 0; slot <= 4; ++slot)
             {
-                this.setItemStackToSlot(slot, source.getItemStackFromSlot(slot).copy());
+                this.setCurrentItemOrArmor(slot, ItemStack.copyItemStack(source.getEquipmentInSlot(slot)));
             }
         }
 

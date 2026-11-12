@@ -64,7 +64,7 @@ public class GuiLinkAccount extends GuiScreen
     public GuiLinkAccount(GuiScreen parent)
     {
         this.parent = parent;
-        this.codeField = new GuiCompactTextField(Minecraft.getMinecraft().fontRenderer, 120, 20);
+        this.codeField = new GuiCompactTextField(Minecraft.getMinecraft().fontRendererObj, 120, 20);
         this.codeField.setMaxStringLength(32);
         this.codeField.setPlaceholderText("ABCD-EFGH");
         this.codeField.setFocused(true);
@@ -87,7 +87,7 @@ public class GuiLinkAccount extends GuiScreen
         final String dashboard = I18n.format("mobends.gui.link.dashboard");
         // The dashboard, where the code comes from.
         dashboardButton = new GuiButton(COMPONENT_BUTTON_DASHBOARD, 75, height - 30,
-                fontRenderer.getStringWidth(dashboard) + 20, 20, dashboard);
+                fontRendererObj.getStringWidth(dashboard) + 20, 20, dashboard);
         buttonList.add(actionButton);
         buttonList.add(backButton);
         buttonList.add(dashboardButton);
@@ -374,7 +374,7 @@ public class GuiLinkAccount extends GuiScreen
         drawDefaultBackground();
 
         int centerX = width / 2;
-        drawCenteredString(fontRenderer, I18n.format("mobends.gui.link.title"), centerX, height / 2 - 70, 0xFFFFFF);
+        drawCenteredString(fontRendererObj, I18n.format("mobends.gui.link.title"), centerX, height / 2 - 70, 0xFFFFFF);
 
         if (state == State.ENTER_CODE)
         {
@@ -397,11 +397,11 @@ public class GuiLinkAccount extends GuiScreen
     /** Draws the text centered, wrapped to the content width, and returns the y below it. */
     private int drawLines(String text, int y, int color)
     {
-        List<String> lines = fontRenderer.listFormattedStringToWidth(text, CONTENT_WIDTH);
+        List<String> lines = fontRendererObj.listFormattedStringToWidth(text, CONTENT_WIDTH);
         for (String line : lines)
         {
-            drawCenteredString(fontRenderer, line, width / 2, y, color);
-            y += fontRenderer.FONT_HEIGHT + 1;
+            drawCenteredString(fontRendererObj, line, width / 2, y, color);
+            y += fontRendererObj.FONT_HEIGHT + 1;
         }
         return y;
     }

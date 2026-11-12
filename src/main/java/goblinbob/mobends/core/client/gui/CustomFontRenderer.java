@@ -57,7 +57,7 @@ public class CustomFontRenderer
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(this.font.resourceLocation);
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer vertexbuffer = tessellator.getBuffer();
+        WorldRenderer vertexbuffer = tessellator.getWorldRenderer();
         vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
         int nextCharX = x;
         for (int i = 0; i < textToDraw.length(); ++i)

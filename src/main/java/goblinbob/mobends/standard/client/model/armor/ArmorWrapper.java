@@ -11,7 +11,7 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.inventory.EntityEquipmentSlot;
+import goblinbob.mobends.core.compat.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -41,7 +41,8 @@ public class ArmorWrapper extends ModelBiped
     @Nullable
     protected final IArmorGeometry geometry;
     /** The armour piece being drawn, for {@link #geometry}: set before every render. */
-    private ItemStack wornStack = ItemStack.EMPTY;
+    @Nullable
+    private ItemStack wornStack = null;
     private EntityEquipmentSlot wornSlot = EntityEquipmentSlot.CHEST;
 
     protected IPartWrapper bodyParts,

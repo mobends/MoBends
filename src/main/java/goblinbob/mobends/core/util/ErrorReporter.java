@@ -10,7 +10,7 @@ public class ErrorReporter
     public static ChatComponentText createErrorHeader()
     {
         ChatComponentText header = new ChatComponentText("[Mo' Bends] ");
-        header.getStyle().setColor(EnumChatFormatting.YELLOW);
+        header.getChatStyle().setColor(EnumChatFormatting.YELLOW);
 
         return header;
     }
@@ -18,17 +18,17 @@ public class ErrorReporter
     /** Shows {@code textComponent} in the chat; false if there is no player to show it to (e.g. on the title screen). */
     public static boolean showErrorToPlayer(ChatComponentText textComponent)
     {
-        if (Minecraft.getMinecraft().player == null)
+        if (Minecraft.getMinecraft().thePlayer == null)
         {
             return false;
         }
 
         ChatComponentText base = new ChatComponentText("");
-        base.getStyle().setColor(EnumChatFormatting.WHITE);
+        base.getChatStyle().setColor(EnumChatFormatting.WHITE);
         base.appendSibling(createErrorHeader());
         base.appendSibling(textComponent);
 
-        Minecraft.getMinecraft().player.sendMessage(base);
+        Minecraft.getMinecraft().thePlayer.addChatMessage(base);
         return true;
     }
 

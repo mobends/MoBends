@@ -33,7 +33,7 @@ public class GuiToggleButton
         
         this.title = title;
         
-        int titleWidth = Minecraft.getMinecraft().fontRenderer.getStringWidth(title) + 20;
+        int titleWidth = Minecraft.getMinecraft().fontRendererObj.getStringWidth(title) + 20;
         
         this.labelWidth = titleWidth > minLabelWidth ? titleWidth : minLabelWidth;
     }
@@ -53,7 +53,7 @@ public class GuiToggleButton
     public void draw()
     {
         Minecraft mc = Minecraft.getMinecraft();
-        FontRenderer fontRenderer = mc.fontRenderer;
+        FontRenderer fontRenderer = mc.fontRendererObj;
         mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glEnable(GL11.GL_BLEND);

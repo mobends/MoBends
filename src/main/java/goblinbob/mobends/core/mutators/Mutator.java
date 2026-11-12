@@ -66,18 +66,18 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
     public void updateModel(E entity, RendererLivingEntity<? extends E> renderer, float partialTicks)
     {
         boolean shouldSit = entity.isRiding()
-                && (entity.getRidingEntity() != null && entity.getRidingEntity().shouldRiderSit());
+                && (entity.ridingEntity != null && entity.ridingEntity.shouldRiderSit());
         float f = GUtil.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
         float f1 = GUtil.interpolateRotation(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
         float yaw = f1 - f;
 
-        if (shouldSit && entity.getRidingEntity() instanceof EntityLivingBase)
+        if (shouldSit && entity.ridingEntity instanceof EntityLivingBase)
         {
-            EntityLivingBase entitylivingbase = (EntityLivingBase) entity.getRidingEntity();
+            EntityLivingBase entitylivingbase = (EntityLivingBase) entity.ridingEntity;
             f = GUtil.interpolateRotation(entitylivingbase.prevRenderYawOffset, entitylivingbase.renderYawOffset,
                     partialTicks);
             yaw = f1 - f;
-            float f3 = MathHelper.wrapDegrees(yaw);
+            float f3 = MathHelper.wrapAngleTo180_float(yaw);
 
             if (f3 < -85.0F)
                 f3 = -85.0F;
@@ -117,8 +117,8 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 
     public void performAnimations(D data)
     {
-        data.headYaw = MathHelper.wrapDegrees(this.headYaw);
-        data.headPitch = MathHelper.wrapDegrees(this.headPitch);
+        data.headYaw = MathHelper.wrapAngleTo180_float(this.headYaw);
+        data.headPitch = MathHelper.wrapAngleTo180_float(this.headPitch);
         data.limbSwing = this.limbSwing;
         data.limbSwingAmount = this.limbSwingAmount;
         data.swingProgress = this.swingProgress;

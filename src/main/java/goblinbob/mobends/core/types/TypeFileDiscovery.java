@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.AbstractResourcePack;
 import net.minecraft.client.resources.IResourcePack;
-import net.minecraft.client.resources.LegacyV2Adapter;
 import net.minecraft.client.resources.ResourcePackRepository;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -89,7 +88,7 @@ final class TypeFileDiscovery
                 read("classpath", root, true, null, pattern, files, folder);
             }
         }
-        IResourcePack serverPack = Minecraft.getMinecraft().getResourcePackRepository().getServerResourcePack();
+        IResourcePack serverPack = Minecraft.getMinecraft().getResourcePackRepository().getResourcePackInstance();
         Set<File> visited = new HashSet<>();
         for (IResourcePack pack : packs)
         {
@@ -174,9 +173,9 @@ final class TypeFileDiscovery
         {
             packs.add(entry.getResourcePack());
         }
-        if (repository.getServerResourcePack() != null)
+        if (repository.getResourcePackInstance() != null)
         {
-            packs.add(repository.getServerResourcePack());
+            packs.add(repository.getResourcePackInstance());
         }
         return packs;
     }
@@ -187,10 +186,6 @@ final class TypeFileDiscovery
     {
         try
         {
-            if (pack instanceof LegacyV2Adapter)
-            {
-                pack = ReflectionHelper.getPrivateValue(LegacyV2Adapter.class, (LegacyV2Adapter) pack, "pack", "field_191383_a");
-            }
             if (pack instanceof AbstractResourcePack)
             {
                 return ReflectionHelper.getPrivateValue(AbstractResourcePack.class, (AbstractResourcePack) pack, "resourcePackFile", "field_110597_b");

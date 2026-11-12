@@ -11,7 +11,7 @@ import goblinbob.mobends.core.mutators.IMutatorFactory;
 import goblinbob.mobends.core.mutators.Mutator;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.EntityList;
+import goblinbob.mobends.core.compat.EntityIds;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
@@ -74,14 +74,14 @@ public abstract class EntityBender<T extends EntityLivingBase>
 		String name = key;
 		if (key == null)
 		{
-			ResourceLocation resourceLocation = EntityList.getKey(entityClass);
+			ResourceLocation resourceLocation = EntityIds.ofClass(entityClass);
 			if (resourceLocation == null)
 				throw new RuntimeException("Unable to find a key for " + entityClass.getName());
 			key = resourceLocation.toString();
 			name = "minecraft".equals(resourceLocation.getResourceDomain())
 					? resourceLocation.getResourcePath()
 					: resourceLocation.getResourceDomain() + "/" + resourceLocation.getResourcePath();
-			unlocalizedName = "entity." + EntityList.getTranslationName(resourceLocation) + ".name";
+			unlocalizedName = EntityIds.translationKey(entityClass);
 		}
 
 		this.key = new ResourceLocation(modId, name).toString();

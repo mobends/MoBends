@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.client.model;
 
+import org.lwjgl.opengl.GL11;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.IVec3f;
 import goblinbob.mobends.core.math.vector.SmoothVector3f;
@@ -167,15 +168,15 @@ public class ModelPart extends ModelRenderer implements IModelPart
     protected void compileDisplayList(float scale)
     {
         this.displayList = GLAllocation.generateDisplayLists(1);
-        GlStateManager.glNewList(this.displayList, 4864);
-        WorldRenderer bufferbuilder = Tessellator.getInstance().getBuffer();
+        GL11.glNewList(this.displayList, 4864);
+        WorldRenderer bufferbuilder = Tessellator.getInstance().getWorldRenderer();
 
 		for (net.minecraft.client.model.ModelBox modelBox : this.cubeList)
 		{
 			modelBox.render(bufferbuilder, scale);
 		}
 
-        GlStateManager.glEndList();
+        GL11.glEndList();
         this.compiled = true;
     }
 

@@ -122,7 +122,7 @@ public final class PackTrust
         }
         for (IResource resource : resources)
         {
-            if (resource != trusted) IOUtils.closeQuietly(resource);
+            if (resource != trusted) IOUtils.closeQuietly(resource.getInputStream());
         }
         if (trusted == null)
         {
@@ -158,7 +158,7 @@ public final class PackTrust
 
     private static Optional<byte[]> readSignedContent(ResourceLocation location)
     {
-        IResourcePack serverPack = Minecraft.getMinecraft().getResourcePackRepository().getServerResourcePack();
+        IResourcePack serverPack = Minecraft.getMinecraft().getResourcePackRepository().getResourcePackInstance();
         IResourcePack top = null;
         for (IResourcePack pack : userPacks()) // lowest priority first
         {

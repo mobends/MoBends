@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.client;
 
+import org.lwjgl.opengl.GL11;
 import goblinbob.mobends.core.util.IColorRead;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -82,7 +83,7 @@ public class Mesh
                 usage.preDraw(this.vertexFormat, j, i, bytebuffer);
             }
 
-            GlStateManager.glDrawArrays(this.bufferBuilder.getDrawMode(), 0, this.bufferBuilder.getVertexCount());
+            GL11.glDrawArrays(this.bufferBuilder.getDrawMode(), 0, this.bufferBuilder.getVertexCount());
             int i1 = 0;
 
             for (int j1 = list.size(); i1 < j1; ++i1)

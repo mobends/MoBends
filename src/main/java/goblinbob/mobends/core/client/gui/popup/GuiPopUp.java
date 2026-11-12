@@ -28,7 +28,7 @@ public class GuiPopUp
 
     public GuiPopUp(String title, int width, int height, ButtonProps[] buttonProps)
     {
-        this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        this.fontRenderer = Minecraft.getMinecraft().fontRendererObj;
         this.width = width;
         this.height = height;
         this.title = GUtil.wrapText(fontRenderer, title, width - 20);
