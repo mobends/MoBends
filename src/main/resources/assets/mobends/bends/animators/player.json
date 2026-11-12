@@ -2526,7 +2526,8 @@
                       "bones": ["root.rotation"],
                       "frame": "entityTicksAfterAttack"
                     },
-                    "@snap": true
+                    "@snap": true,
+                    "@mirror": true
                   },
                   {
                     "@when": {"not": ["animator.elytraFlying"]},
