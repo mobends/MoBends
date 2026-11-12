@@ -118,8 +118,10 @@ tasks.shadowJar {
     exclude("META-INF/maven/**")
 }
 
+// Loom 0.10 remaps the jar on Gradle 8.8 (the wrapper's version); on later versions it comes out empty.
 tasks.remapJar {
     archiveClassifier.set("")
+    dependsOn(tasks.shadowJar)
     input.set(tasks.shadowJar.flatMap { it.archiveFile })
 }
 
