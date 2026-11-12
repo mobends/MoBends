@@ -16,6 +16,13 @@ If you'd like to be a part of Mo' Bends' development, see the progress, or just 
 
 Say you came from GitHub if you decide to come by! Hope to see you there
 
+## Credits
+Thanks to [ThatSoulyGuy](https://github.com/ThatSoulyGuy) and [Sxilverr](https://github.com/Sxilverrr) ([YouTube](https://www.youtube.com/@Sxilverr))
+for keeping the spirit of Mo' Bends alive through their modern port
+([CurseForge](https://www.curseforge.com/minecraft/mc-mods/mo-bends-unofficial-modern-port),
+[Modrinth](https://modrinth.com/mod/mo-bends-unofficial-modern-port),
+[source](https://github.com/ThatSoulyGuy/MoBends)), and to [Tommsy64](https://github.com/Tommsy64) for coding support.
+
 ## Local Development Setup
 You only need a Java Development Kit (any recent one, e.g. [Eclipse Temurin](https://adoptium.net/temurin/releases))
 to start Gradle: it downloads the JDKs the build needs by itself (JDK 25 to run Gradle, JDK 25 for Minecraft 26.3, JDK 21 for 1.21.1, JDK 17 for 1.20.1).
