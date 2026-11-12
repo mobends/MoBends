@@ -2541,7 +2541,8 @@
                       "bones": ["root.rotation"],
                       "frame": "entityTicksAfterAttack"
                     },
-                    "@snap": true
+                    "@snap": true,
+                    "@mirror": true
                   },
                   {
                     "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},

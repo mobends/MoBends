@@ -44,6 +44,8 @@
   straight away from the target. `core:two_bone_ik` and `core:three_bone_ik` follow the scale of
   the bones in `parents`, and their `stretch` is how far the end really is from the target, in
   blocks.
+- A left-handed player spins the right way in the sword combo's last hit. It spun the way a
+  right-handed one does, with its head and sword turned against the spin.
 
 ### Removed
 

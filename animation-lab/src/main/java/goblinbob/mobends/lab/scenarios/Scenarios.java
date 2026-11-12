@@ -106,6 +106,12 @@ public class Scenarios
             if (tick == 120) in.attack = true;
         }));
 
+        add(new Scenario(EntityKind.PLAYER, "sword_combo_left_handed", FPS, 110, (tick, in) -> {
+            in.leftHanded = true;
+            in.mainHand = new ItemStack(Items.IRON_SWORD);
+            if (tick == 20 || tick == 32 || tick == 44 || tick == 56 || tick == 68) in.attack = true;
+        }));
+
         add(new Scenario(EntityKind.PLAYER, "jump_fall_torch", FPS, 200, (tick, in) -> {
             in.mainHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.TORCH));
             if (tick == 20) in.jump = true;
