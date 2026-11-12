@@ -258,7 +258,8 @@ jobs:
           modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           # Leaves the older versions featured: unfeaturing them edits them, which the token
-          # (Create versions only) isn't allowed to do. Featured versions are unfeatured by hand.
+          # (Create versions only) isn't allowed to do. Every version ends up featured, which
+          # Modrinth doesn't show anywhere, so nothing needs unfeaturing by hand.
           modrinth-unfeature-mode: none
           curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
@@ -324,7 +325,8 @@ jobs:
           modrinth-id: ${{ vars.LEGACY_PACK_MODRINTH_PROJECT_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           # Leaves the older versions featured: unfeaturing them edits them, which the token
-          # (Create versions only) isn't allowed to do. Featured versions are unfeatured by hand.
+          # (Create versions only) isn't allowed to do. Every version ends up featured, which
+          # Modrinth doesn't show anywhere, so nothing needs unfeaturing by hand.
           modrinth-unfeature-mode: none
           curseforge-id: ${{ vars.LEGACY_PACK_CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
