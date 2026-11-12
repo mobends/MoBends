@@ -126,7 +126,6 @@ forge-1.12               1.12.2
       villagers, the dev pack's animals) with their own model and texture, shaped unlike the adult
       the definitions were made for; they're drawn as vanilla for now (`LivingEntityRendererMixin`).
       They need definitions of their own.
-    - [ ] GeckoLib 5's armour.
 
 ### Other tasks
 

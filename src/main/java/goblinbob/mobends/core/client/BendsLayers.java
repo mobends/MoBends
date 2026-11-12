@@ -503,6 +503,19 @@ public final class BendsLayers {
     }
 
     /**
+     * The frame of the armour layer submitting {@code piece} now, if it's drawing a bent entity, the
+     * definition asks for {@code mobends:armor}, and the user doesn't keep the piece as vanilla draws
+     * it; else null. For armour that draws itself its own way, later in the frame (GeckoLib 5's, on
+     * 26.x, {@code GeoArmorRendererMixin}), in the frame this returns.
+     */
+    @Nullable
+    public static Frame armourFrameForSubmit(ItemStack piece) {
+        Frame frame = current;
+        return frame != null && frame.names(DefinedLayers.ARMOR) && frame.layer instanceof HumanoidArmorLayer<?, ?, ?> && !keepsVanilla(piece)
+            ? frame : null;
+    }
+
+    /**
      * Where armour worn on the vanilla part a 1.12 model kept in {@code field} ({@code bipedRightArm})
      * goes on the bent entity of {@code frame} (see {@link #armourFrame}): the frame of the bone that
      * stands for that part ({@code fallback} if none names it), and its further segments, where it's
@@ -538,7 +551,12 @@ public final class BendsLayers {
 
     /** Whether the armour piece being drawn is one the user keeps as vanilla draws it. */
     private static boolean keepsPieceVanilla() {
-        return !armourPiece.isEmpty() && ClientConfig.INSTANCE.keepsArmorVanilla(BuiltInRegistries.ITEM.getKey(armourPiece.getItem()).toString());
+        return keepsVanilla(armourPiece);
+    }
+
+    /** Whether {@code piece} is an armour piece the user keeps as vanilla draws it. */
+    private static boolean keepsVanilla(ItemStack piece) {
+        return !piece.isEmpty() && ClientConfig.INSTANCE.keepsArmorVanilla(BuiltInRegistries.ITEM.getKey(piece.getItem()).toString());
     }
 
     /**

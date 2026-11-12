@@ -1,7 +1,44 @@
 package goblinbob.mobends.mixin.geckolib;
 
-// GeckoLib 5 (26.x) isn't supported yet.
-//? if <26.1 {
+//? if >=26.1 {
+/*import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.geckolib.renderer.GeoArmorRenderer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import goblinbob.mobends.standard.compat.geckolib.GeoArmorBones;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
+
+import java.util.function.BiFunction;
+
+/^*
+ * GeckoLib 5's armour bends with the body (1.12's {@code GeckoLibCompat}): as the armour layer of a
+ * bent entity submits a piece of it, the piece's render state is given how it's posed, for its
+ * bones to be drawn bent later in the frame ({@link GeoArmorBones}, {@code GeoBoneMixin}).
+ * <p>
+ * In its own mixin config ({@code mobends.geckolib.mixins.json}, not required): it applies only
+ * when GeckoLib is installed, and if a GeckoLib version doesn't fit it, the armour draws as GeckoLib
+ * draws it.
+ ^/
+@Pseudo
+@Mixin(GeoArmorRenderer.class)
+public abstract class GeoArmorRendererMixin {
+    @WrapMethod(
+        method = "tryRenderGeoArmorPiece(Ljava/util/function/BiFunction;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/EquipmentSlot;ILnet/minecraft/client/renderer/entity/state/HumanoidRenderState;)Z"
+    )
+    @SuppressWarnings("rawtypes")
+    private static boolean mobends$noteBentPose(BiFunction modelFunction, PoseStack poseStack, SubmitNodeCollector renderTasks, ItemStack stack,
+                                                EquipmentSlot slot, int packedLight, HumanoidRenderState entityRenderState,
+                                                Operation<Boolean> original) {
+        GeoArmorBones.noteSubmit(entityRenderState, slot, stack);
+        return original.call(modelFunction, poseStack, renderTasks, stack, slot, packedLight, entityRenderState);
+    }
+}
+*///?} else {
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.blaze3d.vertex.PoseStack;

@@ -26,8 +26,14 @@ repositories {
         name = "GeckoLib"
         content {
             includeGroup("software.bernie.geckolib")
+            includeGroup("com.geckolib")
             includeGroup("com.eliotlash.mclib")
         }
+    }
+    // Fantasy Armor and Cloth Config, for trying GeckoLib's armour on in the development client.
+    maven("https://api.modrinth.com/maven") {
+        name = "Modrinth"
+        content { includeGroup("maven.modrinth") }
     }
 }
 
@@ -52,14 +58,18 @@ dependencies {
     // Mod Menu's API, for its Config button (MoBendsModMenu). Optional: the jar doesn't need it.
     modCompileOnly("com.terraformersmc:modmenu:${sc.properties["deps.modmenu"]}") { isTransitive = false }
     // GeckoLib, whose armour Mo' Bends bends when it's installed (mixin.geckolib); not needed. Run the
-    // client with -Pgeckolib to have it (and the Fabric API it needs) in the game. Not on 26.x yet
-    // (GeckoLib 5, whose API differs; mixin.geckolib is fenced out there).
-    val withGeckoLib = sc.current.parsed < "26.1"
-    val geckoLib by lazy { "software.bernie.geckolib:geckolib-fabric-${sc.current.version}:${sc.properties["deps.geckolib"]}" }
-    if (withGeckoLib) modCompileOnly(geckoLib) { isTransitive = false }
-    if (withGeckoLib && providers.gradleProperty("geckolib").isPresent) {
+    // client with -Pgeckolib to have it (and the Fabric API it needs) in the game; on 26.x, with
+    // Fantasy Armor too, armour to try on. GeckoLib 5 (26.x) is published under its own group.
+    val geckoLibGroup = if (sc.current.parsed >= "26.1") "com.geckolib" else "software.bernie.geckolib"
+    val geckoLib = "$geckoLibGroup:geckolib-fabric-${sc.current.version}:${sc.properties["deps.geckolib"]}"
+    modCompileOnly(geckoLib) { isTransitive = false }
+    if (providers.gradleProperty("geckolib").isPresent) {
         modLocalRuntime(geckoLib) { isTransitive = false }
         modLocalRuntime("net.fabricmc.fabric-api:fabric-api:${sc.properties["deps.fabric_api"]}")
+        if (sc.current.parsed >= "26.1") {
+            modLocalRuntime("maven.modrinth:fantasy_armor:${sc.properties["deps.fantasy_armor"]}") { isTransitive = false }
+            modLocalRuntime("maven.modrinth:cloth-config:${sc.properties["deps.cloth_config"]}") { isTransitive = false }
+        }
         // GeckoLib 4.8 (1.20.1) reads its files with mclib, which its jar bundles but the
         // non-transitive dependency above leaves out of the development client.
         if (sc.current.parsed < "1.21") {

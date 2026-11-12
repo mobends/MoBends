@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import goblinbob.mobends.core.client.BendsLayers;
 import goblinbob.mobends.core.client.WornPiece;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
@@ -13,12 +14,14 @@ import javax.annotation.Nullable;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Where GeckoLib's armour goes on a bent entity, for one draw of a piece of it (its
- * {@code GeoArmorRenderer}'s {@code renderToBuffer}, {@code mixin.geckolib.GeoArmorRendererMixin}),
- * as 1.12's {@code GeoArmorGeometry} and {@code GeoArmorMesh} had it. This class doesn't touch
- * GeckoLib's: the mixin hands over what it needs, and only runs when GeckoLib is installed.
+ * {@code GeoArmorRenderer}'s {@code renderToBuffer}, {@code mixin.geckolib.GeoArmorRendererMixin};
+ * on 26.x, one submit of it and its draws later in the frame, {@link GeoArmorBones}), as 1.12's
+ * {@code GeoArmorGeometry} and {@code GeoArmorMesh} had it. This class doesn't touch GeckoLib's: the
+ * mixins hand over what they need, and only run when GeckoLib is installed.
  * <p>
  * GeckoLib poses each armour bone (the head, the body, the arms, the legs and the boots) as the
  * vanilla part it's worn on is posed: moved from where it rests by as much as the part, and turned
@@ -60,6 +63,9 @@ public final class GeoArmorPose {
     private final BendsLayers.Frame frame;
     /** Per slot, found the first time it's asked for; empty if the definition has no bone for it. */
     private final Map<Slot, Optional<WornPiece>> pieces = new EnumMap<>(Slot.class);
+    /** See {@link #boneSlots}; null until it's first asked for. */
+    @Nullable
+    private Map<Object, Slot> boneSlots;
 
     private GeoArmorPose(BendsLayers.Frame frame) {
         this.frame = frame;
@@ -74,6 +80,29 @@ public final class GeoArmorPose {
     public static GeoArmorPose begin(@Nullable Entity entity) {
         BendsLayers.Frame frame = entity == null ? null : BendsLayers.armourFrame(entity);
         return frame == null ? null : new GeoArmorPose(frame);
+    }
+
+    /**
+     * How the GeckoLib armour piece {@code piece}, submitted now by the armour layer of a bent entity,
+     * is posed when it's drawn, later in the frame (GeckoLib 5, on 26.x); null if it isn't drawn bent
+     * (see {@link BendsLayers#armourFrameForSubmit}).
+     */
+    @Nullable
+    public static GeoArmorPose forSubmit(ItemStack piece) {
+        BendsLayers.Frame frame = BendsLayers.armourFrameForSubmit(piece);
+        return frame == null ? null : new GeoArmorPose(frame);
+    }
+
+    /**
+     * What each bone of the armour's model is worn on (keyed by GeckoLib's bone), found by
+     * {@code find} the first time it's asked for. Kept here, with the draw, as a GeckoLib 5 armour
+     * piece's bones are asked for each time one is drawn (GeckoLib's own and its layers').
+     */
+    public Map<Object, Slot> boneSlots(Supplier<Map<Object, Slot>> find) {
+        if (boneSlots == null) {
+            boneSlots = find.get();
+        }
+        return boneSlots;
     }
 
     @Nullable

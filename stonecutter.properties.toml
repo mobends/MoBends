@@ -48,14 +48,22 @@ deps.neo_loader = "21.1.265"
 
 ["26.3"]
 mod.mc_releases = ["26.3"]
+# GeckoLib 5, published under com.geckolib.
+deps.geckolib = "5.5.7"
 
 [fabric."26.3"]
 mod.mc_compat = ">=26.3 <26.4"
 deps.fabric_api = "0.166.0+26.3"
 deps.modmenu = "21.0.0"
 mod.geckolib_compat = ">=5.5"
+# Fantasy Armor, a mod with GeckoLib armour, and the Cloth Config it needs: in the development client
+# with -Pgeckolib, to try the armour on (Modrinth version ids).
+deps.fantasy_armor = "4VFDvfvz"
+deps.cloth_config = "fg2uyxOW"
 
 [neoforge."26.3"]
 mod.mc_compat = "[26.3, 26.4)"
 mod.geckolib_compat = "[5.5,)"
+deps.fantasy_armor = "MpDggb7F"
+deps.cloth_config = "GchRXPnb"
 deps.neo_loader = "26.3.0.102"
