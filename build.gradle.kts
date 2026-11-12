@@ -29,10 +29,8 @@ val accessTransformerFile = file("src/main/resources/META-INF/accesstransformer.
 loom {
     runConfigs {
         named("client") {
-            // LWJGL 2 can't open its window with this argument on macOS.
+            // LWJGL 2 can't open its window with this argument on macOS (for the IDE run configurations).
             if (SystemUtils.IS_OS_MAC_OSX) vmArgs.remove("-XstartOnFirstThread")
-            // Play under a fixed name, e.g. to test name selectors: ./gradlew runClient -Pmc_username=BendyTester
-            project.findProperty("mc_username")?.let { programArgs("--username", it.toString()) }
         }
         remove(getByName("server"))
     }
@@ -177,3 +175,33 @@ val checkVanillaFields by tasks.registering {
 }
 checkVanillaFields { mustRunAfter(generateVanillaFields) }
 tasks.compileJava { dependsOn(checkVanillaFields) }
+
+// Loom 0.10's run task fails Gradle 8's validation of task properties, so `runClient` starts the same launch
+// (Loom's dev launcher, with the launch.cfg Loom writes) from a plain JavaExec instead.
+val launchClient by tasks.registering(JavaExec::class) {
+    description = "Starts the Minecraft client with the mod (what runClient does)."
+    dependsOn("downloadAssets", tasks.classes)
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("net.fabricmc.devlaunchinjector.Main")
+    workingDir = file("run")
+    doFirst { workingDir.mkdirs() }
+    jvmArgs(
+        "-Dfabric.dli.config=${file(".gradle/loom-cache/launch.cfg").absolutePath}",
+        "-Dfabric.dli.env=client",
+        "-Dfabric.dli.main=net.minecraft.launchwrapper.Launch",
+    )
+    // Play under a fixed name, e.g. to test name selectors: ./gradlew runClient -Pmc_username=BendyTester
+    project.findProperty("mc_username")?.let { args("--username", it.toString()) }
+    // LWJGL 2's macOS natives are x86-64 only: on Apple Silicon, run the client with an x86-64 JDK 8 (under
+    // Rosetta), e.g. ./gradlew runClient -Pclient_java_home=/Library/Java/JavaVirtualMachines/temurin-8.jdk/Contents/Home
+    val clientJavaHome = project.findProperty("client_java_home")?.toString()
+    javaLauncher.set(
+        if (clientJavaHome != null) null
+        else javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(8)) }.get()
+    )
+    if (clientJavaHome != null) executable = "$clientJavaHome/bin/java"
+}
+tasks.named("runClient") {
+    enabled = false
+    dependsOn(launchClient)
+}
