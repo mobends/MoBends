@@ -48,8 +48,10 @@ dependencies {
     // Fabric Loader alone doesn't put mods' assets in the resource manager (NeoForge does), nor lets
     // a server send a mod's payloads (the server's rules), so the Fabric API modules that do are
     // bundled into the jar (jar-in-jar), with the base module they need. Players don't have to
-    // install Fabric API.
-    for (module in listOf("fabric-resource-loader-v0", "fabric-networking-api-v1", "fabric-api-base")) {
+    // install Fabric API. On 26.x the resource loader is v1: v0 is only a shim there that needs v1,
+    // and without it Fabric Loader drops v0 and the mod's assets aren't loaded.
+    val resourceLoader = if (sc.current.parsed >= "26.1") "fabric-resource-loader-v1" else "fabric-resource-loader-v0"
+    for (module in listOf(resourceLoader, "fabric-networking-api-v1", "fabric-api-base")) {
         val dependency = fabricApi.module(module, sc.properties["deps.fabric_api"])
         modImplementation(dependency)
         include(dependency)

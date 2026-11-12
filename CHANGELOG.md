@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 2.0.0-alpha.4
+
+The first Mo' Bends for Minecraft 1.20.1 (Forge and Fabric) and 26.3 (Fabric and NeoForge),
+alongside 1.21.1. It animates the same mobs on every version, except the babies 26.3 draws with a
+model of their own. Every mob is now a type file, which resource packs and addons can add to.
 
 ### Added
 
@@ -11,7 +15,9 @@
   mobs' own layers follow the bent model too: the wolf's mouth, the iron golem's poppy, the witch's
   potion, the mooshroom's mushroom, the sheep's wool and saddles, and the elytra. Arrows and bee
   stingers stick in a bent player's bent parts, supporters wear their accessories, swung swords
-  and flying arrows leave their trails, and the cape ripples. An animator's debug rays show.
+  and flying arrows leave their trails, and the cape ripples. Armour from GeckoLib 5 mods bends
+  with the body, cut at the elbows and knees (GeckoLib 5.5 and up, optional). An animator's debug
+  rays show.
 - Wither skeletons are animated, as skeletons are. They were left out when the mobs moved to model
   definitions.
 - Addon API: `INodeState.resetClock`, called before a node's scope is made, and
@@ -62,8 +68,10 @@
 
 ### Not yet
 
-- On 26.3: GeckoLib armour. Babies that 26.3 draws with a model of their own (wolf pups, baby
-  zombies and villagers) don't bend yet.
+- On 26.3, the babies drawn with a model of their own (wolf pups, baby zombies and villagers) keep
+  vanilla's animation.
+- The items 1.12 didn't have (spyglass, goat horn, brush, crossbow, trident) still keep whatever
+  pose the player was in.
 
 ## 2.0.0-alpha.3
 

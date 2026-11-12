@@ -38,6 +38,10 @@ switched off for now.
 - [ ] IK for cows and sheep (feet planted on the ground), switched off while they run.
 - [ ] Poses for the items 1.12 didn't have (spyglass, goat horn, brush, crossbow, trident). Left for
       a later alpha.
+- [ ] Babies with a model of their own on 26.x. 26.x draws most babies (wolf pups, baby zombies and
+      villagers, the dev pack's animals) with their own model and texture, shaped unlike the adult
+      the definitions were made for; they're drawn as vanilla for now (`LivingEntityRendererMixin`).
+      They need definitions of their own. Left for after 2.0.0-alpha.4.
 
 ## Multiple Minecraft versions and loaders
 
@@ -120,12 +124,6 @@ forge-1.12               1.12.2
 
 - [ ] **Add targets:** 1.20.1 (Forge + Fabric), then the latest Minecraft version.
   - [ ] A resource pack's definition of a list-drawn mob (the fox) on 1.20.1.
-  - [ ] The latest Minecraft version (26.3), on Fabric and NeoForge. The node builds, starts and
-    bends the player, its layers and the mobs; still to port on 26.x:
-    - [ ] Babies with a model of their own. 26.x draws most babies (wolf pups, baby zombies and
-      villagers, the dev pack's animals) with their own model and texture, shaped unlike the adult
-      the definitions were made for; they're drawn as vanilla for now (`LivingEntityRendererMixin`).
-      They need definitions of their own.
 
 ### Other tasks
 
