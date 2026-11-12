@@ -48,8 +48,10 @@ Needs the `core` release after 2.0.0-alpha.4. On `main` a new node, `core:vanill
 `core:pose` node whose stack starts with the pose the vanilla model has this frame (with what other
 mods add to it), so layers can bend it. `core` asks the host for that pose through
 `IKumoSubject.getVanillaPose()`, which returns null by default: until this branch gives one, the node
-poses nothing and the layers below show through. No shipped animator uses the node, so nothing
-changes in the assets or the lab's goldens.
+poses nothing and the layers below show through. `core` also tells the subject how much the
+entity's frame is vanilla's (`IKumoSubject.setEntityFrameVanilla`, 0..1, blended by fades and
+transitions); its default does nothing, and with no vanilla pose it's always 0. No shipped animator
+uses the node, so nothing changes in the assets or the lab's goldens.
 
 - [ ] Build with that release (`core_version` in gradle.properties).
 - [ ] Copy the `core:vanilla_pose` passages of `misc/kumo-format.md` from `main` (the node in the list
@@ -59,7 +61,10 @@ changes in the assets or the lab's goldens.
 - [ ] (Later) Give the entity data a vanilla pose (`IVanillaPose`) to make the node work here: the
       rotation and offset of each bone that draw it where vanilla's `setRotationAngles` puts its
       part, as `VanillaPoseReader` on `main` works them out. The mutators replace vanilla's parts
-      here, so the vanilla pose has to be read before they're posed, or from a copy.
+      here, so the vanilla pose has to be read before they're posed, or from a copy. Then have the
+      renderer use `setEntityFrameVanilla`'s weight as `main` does: vanilla's whole-entity turns by
+      that much (the swimming tilt, the golem's rock), the sneak offset by the rest, and the sword
+      trail faded by it; and read `core:orientation` components (the held items) at rest.
 
 ### #392: The pig zombie's variant for later versions
 
