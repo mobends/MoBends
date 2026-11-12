@@ -16,7 +16,10 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
+import net.minecraft.client.model.ModelBase;
+
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -39,7 +42,8 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	 * Per renderer: this bender's mutator and the renderer's state with the mutation in place, or
 	 * {@link #NOT_MUTABLE} if the renderer's model can't be mutated by this bender.
 	 */
-	private final Map<RendererLivingEntity<?>, Mutation> mutations = new HashMap<>();
+	/** By renderer, then by the renderer's main model (a renderer may swap models, see {@link RendererState}). */
+	private final Map<RendererLivingEntity<?>, Map<ModelBase, Mutation>> mutations = new HashMap<>();
 	private static final Mutation NOT_MUTABLE = new Mutation(null, null);
 
 	private IEntityDataFactory<T> dataFactory;
@@ -208,7 +212,10 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	@Nullable
 	public Mutator<?, ?, ?> attachMutation(RendererLivingEntity<? extends T> renderer)
 	{
-		Mutation mutation = mutations.get(renderer);
+		final Map<ModelBase, Mutation> byModel = mutations.computeIfAbsent(renderer, r -> new IdentityHashMap<>());
+		// The vanilla model the renderer draws this entity with (it swaps back to it before every draw).
+		final ModelBase model = renderer.getMainModel();
+		Mutation mutation = byModel.get(model);
 		if (mutation == null)
 		{
 			// Mutating starts from the vanilla renderer, whatever another bender left in place.
@@ -226,7 +233,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 				RendererState.restoreVanilla(renderer);
 				mutation = NOT_MUTABLE;
 			}
-			mutations.put(renderer, mutation);
+			byModel.put(model, mutation);
 		}
 		else if (mutation != NOT_MUTABLE)
 		{
@@ -249,6 +256,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	{
 		for (RendererLivingEntity<?> renderer : mutations.keySet())
 		{
+			// Only the model the renderer holds now: the others are restored as they come back (see RendererState).
 			RendererState.restoreVanilla(renderer);
 		}
 		mutations.clear();
@@ -257,7 +265,8 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	@Nullable
 	public Mutator<?, ?, ?> getMutator(RendererLivingEntity<? extends EntityLivingBase> renderer)
 	{
-		Mutation mutation = this.mutations.get(renderer);
+		Map<ModelBase, Mutation> byModel = this.mutations.get(renderer);
+		Mutation mutation = byModel == null ? null : byModel.get(renderer.getMainModel());
 		return mutation == null ? null : mutation.mutator;
 	}
 }

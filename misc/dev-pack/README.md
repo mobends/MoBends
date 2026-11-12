@@ -2,7 +2,7 @@
 
 Content still being refined, kept out of the mod's jar until it's ready for a release:
 
-* `assets/mobends/bends/types/`: the chicken, the cow, the mooshroom, the pig, the polar bear and
+* `assets/mobends/bends/types/`: the chicken, the cow, the mooshroom, the pig and
   the sheep. Their models and animators already ship in `src/main/resources`; without these type
   files no mob uses them.
 

@@ -77,6 +77,9 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
         try
         {
             final ModelBiped armorModel = ArmorModelFactory.getArmorModel(suggestedModel, shouldBeMutated);
+            // LayerArmorBase gave the model it made the renderer's attributes (swing, riding, child), not this
+            // one; a model is a child until told otherwise in 1.8.9, and drawn half its size if left so.
+            armorModel.setModelAttributes(model);
             if (armorModel instanceof ArmorWrapper)
             {
                 ((ArmorWrapper) armorModel).setWorn(itemStack, EntityEquipmentSlot.fromArmorIndex(armorSlot - 1));
