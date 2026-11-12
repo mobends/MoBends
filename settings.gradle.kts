@@ -23,3 +23,7 @@ plugins {
 }
 
 rootProject.name = "MoBends"
+
+// Loom 0.10's runClient fails Gradle 8's validation of task properties, and a task can't be removed or replaced,
+// so asking for it runs launchClient (build.gradle.kts), which starts the same game.
+gradle.startParameter.setTaskNames(gradle.startParameter.taskNames.map { if (it == "runClient" || it == ":runClient") "launchClient" else it })

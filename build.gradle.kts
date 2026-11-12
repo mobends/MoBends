@@ -178,10 +178,12 @@ val checkVanillaFields by tasks.registering {
 checkVanillaFields { mustRunAfter(generateVanillaFields) }
 tasks.compileJava { dependsOn(checkVanillaFields) }
 
-// Loom 0.10's run task fails Gradle 8's validation of task properties, so `runClient` starts the same launch
-// (Loom's dev launcher, with the launch.cfg Loom writes) from a plain JavaExec instead.
-val launchClient by tasks.registering(JavaExec::class) {
-    description = "Starts the Minecraft client with the mod (what runClient does)."
+// Loom 0.10's run task fails Gradle 8's validation of task properties, even disabled, so `runClient` runs this
+// instead (settings.gradle.kts swaps the name): the same launch, Loom's dev launcher with the launch.cfg Loom
+// writes, from a plain JavaExec.
+tasks.register<JavaExec>("launchClient") {
+    group = "fabric"
+    description = "Starts the Minecraft client with the mod (./gradlew runClient runs this)."
     dependsOn("downloadAssets", tasks.classes)
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass.set("net.fabricmc.devlaunchinjector.Main")
@@ -202,8 +204,4 @@ val launchClient by tasks.registering(JavaExec::class) {
         else javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(8)) }.get()
     )
     if (clientJavaHome != null) executable = "$clientJavaHome/bin/java"
-}
-tasks.named("runClient") {
-    enabled = false
-    dependsOn(launchClient)
 }
