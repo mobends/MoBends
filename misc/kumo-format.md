@@ -156,11 +156,21 @@ node is in *Choosing the node*.
     `override`, its rotation and its offset, so that it's drawn where vanilla draws the part,
     through the bones above it as the vanilla pose has them: a body that bends at the hips, a head
     that doesn't turn with it and arms that hang from the body all end up where vanilla's
-    (unparented) parts are. A split bone's further segments (forearms, shins), which vanilla draws
-    straight with the part, are written at rest. A bone that stands for no vanilla part (the cape,
-    `root`, `center`) isn't written: the layers below decide it.
-  * `bones` lists the bones it takes; by default, every bone the animator names anywhere (any
-    layer, its extensions' included), which for the shipped animators is every bone that moves.
+    (unparented) parts are. A bone keeps where it sits from its part at rest, however the
+    definition places its pivot or turns its boxes (the wolf's body lies along Z, vanilla's stands
+    up and is turned down). A bone vanilla draws as a piece of an ancestor's part, straight with it,
+    is written at rest: a split bone's further segments (forearms, shins), and a bone with boxes of
+    its own and no part, under one that has (the wolf's shins, nose and ears). Any other bone that
+    stands for no vanilla part (the cape, the wolf's tongue) isn't written: the layers below decide
+    it.
+  * The entity's own bones, `root` and `center`, are written at rest: vanilla draws its parts in
+    the entity's frame, so what the layers below move it by (the wolf's sitting lowers `root`)
+    would move the pose twice. Vanilla's own turns of the whole entity (dying, sleeping, gliding)
+    stay, as they do under any node; a player's swimming tilt, which Mo' Bends leaves to the
+    animator's `root` in water, is lost.
+  * `bones` lists the bones it takes, `root` and `center` included; by default, every bone the
+    animator names anywhere (any layer, its extensions' included), which for the shipped animators
+    is every bone that moves.
   * Where there is no vanilla pose to read, it writes nothing, and the layers below show through:
     in the animation lab, and on Minecraft before 26.1 for now (see below).
   * Not carried over: a vanilla part's scale, and what a mod draws outside the model's parts

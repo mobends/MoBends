@@ -53,11 +53,20 @@ public class DefinedModelPart {
     /**
      * For a bone that takes over a vanilla part: the vanilla parts from the model's root (left out)
      * down to that part, whose poses place it ({@link VanillaPoseReader}); null for anything else.
+     * Where the bone declares its own boxes for a part that draws none but through one child (26.x's
+     * wolf head and tail, {@code real_head}, {@code real_tail}), the chain goes on to that child.
      */
     @Nullable
     ModelPart[] vanillaChain;
-    /** Whether it's a further segment of a split bone (a forearm), which vanilla's part draws straight. */
-    boolean segment;
+    /** The rest poses of {@link #vanillaChain}'s parts, each {x, y, z, xRot, yRot, zRot}, as the model was made. */
+    @Nullable
+    float[][] vanillaChainRest;
+    /**
+     * Whether vanilla draws it as a piece of an ancestor's part, straight with it: a split bone's
+     * further segment (a forearm), or a bone with boxes of its own and no part under a bone that has
+     * one (the wolf's shins, nose and ears).
+     */
+    boolean drawnWithVanillaPart;
     /** Drawn through its parents' transforms, not by its parent (see {@code BoneDefinition#drawnAlone}). */
     boolean drawnAlone;
 

@@ -196,22 +196,54 @@ public class VanillaPoseNodeTest
     }
 
     @Test
-    public void readsNoneOfTheEntitysOwnBones() throws MalformedKumoTemplateException
+    public void putsTheEntitysOwnBonesAtRest() throws MalformedKumoTemplateException
+    {
+        // Vanilla's parts are drawn in the entity's frame: the root the layers below moved goes back.
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'root', 'x': 3}, '@space': 'override'}", "",
+                "{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 0}}");
+        TestSubject subject = new TestSubject("arm");
+        // A pose the vanilla model can't have, which isn't read.
+        subject.vanillaPose = new FakeVanillaPose().put("arm", pitch(-60), 0, 0, 0).put("root", pitch(90), 7, 7, 7);
+
+        animator.update(subject, 1F);
+
+        assertVector(0, 0, 0, subject.root.position.end);
+    }
+
+    @Test
+    public void leavesTheEntitysOwnBonesWithoutAVanillaPose() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = animator("{'core:translate': {'bone': 'root', 'x': 3}, '@space': 'override'}", "", "");
         TestSubject subject = new TestSubject("arm");
-        FakeVanillaPose vanilla = new FakeVanillaPose().put("root", pitch(90), 7, 7, 7);
-        subject.vanillaPose = vanilla;
+        subject.vanillaPose = new FakeVanillaPose();
 
         animator.update(subject, 1F);
 
         assertVector(3, 0, 0, subject.root.position.end);
     }
 
-    @Test(expected = MalformedKumoTemplateException.class)
-    public void theEntitysOwnBonesCantBeListed() throws MalformedKumoTemplateException
+    @Test
+    public void bonesCanLeaveTheEntitysOwnBonesOut() throws MalformedKumoTemplateException
     {
-        animator("", "'bones': ['arm', 'root']", "");
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'root', 'x': 3}, '@space': 'override'}", "'bones': ['arm']", "");
+        TestSubject subject = new TestSubject("arm");
+        subject.vanillaPose = new FakeVanillaPose().put("arm", pitch(-60), 0, 0, 0);
+
+        animator.update(subject, 1F);
+
+        assertVector(3, 0, 0, subject.root.position.end);
+    }
+
+    @Test
+    public void bonesCanListTheEntitysOwnBones() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'root', 'x': 3}, '@space': 'override'}", "'bones': ['arm', 'root']", "");
+        TestSubject subject = new TestSubject("arm");
+        subject.vanillaPose = new FakeVanillaPose().put("arm", pitch(-60), 0, 0, 0);
+
+        animator.update(subject, 1F);
+
+        assertVector(0, 0, 0, subject.root.position.end);
     }
 
     @Test

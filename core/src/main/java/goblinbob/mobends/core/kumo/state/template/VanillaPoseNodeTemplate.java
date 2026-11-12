@@ -10,7 +10,10 @@ import java.util.List;
 public class VanillaPoseNodeTemplate extends PoseNodeTemplate
 {
 
-    /** The bones it takes from the vanilla pose; null for every bone the vanilla pose has. */
+    /**
+     * The bones it takes from the vanilla pose; null for every bone the animator names. The entity's
+     * own bones ({@code root}, {@code center}) among them are put at rest.
+     */
     public List<String> bones;
 
     public void validate() throws MalformedKumoTemplateException
@@ -22,10 +25,6 @@ public class VanillaPoseNodeTemplate extends PoseNodeTemplate
                 if (bone == null)
                 {
                     throw new MalformedKumoTemplateException(String.format("The vanilla pose node '%s' lists a bone that is no name.", name));
-                }
-                if (goblinbob.mobends.core.kumo.pose.Skeleton.isEntityBone(bone))
-                {
-                    throw new MalformedKumoTemplateException(String.format("The vanilla pose node '%s' lists '%s': the vanilla model doesn't pose the entity's own bones.", name, bone));
                 }
             }
         }

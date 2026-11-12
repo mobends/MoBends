@@ -10,8 +10,9 @@ import javax.annotation.Nullable;
 /**
  * The first item of a {@code core:vanilla_pose} node: writes each bone the subject's vanilla pose
  * has ({@link IVanillaPose}) as that pose has it, its rotation and offset replacing what lies
- * beneath. A bone it has no pose for, and the entity's own bones ({@code root}, {@code center}),
- * are left alone.
+ * beneath. A bone it has no pose for is left alone. The entity's own bones ({@code root},
+ * {@code center}), which the vanilla model draws nothing of (its parts are drawn in the entity's
+ * frame), are put at rest, once any bone has a pose.
  */
 public class VanillaPoseItem implements IPoseItem
 {
@@ -40,6 +41,7 @@ public class VanillaPoseItem implements IPoseItem
         }
         // Every bone of the skeleton is known by now: the program was compiled before it ran.
         int count = bones != null ? bones.length : skeleton.size();
+        boolean read = false;
         for (int i = 0; i < count; i++)
         {
             int slot = bones != null ? bones[i] : i;
@@ -49,6 +51,22 @@ public class VanillaPoseItem implements IPoseItem
             }
             pose.composeRotation(slot, rotation, Pose.Space.OVERRIDE);
             pose.composeOffset(slot, offset.x, offset.y, offset.z, Pose.Space.OVERRIDE);
+            read = true;
+        }
+        if (!read)
+        {
+            return;
+        }
+        // Vanilla's parts are drawn in the entity's frame: nothing of the animator's own moves it.
+        rotation.setIdentity();
+        for (int i = 0; i < count; i++)
+        {
+            int slot = bones != null ? bones[i] : i;
+            if (skeleton.isEntityBone(slot))
+            {
+                pose.composeRotation(slot, rotation, Pose.Space.OVERRIDE);
+                pose.composeVector(slot, 0, 0, 0, Pose.Space.OVERRIDE);
+            }
         }
     }
 

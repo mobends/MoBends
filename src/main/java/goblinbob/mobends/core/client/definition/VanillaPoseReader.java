@@ -23,12 +23,16 @@ import java.util.Map;
  * whatever other mods add to it) and works out every bone from it.
  * <p>
  * Each bone that takes over a vanilla part is given the rotation and offset that draw it where
- * vanilla draws that part (its boxes where vanilla's are), through the bones above it as they're
- * given here: vanilla's parts hang from the model's root, the bones from each other (a body that
- * bends at the hips, a head that doesn't turn with it), so a bone's own rotation is what's left of
- * its part's once its parents' is taken out. A further segment (a forearm, a shin), which vanilla
- * draws straight with its part, is at rest. A bone that stands for no vanilla part has nothing to
- * read; the bones under it are worked out as if it were at rest.
+ * vanilla draws that part, through the bones above it as they're given here. The bone keeps where
+ * it sits from the part at rest, as the definition places it: its pivot may be elsewhere (a body
+ * that bends at the hips, a wolf's leg turning a pixel off vanilla's) and its boxes turned another
+ * way (the wolf's body lies along Z, vanilla's is turned up), so its frame is the part's posed
+ * frame, times the part's rest frame undone, times its own rest frame. Vanilla's parts hang from
+ * the model's root, the bones from each other (a head that doesn't turn with the body), so a bone's
+ * own rotation is what's left once its parents' is taken out. A bone vanilla draws as a piece of an
+ * ancestor's part, straight with it (a forearm, the wolf's shins and ears), is at rest. Any other
+ * bone that stands for no vanilla part has nothing to read; the bones under it are worked out as
+ * if it were at rest.
  * <p>
  * Not carried: a vanilla part's scale, the root part's own pose (the model's space is its frame,
  * as for the bent model), and a baby's offset scale.
@@ -55,15 +59,21 @@ public final class VanillaPoseReader implements IVanillaPose {
     private final Quaternionf turn = new Quaternionf();
     private final Quaternionf inverse = new Quaternionf();
     private final Vector3f vector = new Vector3f();
+    private final Quaternionf partTurn = new Quaternionf();
+    private final Quaternionf restTurn = new Quaternionf();
+    private final Vector3f restOrigin = new Vector3f();
 
     private static final class Solved {
-        /** Whether a read gets it: a bone posed from its vanilla part, or a segment (at rest). */
+        /** Whether a read gets it: a bone posed from its vanilla part, or one drawn with an ancestor's (at rest). */
         boolean posed;
         final Quaternion rotation = new Quaternion();
         final Vec3f offset = new Vec3f();
         /** Its frame in the model's space, as drawn with what it's given: where its children hang from. */
         final Quaternionf frameRotation = new Quaternionf();
         final Vector3f frameOrigin = new Vector3f();
+        /** Its frame in the model's space at rest, as the definition places it. */
+        final Quaternionf restRotation = new Quaternionf();
+        final Vector3f restOrigin = new Vector3f();
     }
 
     public VanillaPoseReader(DefinedEntityData<?> data) {
@@ -133,18 +143,37 @@ public final class VanillaPoseReader implements IVanillaPose {
                     byName.put(part.name, solved);
                 }
             }
-            solve(model, part, solved);
+            solve(part, solved);
         }
     }
 
     /** Works out {@code part}, whose parent is worked out already (it comes first in the model's order). */
-    private void solve(DefinedModel model, DefinedModelPart part, Solved solved) {
+    private void solve(DefinedModelPart part, Solved solved) {
         Solved parent = part.parent == null ? null : byPart.get(part.parent);
         ModelPartTransform transform = part.name == null ? null : data.getPart(part.name);
         Vec3f position = transform != null ? transform.position : part.position;
         boolean inherits = transform == null || transform.inheritRotation;
+        Quaternionf rest = rest(part);
 
-        // The parent's frame (the model's space for a root).
+        // Its frame at rest, as the definition places it: where it sits in its parent's.
+        //   frame = parent * translate(position) * [parent's rotation undone] * rest
+        if (parent != null) {
+            solved.restRotation.set(parent.restRotation);
+            solved.restOrigin.set(parent.restOrigin);
+        } else {
+            solved.restRotation.identity();
+            solved.restOrigin.zero();
+        }
+        vector.set(part.position.x, part.position.y, part.position.z);
+        solved.restOrigin.add(solved.restRotation.transform(vector));
+        if (!inherits) {
+            solved.restRotation.identity();
+        }
+        if (rest != null) {
+            solved.restRotation.mul(rest);
+        }
+
+        // The parent's frame as given here (the model's space for a root).
         Quaternionf parentRotation = solved.frameRotation;
         Vector3f parentOrigin = solved.frameOrigin;
         if (parent != null) {
@@ -154,21 +183,18 @@ public final class VanillaPoseReader implements IVanillaPose {
             parentRotation.identity();
             parentOrigin.zero();
         }
-        // Where the part sits in it, unmoved: the bent part is drawn there, turned by its rest rotation and its own.
         //   frame = parent * translate(position + offset) * [parent's rotation undone] * rest * rotation
         ModelPart[] chain = part.vanillaChain;
         if (chain == null) {
             // At rest: no rotation of its own, no offset.
-            solved.posed = part.segment;
+            solved.posed = part.drawnWithVanillaPart;
             solved.rotation.setIdentity();
             solved.offset.set(0, 0, 0);
             vector.set(position.x, position.y, position.z);
-            parentRotation.transform(vector);
-            Quaternionf rest = rest(part);
+            parentOrigin.add(parentRotation.transform(vector));
             if (!inherits) {
                 parentRotation.identity();
             }
-            parentOrigin.add(vector);
             if (rest != null) {
                 parentRotation.mul(rest);
             }
@@ -176,11 +202,14 @@ public final class VanillaPoseReader implements IVanillaPose {
             return;
         }
 
-        // Vanilla's frame for the part: its parents' poses, then its own, as vanilla draws it.
+        // Vanilla's frame for the part, posed (V) and as the model was made (V0): its parents' poses,
+        // then its own, as vanilla draws it.
         matrix.identity();
         Quaternionf vanillaRotation = turn.identity();
-        Quaternionf partTurn = new Quaternionf();
-        for (ModelPart vanilla : chain) {
+        Quaternionf vanillaRestRotation = restTurn.identity();
+        Vector3f vanillaRestOrigin = restOrigin.zero();
+        for (int i = 0; i < chain.length; i++) {
+            ModelPart vanilla = chain[i];
             matrix.translate(vanilla.x, vanilla.y, vanilla.z);
             partTurn.rotationZYX(vanilla.zRot, vanilla.yRot, vanilla.xRot);
             matrix.rotate(partTurn);
@@ -188,31 +217,35 @@ public final class VanillaPoseReader implements IVanillaPose {
             if (vanilla.xScale != 1 || vanilla.yScale != 1 || vanilla.zScale != 1) {
                 matrix.scale(vanilla.xScale, vanilla.yScale, vanilla.zScale);
             }
+            float[] at = part.vanillaChainRest[i];
+            vanillaRestOrigin.add(vanillaRestRotation.transform(vector.set(at[0], at[1], at[2])));
+            vanillaRestRotation.mul(partTurn.rotationZYX(at[5], at[4], at[3]));
         }
-        // The bent part's boxes are moved into its frame by its shift (from where vanilla's part turns
-        // to where the bone does): its frame's origin is where vanilla's frame has minus the shift.
-        float[] shift = model.shifts.get(part.name);
-        Vector3f origin = new Vector3f(shift == null ? 0 : -shift[0], shift == null ? 0 : -shift[1], shift == null ? 0 : -shift[2]);
+        // The bone keeps where it sits from vanilla's part at rest (its boxes are where the part's
+        // are, however the definition placed its pivot and turned its boxes): its frame is
+        // V * V0^-1 * its rest frame.
+        vanillaRestRotation.conjugate();
+        Vector3f origin = vanillaRestRotation.transform(vector.set(solved.restOrigin).sub(vanillaRestOrigin), new Vector3f());
         matrix.transformPosition(origin);
+        Quaternionf frame = new Quaternionf(vanillaRotation).mul(vanillaRestRotation).mul(solved.restRotation);
 
-        // Its rotation: vanilla's, less its parent's (unless it doesn't turn with it), less its rest rotation.
-        Quaternionf local = new Quaternionf(vanillaRotation);
+        // Its rotation: that, less its parent's (unless it doesn't turn with it), less its rest rotation.
+        Quaternionf local = new Quaternionf(frame);
         if (inherits) {
             parentRotation.conjugate(inverse).mul(local, local);
         }
-        Quaternionf rest = rest(part);
         if (rest != null) {
             rest.conjugate().mul(local, local);
         }
         solved.rotation.set(local.x, local.y, local.z, local.w);
 
-        // Its offset: from where it sits in its parent's frame to where vanilla's frame puts it.
+        // Its offset: from where it sits in its parent's frame to where that frame puts it.
         vector.set(origin).sub(parentOrigin);
         parentRotation.conjugate(inverse).transform(vector);
         solved.offset.set(vector.x - position.x, vector.y - position.y, vector.z - position.z);
         solved.posed = true;
 
-        solved.frameRotation.set(vanillaRotation);
+        solved.frameRotation.set(frame);
         solved.frameOrigin.set(origin);
     }
 

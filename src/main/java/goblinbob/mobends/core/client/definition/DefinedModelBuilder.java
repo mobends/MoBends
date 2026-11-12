@@ -142,8 +142,16 @@ final class DefinedModelBuilder {
             shifts.put(bone.name, shift);
 
             DefinedModelPart part = new DefinedModelPart(bone.name, parent, vanilla);
-            if (vanilla != null && over == null) {
-                part.vanillaChain = chainTo(vanilla);
+            if (over == null) {
+                if (vanilla != null) {
+                    part.vanillaChain = chainTo(vanilla, bone.boxes != null);
+                    part.vanillaChainRest = new float[part.vanillaChain.length][];
+                    for (int i = 0; i < part.vanillaChain.length; i++) {
+                        part.vanillaChainRest[i] = restPose(part.vanillaChain[i].getInitialPose());
+                    }
+                } else {
+                    part.drawnWithVanillaPart = bone.boxes != null && bone.parent != null && vanillaPartOfOrAbove(bone) != null;
+                }
             }
             float[] position = parent == null ? pivot : subtract(pivot, pivots.get(bone.parent));
             part.position.set(position[0], position[1], position[2]);
@@ -170,7 +178,7 @@ final class DefinedModelBuilder {
                 for (String name : bone.split.names) {
                     // A segment shows with its bone.
                     DefinedModelPart segment = new DefinedModelPart(name, previous, vanilla);
-                    segment.segment = true;
+                    segment.drawnWithVanillaPart = over == null;
                     previous.children.add(segment);
                     part.segments.add(segment);
                     parts.put(name, segment);
@@ -434,15 +442,39 @@ final class DefinedModelBuilder {
         return at;
     }
 
-    /** Adds the rest offsets of the parts from {@code from} (left out) down to {@code part} to {@code at}; false if it isn't under {@code from}. */
-    /** The parts from the model's root (left out) down to {@code part}, which is the last; just {@code part} if it isn't found under the root. */
-    private ModelPart[] chainTo(ModelPart part) {
+    /**
+     * The parts from the model's root (left out) down to {@code part}, which is the last; just
+     * {@code part} if it isn't found under the root. With {@code throughChild} (the bone declares
+     * boxes, which stand for the part's children), it goes on through a part that draws no box of its
+     * own but through a single child that no bone takes over.
+     */
+    private ModelPart[] chainTo(ModelPart part, boolean throughChild) {
         List<ModelPart> chain = new ArrayList<>();
         if (!addChain(root, part, chain)) {
             chain.add(part);
         }
+        ModelPart last = part;
+        while (throughChild && cubesOf(last).isEmpty()) {
+            List<ModelPart> children = childrenOf(last);
+            if (children.size() != 1 || vanillaParts.containsValue(children.get(0))) {
+                break;
+            }
+            last = children.get(0);
+            chain.add(last);
+        }
         return chain.toArray(new ModelPart[0]);
     }
+
+    /** A part's pose as the model was made: {x, y, z, xRot, yRot, zRot}. */
+    private static float[] restPose(PartPose pose) {
+        //? if >=26.1 {
+        /*return new float[] { pose.x(), pose.y(), pose.z(), pose.xRot(), pose.yRot(), pose.zRot() };
+        *///?} else {
+        return new float[] { pose.x, pose.y, pose.z, pose.xRot, pose.yRot, pose.zRot };
+        //?}
+    }
+
+    /** Adds the rest offsets of the parts from {@code from} (left out) down to {@code part} to {@code at}; false if it isn't under {@code from}. */
 
     private static boolean addChain(ModelPart from, ModelPart part, List<ModelPart> chain) {
         for (ModelPart child : childrenOf(from)) {
