@@ -10,12 +10,12 @@ import goblinbob.mobends.core.util.Color;
 import goblinbob.mobends.core.data.LivingEntityData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.*;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -28,13 +28,13 @@ import java.util.Set;
 
 public class LayerPlayerAccessories implements LayerRenderer<AbstractClientPlayer>
 {
-    private final RenderLivingBase<?> renderPlayer;
+    private final RendererLivingEntity<?> renderPlayer;
     private final RenderItem itemRenderer;
     private final ModelManager modelManager;
     private final TextureManager textureManager;
     private final ItemStack emptyItemStack = new ItemStack(Items.AIR);
 
-    public LayerPlayerAccessories(RenderLivingBase<?> renderPlayer)
+    public LayerPlayerAccessories(RendererLivingEntity<?> renderPlayer)
     {
         Minecraft mc = Minecraft.getMinecraft();
         this.renderPlayer = renderPlayer;
@@ -129,7 +129,7 @@ public class LayerPlayerAccessories implements LayerRenderer<AbstractClientPlaye
     private void drawModel(IBakedModel model, int color)
     {
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        WorldRenderer bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.ITEM);
 
         for (EnumFacing enumfacing : EnumFacing.values())

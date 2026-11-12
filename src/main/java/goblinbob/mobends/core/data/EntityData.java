@@ -21,10 +21,10 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -461,7 +461,7 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
 
     public float getLookAngle()
     {
-        final Vec3d lookVec = this.entity.getLookVec();
+        final Vec3 lookVec = this.entity.getLookVec();
         return (float) GUtil.angleFromCoordinates(lookVec.x, lookVec.z);
     }
 
@@ -486,8 +486,8 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         if (isStillHorizontallyInterpolated())
             return 0;
 
-        final Vec3d lookVec = this.entity.getLook(DataUpdateHandler.partialTicks);
-        final Vec3d lookVecHorizontal = new Vec3d(lookVec.x, 0, lookVec.z).normalize();
+        final Vec3 lookVec = this.entity.getLook(DataUpdateHandler.partialTicks);
+        final Vec3 lookVecHorizontal = new Vec3(lookVec.x, 0, lookVec.z).normalize();
         return lookVecHorizontal.x * this.getInterpolatedMotionX() + lookVecHorizontal.z * this.getInterpolatedMotionZ();
     }
 
@@ -496,8 +496,8 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     {
         if (isStillHorizontallyInterpolated())
             return 0;
-        Vec3d rightVec = entity.getLook(DataUpdateHandler.partialTicks).rotateYaw(-GUtil.PI / 2.0F);
-        Vec3d rightVecHorizontal = new Vec3d(rightVec.x, 0, rightVec.z).normalize();
+        Vec3 rightVec = entity.getLook(DataUpdateHandler.partialTicks).rotateYaw(-GUtil.PI / 2.0F);
+        Vec3 rightVecHorizontal = new Vec3(rightVec.x, 0, rightVec.z).normalize();
         return rightVecHorizontal.x * this.getInterpolatedMotionX() + rightVecHorizontal.z * this.getInterpolatedMotionZ();
     }
 

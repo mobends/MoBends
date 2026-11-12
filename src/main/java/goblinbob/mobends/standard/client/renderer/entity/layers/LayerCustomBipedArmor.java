@@ -7,7 +7,7 @@ import goblinbob.mobends.standard.client.model.armor.ArmorWrapper;
 import goblinbob.mobends.standard.client.model.armor.MalformedArmorModelException;
 import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerArmorBase;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraftforge.fml.relauncher.Side;
@@ -17,7 +17,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
 {
 	
-    public LayerCustomBipedArmor(RenderLivingBase<?> rendererIn)
+    public LayerCustomBipedArmor(RendererLivingEntity<?> rendererIn)
     {
         super(rendererIn);
     }

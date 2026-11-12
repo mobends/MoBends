@@ -1,6 +1,6 @@
 package goblinbob.mobends.core.client;
 
-import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 
 import java.util.ArrayList;
@@ -18,27 +18,27 @@ import java.util.WeakHashMap;
 public final class RendererState
 {
 
-    private static final Map<RenderLivingBase<?>, RendererState> VANILLA = new WeakHashMap<>();
+    private static final Map<RendererLivingEntity<?>, RendererState> VANILLA = new WeakHashMap<>();
     /** Renderers that currently hold a mutation. */
-    private static final Map<RenderLivingBase<?>, Boolean> MUTATED = new WeakHashMap<>();
+    private static final Map<RendererLivingEntity<?>, Boolean> MUTATED = new WeakHashMap<>();
 
     private final ModelState model;
     private final List<LayerRenderer<?>> layers;
 
-    private RendererState(RenderLivingBase<?> renderer)
+    private RendererState(RendererLivingEntity<?> renderer)
     {
         this.model = ModelState.capture(renderer.getMainModel());
         this.layers = new ArrayList<>(renderer.layerRenderers);
     }
 
     /** The renderer's state as it is now. */
-    public static RendererState capture(RenderLivingBase<?> renderer)
+    public static RendererState capture(RendererLivingEntity<?> renderer)
     {
         return new RendererState(renderer);
     }
 
     /** Puts the renderer back to vanilla, if a mutation is in place. */
-    public static void restoreVanilla(RenderLivingBase<?> renderer)
+    public static void restoreVanilla(RendererLivingEntity<?> renderer)
     {
         if (MUTATED.remove(renderer) != null)
         {
@@ -50,13 +50,13 @@ public final class RendererState
      * The renderer's vanilla state, captured the first time it is asked for. Every mutation goes
      * through {@link #restoreVanilla} first, so this is always seen before the first mutation.
      */
-    public static RendererState vanillaOf(RenderLivingBase<?> renderer)
+    public static RendererState vanillaOf(RendererLivingEntity<?> renderer)
     {
         return VANILLA.computeIfAbsent(renderer, RendererState::new);
     }
 
     /** Puts this mutation in place on the renderer. */
-    public void applyMutation(RenderLivingBase<?> renderer)
+    public void applyMutation(RendererLivingEntity<?> renderer)
     {
         vanillaOf(renderer);
         apply(renderer);
@@ -64,13 +64,13 @@ public final class RendererState
     }
 
     /** Marks the renderer as mutated, after a mutator changed it directly. */
-    public static void markMutated(RenderLivingBase<?> renderer)
+    public static void markMutated(RendererLivingEntity<?> renderer)
     {
         MUTATED.put(renderer, Boolean.TRUE);
     }
 
     @SuppressWarnings("unchecked")
-    private void apply(RenderLivingBase<?> renderer)
+    private void apply(RendererLivingEntity<?> renderer)
     {
         if (renderer.getMainModel() != model.getModel())
         {

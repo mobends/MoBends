@@ -6,7 +6,7 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -54,7 +54,7 @@ public class ModelBendsElytra extends ModelBase
 
             if (entityIn.motionY < 0.0D)
             {
-                Vec3d vec3d = (new Vec3d(entityIn.motionX, entityIn.motionY, entityIn.motionZ)).normalize();
+                Vec3 vec3d = (new Vec3(entityIn.motionX, entityIn.motionY, entityIn.motionZ)).normalize();
                 f4 = 1.0F - (float)Math.pow(-vec3d.y, 1.5D);
             }
 

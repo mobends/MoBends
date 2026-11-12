@@ -6,7 +6,6 @@ import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
-import goblinbob.mobends.standard.compat.geckolib.GeckoLibCompat;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -66,7 +65,8 @@ public class ArmorWrapper extends ModelBiped
     private ArmorWrapper(ModelBiped original)
     {
         this.original = original;
-        this.geometry = GeckoLibCompat.geometryFor(original);
+        // GeckoLib, the only source of armour that draws its own mesh, has no 1.8.9 release.
+        this.geometry = null;
         // Replacing our unused modelRenderer properties with the ones from
         // the original model, meaning that whenever some internal method changes
         // the visibility of a model we can get it from these.

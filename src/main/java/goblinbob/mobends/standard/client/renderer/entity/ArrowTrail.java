@@ -4,13 +4,13 @@ import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.math.vector.VectorUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.EntityArrow;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.Vec3;
 import org.lwjgl.opengl.GL11;
 
 public class ArrowTrail
@@ -71,7 +71,7 @@ public class ArrowTrail
 
         if (viewEntity == null)
             return;
-        Vec3d viewPos = new Vec3d(viewEntity.prevPosX + (viewEntity.posX - viewEntity.prevPosX) * partialTicks,
+        Vec3 viewPos = new Vec3(viewEntity.prevPosX + (viewEntity.posX - viewEntity.prevPosX) * partialTicks,
                 viewEntity.prevPosY + (viewEntity.posY - viewEntity.prevPosY) * partialTicks,
                 viewEntity.prevPosZ + (viewEntity.posZ - viewEntity.prevPosZ) * partialTicks);
 
@@ -89,15 +89,15 @@ public class ArrowTrail
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder vertexbuffer = tessellator.getBuffer();
+        WorldRenderer vertexbuffer = tessellator.getBuffer();
         vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         for (int i = 1; i < MAX_LENGTH; i++)
         {
             TrailNode node0 = nodes[i - 1];
             TrailNode node1 = nodes[i];
 
-            Vec3d pos0 = new Vec3d(node0.x - viewPos.x, node0.y - viewPos.y, node0.z - viewPos.z);
-            Vec3d pos1 = new Vec3d(node1.x - viewPos.x, node1.y - viewPos.y, node1.z - viewPos.z);
+            Vec3 pos0 = new Vec3(node0.x - viewPos.x, node0.y - viewPos.y, node0.z - viewPos.z);
+            Vec3 pos1 = new Vec3(node1.x - viewPos.x, node1.y - viewPos.y, node1.z - viewPos.z);
             float scale0 = ((float) (MAX_LENGTH - i)) / MAX_LENGTH * .1F;
             float scale1 = ((float) MAX_LENGTH - i - 1.0f) / MAX_LENGTH * .1F;
             if (i == 1)
@@ -145,11 +145,11 @@ public class ArrowTrail
      */
     public void renderAxis(double x, double y, double z)
     {
-        Vec3d forward = trackedArrow.getForward();
-        forward = new Vec3d(-forward.x, -forward.y, forward.z);
-        Vec3d up = Vec3d.fromPitchYaw(trackedArrow.rotationPitch + 90.0f, trackedArrow.rotationYaw);
-        up = new Vec3d(-up.x, -up.y, up.z);
-        Vec3d right = forward.crossProduct(up);
+        Vec3 forward = trackedArrow.getForward();
+        forward = new Vec3(-forward.x, -forward.y, forward.z);
+        Vec3 up = Vec3.fromPitchYaw(trackedArrow.rotationPitch + 90.0f, trackedArrow.rotationYaw);
+        up = new Vec3(-up.x, -up.y, up.z);
+        Vec3 right = forward.crossProduct(up);
 
         GlStateManager.pushMatrix();
         GlStateManager.disableTexture2D();
@@ -158,7 +158,7 @@ public class ArrowTrail
         GlStateManager.depthFunc(GL11.GL_ALWAYS);
         GlStateManager.translate(x, y, z);
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder vertexbuffer = tessellator.getBuffer();
+        WorldRenderer vertexbuffer = tessellator.getBuffer();
         GlStateManager.color(1, 0, 0, 1);
         vertexbuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_TEX);
         vertexbuffer.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0.15625D).endVertex();
@@ -218,8 +218,8 @@ public class ArrowTrail
             this.y = arrow.posY;
             this.z = arrow.posZ;
 
-            final Vec3d forward = arrow.getForward();
-            final Vec3d up = Vec3d.fromPitchYaw(arrow.rotationPitch + 90F, arrow.rotationYaw);
+            final Vec3 forward = arrow.getForward();
+            final Vec3 up = Vec3.fromPitchYaw(arrow.rotationPitch + 90F, arrow.rotationYaw);
 
             this.up.set((float) -up.x, (float) -up.y, (float) up.z);
 

@@ -1,30 +1,30 @@
 package goblinbob.mobends.core.util;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
 
 public class ErrorReporter
 {
 
-    public static TextComponentString createErrorHeader()
+    public static ChatComponentText createErrorHeader()
     {
-        TextComponentString header = new TextComponentString("[Mo' Bends] ");
-        header.getStyle().setColor(TextFormatting.YELLOW);
+        ChatComponentText header = new ChatComponentText("[Mo' Bends] ");
+        header.getStyle().setColor(EnumChatFormatting.YELLOW);
 
         return header;
     }
 
     /** Shows {@code textComponent} in the chat; false if there is no player to show it to (e.g. on the title screen). */
-    public static boolean showErrorToPlayer(TextComponentString textComponent)
+    public static boolean showErrorToPlayer(ChatComponentText textComponent)
     {
         if (Minecraft.getMinecraft().player == null)
         {
             return false;
         }
 
-        TextComponentString base = new TextComponentString("");
-        base.getStyle().setColor(TextFormatting.WHITE);
+        ChatComponentText base = new ChatComponentText("");
+        base.getStyle().setColor(EnumChatFormatting.WHITE);
         base.appendSibling(createErrorHeader());
         base.appendSibling(textComponent);
 
@@ -34,7 +34,7 @@ public class ErrorReporter
 
     public static boolean showErrorToPlayer(String error)
     {
-        return showErrorToPlayer(new TextComponentString(error));
+        return showErrorToPlayer(new ChatComponentText(error));
     }
 
 }

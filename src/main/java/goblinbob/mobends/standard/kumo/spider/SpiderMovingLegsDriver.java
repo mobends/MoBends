@@ -9,7 +9,7 @@ import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.util.GUtil;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 
 /** See {@link SpiderMovingLegsTemplate}. */
 public class SpiderMovingLegsDriver extends SpiderLegsDriverBase

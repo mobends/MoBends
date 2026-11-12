@@ -4,7 +4,7 @@ import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.mutators.Mutator;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.EntityLivingBase;
 
 public class BenderHelper
@@ -21,7 +21,7 @@ public class BenderHelper
         return bender != null && bender.isAnimated();
     }
 
-    public static <D extends LivingEntityData<E>, E extends EntityLivingBase> D getData(E entity, RenderLivingBase<? extends EntityLivingBase> renderer)
+    public static <D extends LivingEntityData<E>, E extends EntityLivingBase> D getData(E entity, RendererLivingEntity<? extends EntityLivingBase> renderer)
     {
         final EntityBender<EntityLivingBase> entityBender = EntityBenderRegistry.instance.getForEntity(entity);
 

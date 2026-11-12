@@ -3,7 +3,7 @@ package goblinbob.mobends.core.client.definition;
 import com.google.gson.JsonObject;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 
 import javax.annotation.Nullable;
@@ -31,7 +31,7 @@ public final class DefinedLayers
     /** What a layer is made with. */
     public static final class Context
     {
-        public final RenderLivingBase<?> renderer;
+        public final RendererLivingEntity<?> renderer;
         /** The definition's options for the layer. */
         public final JsonObject options;
         /** Finds the mutated part of a bone by name (null if there is none). */
@@ -44,7 +44,7 @@ public final class DefinedLayers
         @Nullable
         public final LayerRenderer<?> replaced;
 
-        public Context(RenderLivingBase<?> renderer, JsonObject options, Function<String, ModelRenderer> bones,
+        public Context(RendererLivingEntity<?> renderer, JsonObject options, Function<String, ModelRenderer> bones,
                        Function<String, List<float[]>> segmentOrigins, EntityModelDefinition definition, @Nullable LayerRenderer<?> replaced)
         {
             this.renderer = renderer;

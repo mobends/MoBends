@@ -17,8 +17,8 @@ import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.Vec3;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Iterator;
@@ -257,7 +257,7 @@ public class SwordTrail implements EntityComponent
         final float pitch = MathHelper.clamp(ticks * ticks / 100F, 0F, 1F) * (-90F - player.rotationPitch);
         inTrailFrame(-pitch, 1, 0, 0, part.elytraPitch);
 
-        final Vec3d look = player.getLook(partialTicks);
+        final Vec3 look = player.getLook(partialTicks);
         final double motion = player.motionX * player.motionX + player.motionZ * player.motionZ;
         final double lookXZ = look.x * look.x + look.z * look.z;
         if (motion > 0 && lookXZ > 0)

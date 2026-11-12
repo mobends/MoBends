@@ -5,7 +5,7 @@ import goblinbob.mobends.core.util.ModelUtils;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.PositionTextureVertex;
 import net.minecraft.client.model.TexturedQuad;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.WorldRenderer;
 
 public class MutatedBox extends net.minecraft.client.model.ModelBox
 {
@@ -150,7 +150,7 @@ public class MutatedBox extends net.minecraft.client.model.ModelBox
     }
 
     @Override
-    public void render(BufferBuilder bufferBuilder, float scale)
+    public void render(WorldRenderer bufferBuilder, float scale)
     {
     	byte tempFlag = this.faceVisibilityFlag;
         for (TexturedQuad quad : quadList)

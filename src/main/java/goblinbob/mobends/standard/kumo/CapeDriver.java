@@ -14,7 +14,7 @@ import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.data.LivingEntityData;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 
 /**
  * The player's cape ({@code {"mobends:cape": {...}}}): the vanilla chasing-position physics,

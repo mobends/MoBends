@@ -1,7 +1,7 @@
 package goblinbob.mobends.core.client;
 
 import goblinbob.mobends.core.util.IColorRead;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -14,13 +14,13 @@ public class Mesh
 {
 	
 	private VertexFormat vertexFormat;
-	private BufferBuilder bufferBuilder;
+	private WorldRenderer bufferBuilder;
 	private VertexBuffer buffer;
 	
 	public Mesh(VertexFormat vertexFormat, int maxVertices)
 	{
 		this.vertexFormat = vertexFormat;
-		this.bufferBuilder = new BufferBuilder(vertexFormat.getNextOffset() * maxVertices);
+		this.bufferBuilder = new WorldRenderer(vertexFormat.getNextOffset() * maxVertices);
 	}
 	
 	public void beginDrawing(int drawMode)
@@ -95,7 +95,7 @@ public class Mesh
         }
 	}
 
-	public BufferBuilder getBufferBuilder()
+	public WorldRenderer getBufferBuilder()
 	{
 		return this.bufferBuilder;
 	}

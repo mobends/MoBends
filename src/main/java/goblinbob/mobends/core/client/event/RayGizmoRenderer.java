@@ -2,7 +2,7 @@ package goblinbob.mobends.core.client.event;
 
 import goblinbob.mobends.core.kumo.RayGizmos;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -49,7 +49,7 @@ public class RayGizmoRenderer
         GlStateManager.glLineWidth(2F);
 
         final Tessellator tessellator = Tessellator.getInstance();
-        final BufferBuilder buffer = tessellator.getBuffer();
+        final WorldRenderer buffer = tessellator.getBuffer();
         buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
         for (int i = 0; i < count; i++)
         {
@@ -90,7 +90,7 @@ public class RayGizmoRenderer
         GlStateManager.popMatrix();
     }
 
-    private static void line(BufferBuilder buffer, double x0, double y0, double z0, double x1, double y1, double z1,
+    private static void line(WorldRenderer buffer, double x0, double y0, double z0, double x1, double y1, double z1,
                              float r, float g, float b, float a)
     {
         buffer.pos(x0, y0, z0).color(r, g, b, a).endVertex();

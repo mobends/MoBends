@@ -9,7 +9,7 @@ import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -46,7 +46,7 @@ public class EntityRenderHandler
     public void beforeLivingRender(RenderLivingEvent.Pre<? extends EntityLivingBase> event)
     {
         final EntityLivingBase living = event.getEntity();
-        final RenderLivingBase<EntityLivingBase> renderer = (RenderLivingBase<EntityLivingBase>) event.getRenderer();
+        final RendererLivingEntity<EntityLivingBase> renderer = (RendererLivingEntity<EntityLivingBase>) event.getRenderer();
 
         // A renderer the game doesn't draw this entity with belongs to another mod that draws it its
         // own way (Idō draws swimming and crawling players with a renderer of its own, made each

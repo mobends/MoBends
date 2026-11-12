@@ -7,8 +7,8 @@ import goblinbob.mobends.core.kumo.api.KumoDriver;
 import goblinbob.mobends.core.kumo.api.NumberInput;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.pose.PointTemplate;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.Vec3i;
 import net.minecraft.world.World;
 
 /**
@@ -140,7 +140,7 @@ public final class RaycastArrayDriver
             double vx = dy * uz - dz * uy, vy = dz * ux - dx * uz, vz = dx * uy - dy * ux;
 
             World world = RaycastDriver.world(context);
-            RayTraceResult kept = null;
+            MovingObjectPosition kept = null;
             for (int i = 0; i < count; i++)
             {
                 double across = sinOff[i];
@@ -148,7 +148,7 @@ public final class RaycastArrayDriver
                 double ry = dy * cosOff[i] + (uy * cosRound[i] + vy * sinRound[i]) * across;
                 double rz = dz * cosOff[i] + (uz * cosRound[i] + vz * sinRound[i]) * across;
                 double endX = x + rx * reach, endY = y + ry * reach, endZ = z + rz * reach;
-                RayTraceResult hit = RaycastDriver.cast(world, x, y, z, endX, endY, endZ, liquids);
+                MovingObjectPosition hit = RaycastDriver.cast(world, x, y, z, endX, endY, endZ, liquids);
                 RayGizmos.Kind kind;
                 if (hit == null)
                 {
@@ -187,7 +187,7 @@ public final class RaycastArrayDriver
     }
 
     /** Whether the surface {@code hit} faces the unit vector {@code s}, within 60°. */
-    private static boolean faces(RayTraceResult hit, double sx, double sy, double sz)
+    private static boolean faces(MovingObjectPosition hit, double sx, double sy, double sz)
     {
         Vec3i normal = hit.sideHit.getDirectionVec();
         return normal.getX() * sx + normal.getY() * sy + normal.getZ() * sz >= 0.5;

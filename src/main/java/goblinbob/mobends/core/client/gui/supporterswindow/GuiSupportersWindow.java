@@ -30,7 +30,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 
 import javax.annotation.Nullable;

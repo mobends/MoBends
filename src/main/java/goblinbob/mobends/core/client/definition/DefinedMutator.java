@@ -18,7 +18,7 @@ import goblinbob.mobends.core.mutators.Mutator;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -207,7 +207,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
 
     /** Replaces a vanilla layer the definition's {@code layers} name a replacement for. */
     @Override
-    public void swapLayer(RenderLivingBase<? extends E> renderer, int index)
+    public void swapLayer(RendererLivingEntity<? extends E> renderer, int index)
     {
         if (definition.layers == null)
         {
@@ -227,7 +227,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
 
     /** Mutates the renderer, then adds the definition's layers that replace none of its own. */
     @Override
-    public boolean mutate(RenderLivingBase<? extends E> renderer)
+    public boolean mutate(RendererLivingEntity<? extends E> renderer)
     {
         if (!super.mutate(renderer))
         {

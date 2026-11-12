@@ -7,12 +7,12 @@ import goblinbob.mobends.core.util.GuiHelper;
 import goblinbob.mobends.core.util.UIScissorHelper;
 import goblinbob.mobends.core.ModStatics;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Locale;
@@ -175,7 +175,7 @@ public class GuiSectionButton
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.color(1, 1, 1, 1);
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
+        WorldRenderer buffer = tessellator.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
         slantedQuad(buffer, left, right, slant, y, shadeTop, color.r, color.g, color.b, color.a, color.a);
         slantedQuad(buffer, left, right, slant, shadeTop, y + HEIGHT, color.r * shade, color.g * shade, color.b * shade, color.a, color.a);
@@ -201,7 +201,7 @@ public class GuiSectionButton
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
         GlStateManager.color(1, 1, 1, 1);
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
+        WorldRenderer buffer = tessellator.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
         slantedQuad(buffer, front - GLINT_WIDTH, front, GLINT_SLANT, y, y + HEIGHT, 1, 1, 1, 0, GLINT_ALPHA);
         tessellator.draw();
@@ -214,7 +214,7 @@ public class GuiSectionButton
      * cross the button's top, from row {@code top} to row {@code bottom}. Alpha goes from
      * {@code leftAlpha} to {@code rightAlpha} across it.
      */
-    private void slantedQuad(BufferBuilder buffer, float left, float right, float slant, float top, float bottom,
+    private void slantedQuad(WorldRenderer buffer, float left, float right, float slant, float top, float bottom,
                              float r, float g, float b, float leftAlpha, float rightAlpha)
     {
         float topOffset = slant * (top - y) / HEIGHT;

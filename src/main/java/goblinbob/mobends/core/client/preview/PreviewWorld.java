@@ -9,8 +9,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
 import net.minecraft.profiler.Profiler;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.GameType;
+import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.WorldSettings.GameType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.WorldSettings;
@@ -141,7 +141,7 @@ public class PreviewWorld extends World
         @Override
         public Chunk provideChunk(int x, int z)
         {
-            final long key = ChunkPos.asLong(x, z);
+            final long key = ChunkCoordIntPair.asLong(x, z);
             Chunk chunk = chunks.get(key);
             if (chunk == null)
             {

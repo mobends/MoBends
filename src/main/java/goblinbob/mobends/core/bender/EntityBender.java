@@ -9,7 +9,7 @@ import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.kumo.option.OptionSet;
 import goblinbob.mobends.core.mutators.IMutatorFactory;
 import goblinbob.mobends.core.mutators.Mutator;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
@@ -39,7 +39,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	 * Per renderer: this bender's mutator and the renderer's state with the mutation in place, or
 	 * {@link #NOT_MUTABLE} if the renderer's model can't be mutated by this bender.
 	 */
-	private final Map<RenderLivingBase<?>, Mutation> mutations = new HashMap<>();
+	private final Map<RendererLivingEntity<?>, Mutation> mutations = new HashMap<>();
 	private static final Mutation NOT_MUTABLE = new Mutation(null, null);
 
 	private IEntityDataFactory<T> dataFactory;
@@ -179,7 +179,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	 *         animating, so the animator's graph keeps running).
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public boolean applyMutation(RenderLivingBase<? extends T> renderer, T entity, IEntityDataFactory<T> dataFactory, float partialTicks)
+	public boolean applyMutation(RendererLivingEntity<? extends T> renderer, T entity, IEntityDataFactory<T> dataFactory, float partialTicks)
 	{
 		Mutator mutator = this.attachMutation(renderer);
 		if (mutator == null)
@@ -206,7 +206,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	 * @return The mutator, or null if the renderer's model can't be mutated by this bender.
 	 */
 	@Nullable
-	public Mutator<?, ?, ?> attachMutation(RenderLivingBase<? extends T> renderer)
+	public Mutator<?, ?, ?> attachMutation(RendererLivingEntity<? extends T> renderer)
 	{
 		Mutation mutation = mutations.get(renderer);
 		if (mutation == null)
@@ -236,7 +236,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static boolean mutateWith(Mutator mutator, RenderLivingBase<?> renderer)
+	private static boolean mutateWith(Mutator mutator, RendererLivingEntity<?> renderer)
 	{
 		return mutator.mutate(renderer);
 	}
@@ -247,7 +247,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	 */
 	public void refreshMutation()
 	{
-		for (RenderLivingBase<?> renderer : mutations.keySet())
+		for (RendererLivingEntity<?> renderer : mutations.keySet())
 		{
 			RendererState.restoreVanilla(renderer);
 		}
@@ -255,7 +255,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	}
 
 	@Nullable
-	public Mutator<?, ?, ?> getMutator(RenderLivingBase<? extends EntityLivingBase> renderer)
+	public Mutator<?, ?, ?> getMutator(RendererLivingEntity<? extends EntityLivingBase> renderer)
 	{
 		Mutation mutation = this.mutations.get(renderer);
 		return mutation == null ? null : mutation.mutator;
