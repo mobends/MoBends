@@ -465,12 +465,13 @@ final class DefinedModelBuilder {
         return chain.toArray(new ModelPart[0]);
     }
 
-    /** A part's pose as the model was made: {x, y, z, xRot, yRot, zRot}. */
+    /** A part's pose as the model was made: {x, y, z, xRot, yRot, zRot, xScale, yScale, zScale}. */
     private static float[] restPose(PartPose pose) {
         //? if >=26.1 {
-        /*return new float[] { pose.x(), pose.y(), pose.z(), pose.xRot(), pose.yRot(), pose.zRot() };
+        /*return new float[] { pose.x(), pose.y(), pose.z(), pose.xRot(), pose.yRot(), pose.zRot(), pose.xScale(), pose.yScale(), pose.zScale() };
         *///?} else {
-        return new float[] { pose.x, pose.y, pose.z, pose.xRot, pose.yRot, pose.zRot };
+        // A part's pose has no scale before 26.1: a part is made at a scale of one.
+        return new float[] { pose.x, pose.y, pose.z, pose.xRot, pose.yRot, pose.zRot, 1, 1, 1 };
         //?}
     }
 

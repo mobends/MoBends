@@ -37,8 +37,13 @@ import java.util.Map;
  * bone that stands for no vanilla part has nothing to read; the bones under it are worked out as
  * if it were at rest.
  * <p>
- * Not carried: a vanilla part's scale, the root part's own pose (the model's space is its frame,
- * as for the bent model), and a baby's offset scale.
+ * A bone is scaled as its vanilla part is against the part's rest scale (Player Animation Library
+ * scales parts), less what the bones above it scale it by already; its scale is taken along the
+ * axes its boxes are modelled by against the part's, and its parent's along the nearest axes to
+ * its own, so a scale is carried exactly where the two frames are a quarter turn apart.
+ * <p>
+ * Not carried: the root part's own pose (the model's space is its frame, as for the bent model),
+ * and a baby's offset scale.
  */
 public final class VanillaPoseReader implements IVanillaPose {
     private static boolean warned;
@@ -65,15 +70,20 @@ public final class VanillaPoseReader implements IVanillaPose {
     private final Quaternionf partTurn = new Quaternionf();
     private final Quaternionf restTurn = new Quaternionf();
     private final Vector3f restOrigin = new Vector3f();
+    private final Vector3f parentScale = new Vector3f();
+    private final Vector3f vanillaScale = new Vector3f();
 
     private static final class Solved {
         /** Whether a read gets it: a bone posed from its vanilla part, or one drawn with an ancestor's (at rest). */
         boolean posed;
         final Quaternion rotation = new Quaternion();
         final Vec3f offset = new Vec3f();
+        final Vec3f scale = new Vec3f(1, 1, 1);
         /** Its frame in the model's space, as drawn with what it's given: where its children hang from. */
         final Quaternionf frameRotation = new Quaternionf();
         final Vector3f frameOrigin = new Vector3f();
+        /** Its frame's scale, along its own axes, as drawn with what it's given (what its children are drawn with). */
+        final Vector3f frameScale = new Vector3f(1, 1, 1);
         /** Its frame in the model's space at rest, as the definition places it. */
         final Quaternionf restRotation = new Quaternionf();
         final Vector3f restOrigin = new Vector3f();
@@ -101,7 +111,7 @@ public final class VanillaPoseReader implements IVanillaPose {
     }
 
     @Override
-    public boolean read(String bone, Quaternion rotation, Vec3f offset) {
+    public boolean read(String bone, Quaternion rotation, Vec3f offset, Vec3f scale) {
         DefinedModel model = parts;
         if (model == null) {
             return false;
@@ -127,6 +137,7 @@ public final class VanillaPoseReader implements IVanillaPose {
             // How a held item turns in the hand (core:orientation): vanilla holds it unturned.
             rotation.setIdentity();
             offset.set(0, 0, 0);
+            scale.set(1, 1, 1);
             return true;
         }
         if (solved == null || !solved.posed) {
@@ -134,6 +145,7 @@ public final class VanillaPoseReader implements IVanillaPose {
         }
         rotation.set(solved.rotation);
         offset.set(solved.offset);
+        scale.set(solved.scale);
         return true;
     }
 
@@ -188,25 +200,31 @@ public final class VanillaPoseReader implements IVanillaPose {
         if (parent != null) {
             parentRotation.set(parent.frameRotation);
             parentOrigin.set(parent.frameOrigin);
+            parentScale.set(parent.frameScale);
         } else {
             parentRotation.identity();
             parentOrigin.zero();
+            parentScale.set(1, 1, 1);
         }
-        //   frame = parent * translate(position + offset) * [parent's rotation undone] * rest * rotation
+        //   frame = parent * translate(position + offset) * [parent's rotation undone] * rest * rotation * scale
         ModelPart[] chain = part.vanillaChain;
         if (chain == null) {
-            // At rest: no rotation of its own, no offset.
+            // At rest: no rotation of its own, no offset, no scale; it sits in its parent's scaled frame.
             solved.posed = part.drawnWithVanillaPart;
             solved.rotation.setIdentity();
             solved.offset.set(0, 0, 0);
-            vector.set(position.x, position.y, position.z);
+            solved.scale.set(1, 1, 1);
+            vector.set(position.x, position.y, position.z).mul(parentScale);
             parentOrigin.add(parentRotation.transform(vector));
+            Quaternionf local = inherits ? new Quaternionf() : new Quaternionf(parentRotation).conjugate();
             if (!inherits) {
                 parentRotation.identity();
             }
             if (rest != null) {
                 parentRotation.mul(rest);
+                local.mul(rest);
             }
+            alongAxes(local, parentScale, solved.frameScale);
             // parentRotation and parentOrigin are the solved frame's own fields: they now hold its frame.
             return;
         }
@@ -217,6 +235,8 @@ public final class VanillaPoseReader implements IVanillaPose {
         Quaternionf vanillaRotation = turn.identity();
         Quaternionf vanillaRestRotation = restTurn.identity();
         Vector3f vanillaRestOrigin = restOrigin.zero();
+        // Its parts' scales against their rest scales, along the last part's axes (as if the parts were turned by quarter turns).
+        vanillaScale.set(1, 1, 1);
         for (int i = 0; i < chain.length; i++) {
             ModelPart vanilla = chain[i];
             matrix.translate(vanilla.x, vanilla.y, vanilla.z);
@@ -227,6 +247,8 @@ public final class VanillaPoseReader implements IVanillaPose {
                 matrix.scale(vanilla.xScale, vanilla.yScale, vanilla.zScale);
             }
             float[] at = part.vanillaChainRest[i];
+            alongAxes(partTurn, vanillaScale, vanillaScale);
+            vanillaScale.mul(ratio(vanilla.xScale, at[6]), ratio(vanilla.yScale, at[7]), ratio(vanilla.zScale, at[8]));
             vanillaRestOrigin.add(vanillaRestRotation.transform(vector.set(at[0], at[1], at[2])));
             vanillaRestRotation.mul(partTurn.rotationZYX(at[5], at[4], at[3]));
         }
@@ -238,7 +260,12 @@ public final class VanillaPoseReader implements IVanillaPose {
         vanillaRestRotation.conjugate();
         Vector3f origin = vanillaRestRotation.transform(vector.set(solved.restOrigin).sub(vanillaRestOrigin), new Vector3f());
         matrix.transformPosition(origin);
-        Quaternionf frame = new Quaternionf(vanillaRotation).mul(nearestQuarterTurns(vanillaRestRotation.mul(solved.restRotation)));
+        Quaternionf boxTurn = nearestQuarterTurns(vanillaRestRotation.mul(solved.restRotation));
+        Quaternionf frame = new Quaternionf(vanillaRotation).mul(boxTurn);
+        // Its scale along its own axes (where its boxes' axes lie on the part's), less its parent's.
+        Vector3f frameScale = alongAxes(boxTurn, vanillaScale, new Vector3f());
+        Vector3f fromParent = alongAxes(new Quaternionf(parentRotation).conjugate().mul(frame), parentScale, new Vector3f());
+        solved.scale.set(frameScale.x / fromParent.x, frameScale.y / fromParent.y, frameScale.z / fromParent.z);
 
         // Its rotation: that, less its parent's (unless it doesn't turn with it), less its rest rotation.
         Quaternionf local = new Quaternionf(frame);
@@ -250,14 +277,39 @@ public final class VanillaPoseReader implements IVanillaPose {
         }
         solved.rotation.set(local.x, local.y, local.z, local.w);
 
-        // Its offset: from where it sits in its parent's frame to where that frame puts it.
+        // Its offset: from where it sits in its parent's (scaled) frame to where that frame puts it.
         vector.set(origin).sub(parentOrigin);
-        parentRotation.conjugate(inverse).transform(vector);
+        parentRotation.conjugate(inverse).transform(vector).div(parentScale);
         solved.offset.set(vector.x - position.x, vector.y - position.y, vector.z - position.z);
         solved.posed = true;
 
         solved.frameRotation.set(frame);
         solved.frameOrigin.set(origin);
+        solved.frameScale.set(frameScale);
+    }
+
+    /**
+     * {@code scale}, along the axes of a frame turned by {@code turn} from the one it's given in:
+     * each of the turned frame's axes takes the scale of the axis it lies nearest. {@code dest} may
+     * be {@code scale}.
+     */
+    private Vector3f alongAxes(Quaternionf turn, Vector3f scale, Vector3f dest) {
+        float x = scale.get(nearestAxis(turn, 1, 0, 0));
+        float y = scale.get(nearestAxis(turn, 0, 1, 0));
+        float z = scale.get(nearestAxis(turn, 0, 0, 1));
+        return dest.set(x, y, z);
+    }
+
+    /** The axis (0, 1, 2) that {@code turn} brings the given one nearest. */
+    private int nearestAxis(Quaternionf turn, float x, float y, float z) {
+        turn.transform(vector.set(x, y, z));
+        float ax = Math.abs(vector.x), ay = Math.abs(vector.y), az = Math.abs(vector.z);
+        return ax >= ay && ax >= az ? 0 : ay >= az ? 1 : 2;
+    }
+
+    /** A part's scale against its rest scale, 1 where the rest is no scale at all. */
+    private static float ratio(float scale, float rest) {
+        return rest == 0 ? 1 : scale / rest;
     }
 
     /** The 24 turns that take the axes onto the axes. */

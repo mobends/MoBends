@@ -13,14 +13,15 @@ public interface IVanillaPose
 {
 
     /**
-     * Reads bone {@code bone}'s pose: the rotation and the offset that, written as they are
-     * ({@code override}), draw the bone where the vanilla model draws its part.
+     * Reads bone {@code bone}'s pose: the rotation, the offset and the scale that, written as they
+     * are ({@code override}), draw the bone where and as large as the vanilla model draws its part.
      *
      * @param rotation set to the bone's rotation (after its rest rotation, as a clip's)
      * @param offset   set to the bone's offset from where it sits, in model units
+     * @param scale    set to the bone's scale, on its own axes (1 for the part as modelled)
      * @return false where there is no pose to read for the bone (it stands for no part of the
      *         model, or the model isn't posed this frame), and nothing was set
      */
-    boolean read(String bone, Quaternion rotation, Vec3f offset);
+    boolean read(String bone, Quaternion rotation, Vec3f offset, Vec3f scale);
 
 }

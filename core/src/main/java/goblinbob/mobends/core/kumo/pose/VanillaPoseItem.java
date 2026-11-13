@@ -9,8 +9,8 @@ import javax.annotation.Nullable;
 
 /**
  * The first item of a {@code core:vanilla_pose} node: writes each bone the subject's vanilla pose
- * has ({@link IVanillaPose}) as that pose has it, its rotation and offset replacing what lies
- * beneath. A bone it has no pose for is left alone. The entity's own bones ({@code root},
+ * has ({@link IVanillaPose}) as that pose has it, its rotation, offset and scale replacing what
+ * lies beneath. A bone it has no pose for is left alone. The entity's own bones ({@code root},
  * {@code center}), which the vanilla model draws nothing of (its parts are drawn in the entity's
  * frame), are put at rest, once any bone has a pose, and the entity's frame is left to vanilla
  * (the pose's {@link Pose#setVanillaFrame}, see {@link goblinbob.mobends.core.kumo.IKumoSubject#setEntityFrameVanilla}).
@@ -25,6 +25,7 @@ public class VanillaPoseItem implements IPoseItem
     // Scratch, used within one apply (the render thread's).
     private final Quaternion rotation = new Quaternion();
     private final Vec3f offset = new Vec3f();
+    private final Vec3f scale = new Vec3f();
 
     public VanillaPoseItem(Skeleton skeleton, @Nullable int[] bones)
     {
@@ -46,12 +47,14 @@ public class VanillaPoseItem implements IPoseItem
         for (int i = 0; i < count; i++)
         {
             int slot = bones != null ? bones[i] : i;
-            if (skeleton.isEntityBone(slot) || !vanilla.read(skeleton.nameOf(slot), rotation, offset))
+            scale.set(1, 1, 1);
+            if (skeleton.isEntityBone(slot) || !vanilla.read(skeleton.nameOf(slot), rotation, offset, scale))
             {
                 continue;
             }
             pose.composeRotation(slot, rotation, Pose.Space.OVERRIDE);
             pose.composeOffset(slot, offset.x, offset.y, offset.z, Pose.Space.OVERRIDE);
+            pose.composeScale(slot, scale.x, scale.y, scale.z, Pose.Space.OVERRIDE);
             read = true;
         }
         if (!read)

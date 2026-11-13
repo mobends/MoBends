@@ -20,6 +20,7 @@ public class VanillaPoseNodeTest
     {
         final Map<String, Quaternion> rotations = new HashMap<>();
         final Map<String, Vec3f> offsets = new HashMap<>();
+        final Map<String, Vec3f> scales = new HashMap<>();
         int reads;
 
         FakeVanillaPose put(String bone, Quaternion rotation, float x, float y, float z)
@@ -29,8 +30,14 @@ public class VanillaPoseNodeTest
             return this;
         }
 
+        FakeVanillaPose scale(String bone, float x, float y, float z)
+        {
+            scales.put(bone, new Vec3f(x, y, z));
+            return this;
+        }
+
         @Override
-        public boolean read(String bone, Quaternion rotation, Vec3f offset)
+        public boolean read(String bone, Quaternion rotation, Vec3f offset, Vec3f scale)
         {
             reads++;
             Quaternion r = rotations.get(bone);
@@ -40,6 +47,8 @@ public class VanillaPoseNodeTest
             }
             rotation.set(r);
             offset.set(offsets.get(bone));
+            Vec3f s = scales.get(bone);
+            scale.set(s != null ? s : new Vec3f(1, 1, 1));
             return true;
         }
     }
@@ -101,6 +110,21 @@ public class VanillaPoseNodeTest
         assertRotation(pitch(-60), subject.target("arm"));
         assertRotation(pitch(30), subject.target("leg"));
         assertRotation(new Quaternion(), subject.target("tail"));
+    }
+
+    @Test
+    public void scalesTheBonesAsTheVanillaPoseHasThem() throws MalformedKumoTemplateException
+    {
+        // The layer below scales both; the vanilla pose has the arm scaled and the leg as modelled.
+        KumoAnimatorState animator = animator("{'core:scale': {'bone': 'arm', 'all': 3}}, {'core:scale': {'bone': 'leg', 'all': 3}}", "", "");
+        TestSubject subject = new TestSubject("arm", "leg");
+        subject.vanillaPose = new FakeVanillaPose().put("arm", pitch(0), 0, 0, 0).scale("arm", 1, 1.5F, 0.5F)
+                .put("leg", pitch(0), 0, 0, 0);
+
+        animator.update(subject, 1F);
+
+        assertVector(1, 1.5F, 0.5F, subject.scales.get("arm"));
+        assertVector(1, 1, 1, subject.scales.get("leg"));
     }
 
     @Test
