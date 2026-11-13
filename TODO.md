@@ -89,6 +89,19 @@ the key) but uses it whatever it says, so a file meant for other versions only w
       with versions around 1.12.2 (`["<", "1.10"]` doesn't hold here).
 - [ ] Take `misc/kumo-format.md`'s passages on it from `main`.
 
+### #457: A clip's bone with no keyframes doesn't count as written
+
+Needs the first `core` release after 2.0.0-alpha.3. On `main` a clip's bone with `"keyframes": []`
+no longer counts as written by the clip item: its `@snap` and `@smoothing` leave that bone alone (a
+snapping clip that listed `head` with no keyframes snapped the head's rotation from the items before
+it). All of it is in `core`; no asset changes.
+
+- [ ] Bump `core_version` (gradle.properties) to that release.
+- [ ] Copy the sentence `misc/kumo-format.md` adds on `main` after "Keyframes straddling the ±180°
+      wrap interpolate the short way." (this branch's copy differs elsewhere, so don't copy the whole
+      file).
+- [ ] Run the animation lab. Its goldens shouldn't change (`main`'s didn't).
+
 ## Other tasks
 
 - [ ] Make `field` resolve every vanilla field in production. The generated accessors
