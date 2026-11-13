@@ -7,21 +7,21 @@ The version line is about what players and pack authors get: **2.X** is Mo' Bend
 reworked animation system (Kumo animators, entity types, extensions, model definitions), 1.X the
 mod before it. `main` builds Mo' Bends 2.X for the modern Minecraft versions and loaders (see
 [TODO.md](TODO.md) for the targets). Mo' Bends for Minecraft 1.12.2 (Forge) lives on the
-`forge-1.12` branch.
+`forge-1.12` branch, and Mo' Bends for Minecraft 1.8.9 (Forge) on the `forge-1.8.9` branch.
 
 ## Project layout
 
 | Part | What it contains | Depends on Minecraft? |
 |---|---|---|
-| `core/` | The animation engine: Kumo, math, the animator format. Plain Java 8, shared with `forge-1.12`. | **No** |
+| `core/` | The animation engine: Kumo, math, the animator format. Plain Java 8, shared with `forge-1.12` and `forge-1.8.9`. | **No** |
 | `src/` | The mod for every modern Minecraft version and loader, as one source tree (see *One source tree* below). Compiled together with `core/` into each jar. | Yes |
 | `animation-lab/` | A standalone test harness (JDK 21, no Minecraft) that compiles the mod's animation code from `src/` and `core/`, runs the animators through scripted scenarios and checks them against recorded traces. | No (it has stand-ins for the few 1.21.1 classes that code touches) |
 
 Rules of thumb:
 
 - If code doesn't need Minecraft, it belongs in `core/`. It must stay free of any `net.minecraft`
-  import, so every Minecraft version (1.12.2 included) can share it, and it must compile as Java 8
-  (`core/` is built with `--release 8`).
+  import, so every Minecraft version (1.12.2 and 1.8.9 included) can share it, and it must compile
+  as Java 8 (`core/` is built with `--release 8`).
 - The lab compiles part of `src/` (see `modIncludes` in `animation-lab/build.gradle.kts`) against
   stand-ins for the Minecraft classes it touches (`animation-lab/src/mcstub/java`), and shims for the
   mod's classes it needs but doesn't compile (`animation-lab/src/mod/java`). Code there that starts
@@ -146,23 +146,33 @@ main                     Mo' Bends 2.X for the modern Minecraft versions × load
  ├─ feature/<name>       short-lived, merged via pull request
  ├─ fix/<name>
 forge-1.12               Mo' Bends 2.X for Minecraft 1.12.2
+forge-1.8.9              Mo' Bends 2.X for Minecraft 1.8.9
 ```
 
 - Branch off `main`, open a pull request back into `main`. For 1.12.2, branch off `forge-1.12`
-  instead; its CONTRIBUTING.md describes how 1.12.2 is built and released.
+  instead, and for 1.8.9 off `forge-1.8.9`; each one's CONTRIBUTING.md describes how its version is
+  built and released.
 - CI builds every node and runs the `core/` tests and the animation lab. All of them must pass.
 - Nothing goes straight to `main`: every change is a pull request. Keep its description stupidly
   simple and clear: a sentence of what it does, a short *What changed* list, *Not yet*, *Tested*. No
   implementation detail. Say plainly what was and wasn't checked in the game, and on which loader.
-- `forge-1.12` doesn't merge from `main`. It shares the engine by depending on a published, pinned
-  release of `core` (see [TODO.md](TODO.md)): an engine fix is made in `core/` on `main`, released,
-  and the dependency bumped on `forge-1.12`.
-- A pull request here that changes something `forge-1.12` has to follow comes with a pull request into
-  `forge-1.12` that adds the steps to its TODO.md, *Keeping up with `main`*, under this PR's number:
-  a change to `core`'s API (and the release it waits for), to the asset format (a new definition or
-  animator key), to an asset both branches ship, or to the lab's goldens of a scenario both have. Say
-  what to change there and how to check it, not how it was done here. A change that 1.12.2 doesn't
-  need (a loader, a Mixin, a mob 1.12.2 doesn't have) needs nothing there.
+- `forge-1.12` and `forge-1.8.9` don't merge from `main`. They share the engine by depending on a
+  published, pinned release of `core` (see [TODO.md](TODO.md)): an engine fix is made in `core/` on
+  `main`, released, and the dependency bumped on each of them.
+- A pull request here that changes something `forge-1.12` or `forge-1.8.9` has to follow comes with a
+  pull request into each branch that needs it, adding the steps to that branch's TODO.md, *Keeping up
+  with `main`*, under this PR's number: a change to `core`'s API (and the release it waits for), to
+  the asset format (a new definition or animator key), to an asset the branch ships too, or to the
+  lab's goldens of a scenario the branch has too. Say what to change there and how to check it, not
+  how it was done here. A change a version doesn't need (a loader, a Mixin, a mob it doesn't have)
+  needs nothing on its branch.
+- Write the steps for the version they're for. 1.8.9 lacks more than 1.12.2 does: no off hand, no
+  left-handed entities, no elytra, no shield (a sword blocks instead), only players use items, no
+  stray, husk or polar bear, and the wither skeleton and the zombie villager are a skeleton and a
+  zombie of another type rather than classes of their own. `forge-1.8.9` backports what its code and
+  animators name in `core/compat`, so the assets stay the same, but a step that names a class, a
+  command (`/summon`) or a lab scenario 1.8.9 doesn't have says what to do there instead (see *What
+  1.8.9 lacks* in its CONTRIBUTING.md).
 - `1.X/forge-1.12` holds the 1.X line (up to 1.2.2) and is no longer developed.
 
 ## Versioning and releases
@@ -171,6 +181,7 @@ forge-1.12               Mo' Bends 2.X for Minecraft 1.12.2
 |---|---|---|---|
 | The mod for the modern versions | 2.X | `v2.x.y` | `main` |
 | The mod for 1.12.2 | 2.X | `v2.x.y-1.12.2` | `forge-1.12` |
+| The mod for 1.8.9 | 2.X | `v2.x.y-1.8.9` | `forge-1.8.9` |
 | The engine library | follows the mod | `core-2.x.y` | `main` |
 
 - The mod's version is `mod.version` in `stonecutter.properties.toml`. Jars are named
@@ -201,8 +212,8 @@ prerelease), give `CHANGELOG.md` a `## <version>` section, merge that into `main
 A new node needs no change to the workflow: give its Minecraft version a `mod.mc_releases` in
 `stonecutter.properties.toml`.
 
-The uploads use the same repository variables and secrets as the 1.12.2 release (see CONTRIBUTING.md
-on `forge-1.12`), under *Settings → Secrets and variables → Actions*:
+The uploads use the same repository variables and secrets as the 1.12.2 and 1.8.9 releases (see
+CONTRIBUTING.md on `forge-1.12` and `forge-1.8.9`), under *Settings → Secrets and variables → Actions*:
 
 | Name | Kind | What |
 |---|---|---|

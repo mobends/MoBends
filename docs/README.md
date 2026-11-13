@@ -1,8 +1,9 @@
 # Mo' Bends — Technical Docs
 
 These docs describe the mod on `main` (the modern versions, `src/`), the engine (`core/`) and the
-asset formats, which every version shares. The 1.12.2 mod lives on the `forge-1.12` branch; where a
-doc still describes a 1.12.2 detail, that branch's code is what it means.
+asset formats, which every version shares. The 1.12.2 mod lives on the `forge-1.12` branch, and the
+1.8.9 mod, ported from it, on `forge-1.8.9`; where a doc still describes a 1.12.2 detail, that
+branch's code is what it means.
 
 | Doc | Contents |
 |-----|---------|
