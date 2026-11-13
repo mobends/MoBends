@@ -307,6 +307,9 @@ public final class EntityTypeRegistry {
             }
             try {
                 Extension extension = TypeFiles.loadExtension(file);
+                if (extension == null) {
+                    continue;
+                }
                 if (!types.containsKey(extension.getTypeId())) {
                     MoBends.LOGGER.warn("Mo' Bends: the extension '{}' ({}) extends the type '{}', which doesn't exist.",
                             extension.getId(), file.source(), extension.getTypeId());

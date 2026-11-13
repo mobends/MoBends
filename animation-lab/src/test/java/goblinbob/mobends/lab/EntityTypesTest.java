@@ -130,6 +130,17 @@ public class EntityTypesTest
         }
     }
 
+    @Test
+    void aTypeWhoseWhenDoesntHoldIsLeftOut() throws Exception
+    {
+        LabBootstrap.ensure(); // The lab is 1.21.1.
+        String type = "{\"formatVersion\": 2, \"id\": \"x:polar_bear\", \"model\": \"x:bends/models/polar_bear.json\"";
+        assertTrue(EntityTypeDefinition.parse(JsonParser.parseString(type + "}")).applies(), "a type without an @when applies");
+        assertTrue(EntityTypeDefinition.parse(JsonParser.parseString(type + ", \"@when\": {\"core:minecraft_version\": [\">=\", \"1.10\"]}}")).applies());
+        assertFalse(EntityTypeDefinition.parse(JsonParser.parseString(type + ", \"@when\": {\"core:minecraft_version\": [\"<\", \"1.10\"]}}")).applies());
+        assertTypeRefused("has to be known when the file loads", type + ", \"@when\": \"entityIsOnGround\"}");
+    }
+
     private static void assertTypeRefused(String message, String json)
     {
         MalformedKumoTemplateException e = assertThrows(MalformedKumoTemplateException.class, () -> EntityTypeDefinition.parse(JsonParser.parseString(json)));

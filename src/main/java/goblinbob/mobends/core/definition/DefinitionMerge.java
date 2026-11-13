@@ -3,9 +3,6 @@ package goblinbob.mobends.core.definition;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import goblinbob.mobends.core.kumo.expr.Expression;
-import goblinbob.mobends.core.kumo.expr.ExpressionScope;
-import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
 import java.util.Arrays;
@@ -111,17 +108,7 @@ public final class DefinitionMerge {
                     throw new MalformedKumoTemplateException(where + " can't set '" + key + "'.");
                 }
             }
-            Expression condition;
-            try {
-                condition = Expression.compile(when, ExpressionScope.root(new VariableTable()), Expression.Type.BOOLEAN);
-            } catch (MalformedKumoTemplateException e) {
-                throw new MalformedKumoTemplateException(where + ": " + e.getMessage());
-            }
-            if (!condition.isConstant()) {
-                throw new MalformedKumoTemplateException(where + ": its \"@when\" has to be known when the definition loads (only constant operations, such as core:minecraft_version), got "
-                        + when + ".");
-            }
-            if (condition.test(null)) {
+            if (LoadCondition.holds(when, where)) {
                 merged = merge(merged, fields);
             }
         }

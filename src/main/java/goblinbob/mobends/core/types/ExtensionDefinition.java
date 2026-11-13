@@ -3,6 +3,8 @@ package goblinbob.mobends.core.types;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import com.google.gson.annotations.SerializedName;
+import goblinbob.mobends.core.definition.LoadCondition;
 import goblinbob.mobends.core.kumo.option.OptionTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.util.FormatVersion;
@@ -41,6 +43,17 @@ public class ExtensionDefinition {
     /** Optional: options the user sets in the Mo' Bends menu, read by the extension's animator as {@code option.x} (see {@link OptionTemplate}). */
     public Map<String, OptionTemplate> options;
 
+    /**
+     * Optional: a condition known when the file loads (constant operations only, such as
+     * {@code {"core:minecraft_version": [">=", "1.10"]}}); while it doesn't hold, the extension is left
+     * out, as if the file weren't there. For a mob some Minecraft versions don't have.
+     */
+    @SerializedName("@when")
+    public JsonElement when;
+
+    /** Whether its {@link #when} holds; computed by {@link #validate}. */
+    private transient boolean applies = true;
+
     public static ExtensionDefinition parse(JsonElement json) throws MalformedKumoTemplateException {
         ExtensionDefinition definition;
         try {
@@ -63,5 +76,11 @@ public class ExtensionDefinition {
             throw new MalformedKumoTemplateException("The extension '" + id + "' needs an 'animator'.");
         }
         OptionTemplate.validate(options, "the extension '" + id + "'");
+        applies = when == null || LoadCondition.holds(when, "The extension '" + id + "'");
+    }
+
+    /** Whether the extension applies on this Minecraft version: its {@code @when} holds, or it has none. */
+    public boolean applies() {
+        return applies;
     }
 }

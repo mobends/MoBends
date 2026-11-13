@@ -1221,6 +1221,20 @@ Java addon is needed unless it brings its own operations or drivers.
 | `model` | a model's key (`mobends:player`, `mobends:zombie`, see *Model keys*), a model definition (`yourmod:bends/models/beast.json`), or `vanilla` (the entity stays vanilla) |
 | `animator` | optional: the animator asset. Absent: the model's own animator |
 | `options` | optional: options the user sets in the Mo' Bends menu, which the type's animator reads as `option.x`, besides its model definition's (see *Options*) |
+| `@when` | optional: a condition known when the file loads, as a model definition's variants have (see `@variants`): constants and constant operations only, such as `core:minecraft_version`. While it doesn't hold, the type is left out as if its file weren't there, and its model isn't read. For a mob some Minecraft versions don't have |
+
+A type for a mob that only some Minecraft versions have says so with `@when`, so the versions without
+it don't try to read a model of an entity class they don't have. The polar bear came in 1.10:
+
+```json
+{
+  "formatVersion": 2,
+  "id": "mobends:polar_bear",
+  "@when": {"core:minecraft_version": [">=", "1.10"]},
+  "selector": {"core:entity_type": ["minecraft:polar_bear"]},
+  "model": "mobends:bends/models/polar_bear.json"
+}
+```
 
 A type applies to an entity only if its model fits the entity's class (the definition's
 `entity`): a type for a class never gives its model to another mob, whatever its selector says. A
@@ -1373,6 +1387,7 @@ own animation and with other packs' extensions. Extension files are found like t
 | `type` | the id of the type it extends, a type file's `id`; Mo' Bends' are their models' keys (`mobends:player`, `mobends:zombie`, ...) |
 | `animator` | an animator whose layers go on top of the type's animator (or, for a type without one, its model's) |
 | `options` | optional: options the user sets in the Mo' Bends menu, which only the extension's animator reads as `option.x` (see *Options*) |
+| `@when` | optional: a condition known when the file loads, as a type file's: while it doesn't hold, the extension is left out as if its file weren't there |
 
 * The extension's layers come after every layer of the animator it extends (including that
   animator's parents), so they pose over it; their `core:fallthrough` nodes let it show through.

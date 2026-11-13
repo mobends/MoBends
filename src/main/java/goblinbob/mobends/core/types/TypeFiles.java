@@ -30,12 +30,17 @@ final class TypeFiles {
     }
 
     /**
-     * Reads a type file and makes the model definition it names by path; null if the policy leaves
-     * it out.
+     * Reads a type file and makes the model definition it names by path; null if the policy or its
+     * {@code @when} leaves it out.
      */
     @Nullable
     static Read read(TypeFileDiscovery.TypeFile file, ResourcePackPolicy policy) throws Exception {
         EntityTypeDefinition definition = EntityTypeDefinition.parse(file.json());
+        if (!definition.applies()) {
+            // Its @when doesn't hold on this version: as if the file weren't there, its model not even read.
+            MoBends.LOGGER.debug("Mo' Bends: leaving out the type {}: its @when doesn't hold", file.source());
+            return null;
+        }
         if (definition.isModelDefinition() && !file.trusted() && policy != ResourcePackPolicy.ALLOW) {
             // Custom geometry from a resource pack: the whole type is left out, so it can't hide a
             // trusted type with the same id, and its animator never runs on a model it wasn't made for.
@@ -70,9 +75,14 @@ final class TypeFiles {
         return new EntityType(definition.id, read.file().source(), selector, definition.specificity(), model, vanilla, animator, options);
     }
 
-    /** The extension an extension file describes. */
+    /** The extension an extension file describes; null if its {@code @when} leaves it out. */
+    @Nullable
     static Extension loadExtension(TypeFileDiscovery.TypeFile file) throws MalformedKumoTemplateException {
         ExtensionDefinition definition = ExtensionDefinition.parse(file.json());
+        if (!definition.applies()) {
+            MoBends.LOGGER.debug("Mo' Bends: leaving out the extension {}: its @when doesn't hold", file.source());
+            return null;
+        }
         return new Extension(definition.id, file.source(), definition.type, Ids.parse(definition.animator),
                 KumoOptions.INSTANCE.declare(definition.id, definition.options));
     }

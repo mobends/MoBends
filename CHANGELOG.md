@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+
+- Type and extension files can say which Minecraft versions they're for, with `@when`
+  (`{"core:minecraft_version": [">=", "1.10"]}`): on the others the file is left out as if it
+  weren't there.
+
 ### Fixed
 
 - A left-handed player spins the right way in the sword combo's last hit. It spun the way a
