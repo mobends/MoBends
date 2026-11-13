@@ -47,6 +47,11 @@ model of their own. Every mob is now a type file, which resource packs and addon
   bends with that mob's model unless a type names it.
 - An expression in a node's or layer's `smoothing` is a load error. It used to be read and then
   ignored: only an item's `@smoothing` takes expressions.
+- An item's `@smoothing` or `@vectorModes` that names a bone the item doesn't write (a bone its clip
+  has no track of or its `bones` leaves out, another bone than a `core:rotate`'s or a
+  `core:translate`'s) is a load error, and so is an `@vectorModes` for a bone whose position the item
+  doesn't write. It used to smooth what other items wrote. The player's swimming and sword whirl, the
+  spider's jump and the creeper's hunch smooth those bones on the items that write them, as before.
 
 ### Fixed
 

@@ -50,6 +50,7 @@ public class RotateDriver implements IPoseItem
         ItemEffects effects = new ItemEffects(context.getExpressionScope(), skeleton, template.smoothing, template.vectorModes, template.snap);
         int slot = skeleton.indexOf(template.bone);
         effects.writes(slot, true, false);
+        effects.requireWritten("core:rotate '" + template.bone + "'");
         return new RotateDriver(slot, template.axis, angle, space, effects.isEmpty() ? null : effects);
     }
 

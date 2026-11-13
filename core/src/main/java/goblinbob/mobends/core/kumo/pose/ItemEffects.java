@@ -16,7 +16,8 @@ import java.util.Map;
 /**
  * Smoothing (in ticks), vector modes and snapping attached to one pose item, applied to the bones the item wrote.
  * An item that moves bones ({@code core:translate}) smooths and snaps their positions: a part's offset,
- * an entity bone's position vector; any other smooths and snaps both rotations and positions.
+ * an entity bone's position vector; any other smooths and snaps both rotations and positions. A bone's
+ * position is its vector on an entity bone ({@code root}, {@code center}) and its offset on a model part.
  */
 public class ItemEffects
 {
@@ -25,9 +26,8 @@ public class ItemEffects
     private final boolean positions;
     private final Skeleton skeleton;
     /**
-     * The entity's own bones the item writes one channel of, and which ({@link #ROTATION},
-     * {@link #POSITION}): its effects on them go to that channel alone (see {@link #writes}). Any
-     * other bone's go to both.
+     * The bones the item writes, and what of them ({@link #ROTATION}, {@link #POSITION}): its effects
+     * on them go to that alone (see {@link #writes}).
      */
     private int[] channelSlots = new int[0];
     private int[] channelMasks = new int[0];
@@ -158,30 +158,57 @@ public class ItemEffects
     }
 
     /**
-     * Says what the item writes of one of the entity's own bones: its snap and smoothing (but a
-     * smoothing given apart, {"rotation": ..., "position": ...}) then go to that alone, so an item
-     * that moves the root doesn't snap or smooth the turn another item gives it. A bone it is never
-     * told about gets them on both.
+     * Says what the item writes of a bone: its snap, smoothing (but a smoothing given apart,
+     * {"rotation": ..., "position": ...}) and vector mode then go to that alone, so an item that moves
+     * the root doesn't snap or smooth the turn another item gives it, and a clip of a part's rotation
+     * alone doesn't snap or smooth the offset another item gives it. Every bone the item writes is
+     * told, before {@link #requireWritten}.
      */
     public void writes(int slot, boolean rotation, boolean position)
     {
-        if (!skeleton.isEntityBone(slot) || (rotation && position))
-        {
-            return;
-        }
         channelSlots = Arrays.copyOf(channelSlots, channelSlots.length + 1);
         channelMasks = Arrays.copyOf(channelMasks, channelMasks.length + 1);
         channelSlots[channelSlots.length - 1] = slot;
         channelMasks[channelMasks.length - 1] = (rotation ? ROTATION : 0) | (position ? POSITION : 0);
     }
 
+    /** What the item writes of a bone ({@link #ROTATION}, {@link #POSITION}): an item that moves bones, its position alone; 0 for none. */
     private int channels(int slot)
     {
+        int channels = 0;
         for (int i = 0; i < channelSlots.length; i++)
         {
-            if (channelSlots[i] == slot) return channelMasks[i];
+            if (channelSlots[i] == slot) channels |= channelMasks[i];
         }
-        return BOTH;
+        return positions ? channels & POSITION : channels;
+    }
+
+    /**
+     * Refuses a bone the item's {@code @smoothing} or {@code @vectorModes} names but the item doesn't
+     * write: they say how what the item writes gets there, so another item's bone is smoothed where
+     * it's written. {@code @vectorModes} names a bone whose position the item writes.
+     *
+     * @param item what the item is, for the message ({@code core:clip 'mobends:...'})
+     */
+    public void requireWritten(String item) throws MalformedKumoTemplateException
+    {
+        requireWritten(item, "@smoothing", smoothingSlots, BOTH);
+        requireWritten(item, "@smoothing", dynamicSlots, BOTH);
+        requireWritten(item, "@smoothing", rotationSlots, BOTH);
+        requireWritten(item, "@smoothing", positionSlots, BOTH);
+        requireWritten(item, "@vectorModes", modeSlots, POSITION);
+    }
+
+    private void requireWritten(String item, String key, int[] slots, int needed) throws MalformedKumoTemplateException
+    {
+        for (int slot : slots)
+        {
+            if ((channels(slot) & needed) == 0)
+            {
+                throw new MalformedKumoTemplateException(String.format("The %s of %s names '%s', %s: give it to the item that writes it.",
+                        key, item, skeleton.nameOf(slot), needed == POSITION ? "whose position the item doesn't write" : "which the item doesn't write"));
+            }
+        }
     }
 
     public boolean isEmpty()
@@ -198,14 +225,13 @@ public class ItemEffects
             for (int slot : writtenSlots)
             {
                 BoneTarget target = pose.get(slot);
-                if (positions && !skeleton.isEntityBone(slot))
-                {
-                    target.offsetMode = IVectorSink.Mode.SNAP;
-                    continue;
-                }
-                int channels = positions ? POSITION : channels(slot);
+                int channels = channels(slot);
                 if ((channels & ROTATION) != 0) target.snap = true;
-                if ((channels & POSITION) != 0 && target.hasVector) target.vectorMode = IVectorSink.Mode.SNAP;
+                if ((channels & POSITION) != 0)
+                {
+                    if (!skeleton.isEntityBone(slot)) target.offsetMode = IVectorSink.Mode.SNAP;
+                    else if (target.hasVector) target.vectorMode = IVectorSink.Mode.SNAP;
+                }
             }
         }
         if (defaultSmoothing != null)
@@ -248,27 +274,26 @@ public class ItemEffects
         }
         for (int i = 0; i < modeSlots.length; i++)
         {
-            if (positions && !skeleton.isEntityBone(modeSlots[i])) pose.get(modeSlots[i]).offsetMode = modes[i];
-            else pose.get(modeSlots[i]).vectorMode = modes[i];
+            int slot = modeSlots[i];
+            if (skeleton.isEntityBone(slot)) pose.get(slot).vectorMode = modes[i];
+            else pose.get(slot).offsetMode = modes[i];
         }
     }
 
     /**
-     * Smooths what the item moves of a bone: a part's offset or an entity bone's position (an item
-     * that moves bones), what it writes of an entity bone (see {@link #writes}), or else everything.
+     * Smooths what the item writes of a bone (see {@link #channels}): its rotation, its position (a
+     * part's offset, an entity bone's vector), or both.
      */
     private void smooth(Pose pose, int slot, float[] value)
     {
         BoneTarget target = pose.get(slot);
-        if (positions && !skeleton.isEntityBone(slot))
+        int channels = channels(slot);
+        if ((channels & ROTATION) != 0) applyRotationSmoothing(target, value);
+        if ((channels & POSITION) != 0)
         {
-            applyOffsetSmoothing(target, value);
-            return;
+            if (skeleton.isEntityBone(slot)) applyVectorSmoothing(target, value);
+            else applyOffsetSmoothing(target, value);
         }
-        int channels = positions ? POSITION : channels(slot);
-        if (channels == BOTH) applySmoothing(target, value);
-        else if (channels == ROTATION) applyRotationSmoothing(target, value);
-        else applyVectorSmoothing(target, value);
     }
 
     /** As {@link #smooth(Pose, int, float[])}, with one smoothing for every channel; NaN changes nothing. */
@@ -276,14 +301,13 @@ public class ItemEffects
     {
         if (Float.isNaN(ticks)) return;
         BoneTarget target = pose.get(slot);
-        if (positions && !skeleton.isEntityBone(slot))
-        {
-            applyOffsetSmoothing(target, ticks);
-            return;
-        }
-        int channels = positions ? POSITION : channels(slot);
+        int channels = channels(slot);
         if ((channels & ROTATION) != 0) target.smoothing = ticks;
-        if ((channels & POSITION) != 0) target.vectorSmoothing.set(ticks, ticks, ticks);
+        if ((channels & POSITION) != 0)
+        {
+            if (skeleton.isEntityBone(slot)) target.vectorSmoothing.set(ticks, ticks, ticks);
+            else applyOffsetSmoothing(target, ticks);
+        }
     }
 
     /** As {@link #applySmoothing(BoneTarget, float[])}, for the rotation alone (its first value). */

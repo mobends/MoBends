@@ -229,6 +229,7 @@ public class PoseNode implements INodeState
             }
             ClipBinding binding = new ClipBinding(animation, skeleton, clipTemplate.bones);
             binding.describe(effects);
+            effects.requireWritten("core:clip '" + clipTemplate.animationKey + "'");
 
             float clipLength = animation.duration != null ? animation.duration : Math.max(binding.keyframeCount - 1, 0);
             Map<String, Expression> clipValues = new HashMap<>();
@@ -327,6 +328,19 @@ public class PoseNode implements INodeState
     @Override
     public void start(IKumoContext context) throws MalformedKumoTemplateException
     {
+        start(context, null);
+    }
+
+    /**
+     * Starts the node. Its {@code enterPose} is posed here, once, at the node's first tick, before the
+     * node's {@code update} list and its items run, so what they read of it (a driver's output) is
+     * there on the entry frame. It's posed on top of {@code below}, the layers below, as the node's
+     * pose is: what it writes relatively, an override axis it leaves out, a weighted clip, builds on
+     * what they have, and on what its items before wrote.
+     */
+    @Override
+    public void start(IKumoContext context, Pose below) throws MalformedKumoTemplateException
+    {
         float[] state = context.getState().floats;
         state[clockSlot] = 0;
         state[snapPendingSlot] = snapSlots.length > 0 ? 1 : 0;
@@ -340,11 +354,15 @@ public class PoseNode implements INodeState
         }
         if (enterPose >= 0)
         {
-            // The entry is posed when it's used (see evaluate), on top of the layers beneath.
+            Pose entered = context.getState().poses[enterPose];
+            entered.clear();
+            entered.setBelow(below);
             for (IPoseItem item : enterItems)
             {
                 item.onNodeStarted(context);
+                item.apply(entered, context, 0);
             }
+            entered.setBelow(null);
             state[enterPendingSlot] = 1;
         }
     }
@@ -412,35 +430,14 @@ public class PoseNode implements INodeState
 
         if (state[enterPendingSlot] != 0)
         {
-            // The entry is posed on top of the layers beneath, as the node's own items are: what it
-            // poses relatively (a PRE / POST rotation, an additive offset or vector, a relative
-            // scale) builds on them, an override that leaves axes out keeps theirs, and the bone
-            // starts from there.
+            // The bones start from what the entry has (see start): what it left relative resolves
+            // against the layers below, unchanged since it was posed this frame.
             Pose enterPose = context.getState().poses[this.enterPose];
             enterPose.setBelow(pose.getBelow());
-            enterPose.clear();
-            for (IPoseItem item : enterItems)
-            {
-                item.apply(enterPose, context, 0);
-            }
             for (int slot = 0; slot < pose.size(); slot++)
             {
                 BoneTarget entered = enterPose.get(slot);
                 BoneTarget target = pose.get(slot);
-                // With nothing beneath (a pose of its own), the axes an override entry leaves out are
-                // at rest.
-                if (entered.hasVector && !entered.vectorAdditive && hasNaN(entered.vector))
-                {
-                    Vec3f beneath = new Vec3f();
-                    if (pose.getBelow() != null) pose.getBelow().vectorSoFar(slot, beneath);
-                    fillNaN(entered.vector, beneath);
-                }
-                if (entered.hasOffset && !entered.offsetAdditive && hasNaN(entered.offset))
-                {
-                    Vec3f beneath = new Vec3f();
-                    if (pose.getBelow() != null) pose.getBelow().offsetSoFar(slot, beneath);
-                    fillNaN(entered.offset, beneath);
-                }
                 if (entered.hasRotation || entered.hasPre || entered.hasPost)
                 {
                     if (target.hasRotation || target.hasPre || target.hasPost)
@@ -486,22 +483,13 @@ public class PoseNode implements INodeState
                         target.vectorMode = IVectorSink.Mode.SNAP;
                     }
                 }
-                if (entered.hasScale)
+                // A scale isn't smoothed, so there is no start for the pose's own to move from: that
+                // one wins, and a scale only the entry writes holds for the entry frame.
+                if (entered.hasScale && !target.hasScale)
                 {
-                    if (!entered.scaleRelative && hasNaN(entered.scale))
-                    {
-                        Vec3f beneath = new Vec3f(1F, 1F, 1F);
-                        if (pose.getBelow() != null) pose.getBelow().scaleSoFar(slot, beneath);
-                        fillNaN(entered.scale, beneath);
-                    }
-                    // A scale isn't smoothed, so there is no start for the pose's own to move from:
-                    // that one wins, and a scale only the entry writes holds for the entry frame.
-                    if (!target.hasScale)
-                    {
-                        target.hasScale = true;
-                        enterPose.scaleSoFar(slot, target.scale);
-                        target.scaleRelative = false;
-                    }
+                    target.hasScale = true;
+                    enterPose.scaleSoFar(slot, target.scale);
+                    target.scaleRelative = false;
                 }
             }
             enterPose.setBelow(null);
@@ -556,19 +544,6 @@ public class PoseNode implements INodeState
     private static boolean isUnsmoothed(Vec3f smoothing)
     {
         return Float.isNaN(smoothing.x) && Float.isNaN(smoothing.y) && Float.isNaN(smoothing.z);
-    }
-
-    private static boolean hasNaN(Vec3f v)
-    {
-        return Float.isNaN(v.x) || Float.isNaN(v.y) || Float.isNaN(v.z);
-    }
-
-    /** Puts every axis of {@code v} that is NaN at {@code from}'s. */
-    private static void fillNaN(Vec3f v, Vec3f from)
-    {
-        if (Float.isNaN(v.x)) v.x = from.x;
-        if (Float.isNaN(v.y)) v.y = from.y;
-        if (Float.isNaN(v.z)) v.z = from.z;
     }
 
     @Override

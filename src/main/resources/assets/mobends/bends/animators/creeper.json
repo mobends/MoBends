@@ -130,11 +130,12 @@
               {
                 "core:rotate": {"bone": "body", "axis": "x", "angle": "layer.hunch"},
                 "@space": "override",
-                "@smoothing": {"body": 2, "lowerBody": 2}
+                "@smoothing": {"body": 2}
               },
               {
                 "core:rotate": {"bone": "lowerBody", "axis": "x", "angle": {"neg": ["layer.hunch"]}},
-                "@space": "override"
+                "@space": "override",
+                "@smoothing": {"lowerBody": 2}
               },
               {
                 "core:translate": {"bone": "body", "x": 0, "y": "layer.neckY", "z": "layer.neckZ"},

@@ -96,10 +96,12 @@ node is in *Choosing the node*.
 
 * The node's one key without `@` is its type: `core:pose`, `core:fallthrough` or
   `core:vanilla`. `core:pose` takes the pose stack and what goes with it (`pose`, `enterPose`,
-  `snapOnEnter`, `smoothing`); the other two pose nothing and take `{}`. The bones `enterPose`
-  poses start from there when the node is entered; what it poses relatively (`pre`, `post`) builds
-  on the layers below, as the node's own items do, and an axis an `override` translate or scale in it
-  leaves out starts from what the layers below have, as it would in `pose`.
+  `snapOnEnter`, `smoothing`); the other two pose nothing and take `{}`. `enterPose` is posed
+  once, as the node is entered (its items at the node's first tick), before its `update` list and
+  its `pose` run, so they read what its drivers write on that frame. It's posed on top of the
+  layers below, as `pose` is: what it writes relatively (`pre`, `post`), an axis an `override` in
+  it leaves out and a weighted clip build on them and on its items before. Its bones start from
+  there.
 * `@define` and `@on` are the node's definitions and statement lists (see *Definitions and
   statements*): `node.` names, and what runs when the node is entered, every frame it is posed
   and when it is left.
@@ -265,8 +267,8 @@ holds the item's own fields. The modifiers, the same for every item:
 |---|---|
 | `@when` | a condition; the item is skipped while it does not hold |
 | `@space` | `override` (replace), `pre` (rotate in the parent's space, the `rotate*` idiom), `post` (the bone's own space, the `localRotate*` idiom). Default: `override` for clips, `pre` for drivers. A clip writes many bones, so its `@space` can also be one per bone: `{"@default": "pre", "body": "post", "root": "override"}`. |
-| `@smoothing` | per bone written, the ticks it takes to reach its target (0: at once; for a `slide`, the tween's length), `{"body": 2, "root": [null, 1.67, null]}`; an expression is allowed (a name or an operation, evaluated every frame); a bone's rotation and position can be given apart, `{"root": {"rotation": 1.67, "position": [3, 1.7, 3]}}` (numbers); it holds for the frames the item applies, and a bone nothing smooths in a frame gets its base smoothing (see *Model definitions*' `smoothing`; otherwise 0, at once) |
-| `@vectorModes` | for the positions of `root` and `center` (and a `core:translate`'s part offsets): `slide` (tween restarted when the target changes), `retarget` (exponential approach re-aimed every frame), `snap` |
+| `@smoothing` | per bone the item writes (naming any other bone is a load error: smooth a bone on the item that writes it), the ticks it takes to reach its target (0: at once; for a `slide`, the tween's length), `{"body": 2, "root": [null, 1.67, null]}`; an expression is allowed (a name or an operation, evaluated every frame); a bone's rotation and position can be given apart, `{"root": {"rotation": 1.67, "position": [3, 1.7, 3]}}` (numbers); it holds for the frames the item applies, and a bone nothing smooths in a frame gets its base smoothing (see *Model definitions*' `smoothing`; otherwise 0, at once). A bone's position is its offset on a part, its vector on `root` and `center` |
+| `@vectorModes` | for the positions the item writes, of `root` and `center` and of parts (their offsets); naming a bone whose position the item doesn't write is a load error: `slide` (tween restarted when the target changes), `retarget` (exponential approach re-aimed every frame), `snap` |
 | `@snap` | the written bones jump to their target this frame (`orientInstant`, `finish`) |
 | `@mirror` | evaluate as the left-right mirror image while the layer's mirror condition holds (paired bones swapped, Y and Z rotations and X offsets negated; see *Mirroring*) |
 | `@swapSides` | like `@mirror`, but only the paired bones swap; rotations and offsets are kept |
@@ -365,9 +367,11 @@ smoothed vectors, with a base smoothing, `@vectorModes` and `@snap` of their own
 has neither); a clip's keyframe positions on them are taken as they are, not negated like a
 part's. A clip's track of one of them writes only what its keyframes give: a `root` track of
 positions alone (root motion) leaves the root's rotation to the rest of the animator. So does an
-item: its `@snap` and `@smoothing` go to what it writes of them (a `core:rotate` to the rotation,
-a `core:translate` to the position, a clip to what its tracks give), unless its `@smoothing`
-gives them apart.
+item, of these and of parts: its `@snap`, `@smoothing` and `@vectorModes` go to what it writes of
+a bone (a `core:rotate` to the rotation, a `core:translate` to the position, a clip to what its
+tracks and its `bones` give: a clip of `"head.rotation"` leaves the head's offset another item
+gives it as it is), unless its `@smoothing` gives them apart. They can't name a bone the item
+doesn't write (one a clip has no track of, or its `bones` leaves out): that is a load error.
 
 ### Drivers
 
