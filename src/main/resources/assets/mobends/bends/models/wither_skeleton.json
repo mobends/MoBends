@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "@comment": "The wither skeleton: the skeleton, on the same model (vanilla draws it 1.2 times as big), with the skeleton's animator.",
+  "extends": "mobends:bends/models/skeleton.json",
+  "entity": "net.minecraft.entity.monster.EntityWitherSkeleton"
+}

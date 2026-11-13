@@ -7,6 +7,7 @@ import goblinbob.mobends.core.client.model.BoxSide;
 import goblinbob.mobends.core.client.model.FaceRotation;
 import goblinbob.mobends.core.client.model.ModelPart;
 import goblinbob.mobends.core.client.model.MutatedBox;
+import goblinbob.mobends.core.compat.SharedAssets;
 import goblinbob.mobends.core.definition.BoneDefinition;
 import goblinbob.mobends.core.definition.BoxSplitter;
 import goblinbob.mobends.core.definition.DefinedEntityData;
@@ -240,6 +241,10 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
                 DefinedLayers.Kind kind = DefinedLayers.get(entry.getKey());
                 if (kind == null)
                 {
+                    if (SharedAssets.isMissingLayer(entry.getKey()))
+                    {
+                        continue;
+                    }
                     Core.LOG.log(Level.WARNING, "Model definition for " + definition.entity + ": there is no layer '" + entry.getKey() + "'");
                 }
                 else if (kind.replaces == null)

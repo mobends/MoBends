@@ -9,9 +9,9 @@ Mo' Bends 2.X on Minecraft 1.8.9, ported from the version for 1.12.2: the first 
 ### Added
 
 - Runs on Minecraft 1.8.9 (Forge 11.15.1.2318).
-- Skeletons, zombie villagers, zombie pigmen, squids, wolves, creepers, villagers, witches and iron
-  golems are animated, as well as players, zombies and spiders. Wolves sit, stand up and breathe; a
-  charged creeper's armour moves with it.
+- Skeletons, wither skeletons, zombie villagers, zombie pigmen, squids, wolves, creepers, villagers,
+  witches and iron golems are animated, as well as players, zombies and spiders. Wolves sit, stand up
+  and breathe; a charged creeper's armour moves with it.
 - Players, zombies, skeletons, villagers, witches and iron golems stand on their feet: standing still,
   the feet stay planted and they turn by stepping, and when they stop walking their feet stay where the
   walk left them. In the sword's stance a player stands with their feet wide apart.

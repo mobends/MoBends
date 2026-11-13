@@ -2,6 +2,7 @@ package goblinbob.mobends.lab;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import goblinbob.mobends.core.compat.SharedAssets;
 import goblinbob.mobends.core.definition.DefinitionMerge;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.definition.ModelDefinitions;
@@ -87,6 +88,21 @@ public class DefinitionExtendsTest
         MalformedKumoTemplateException e = assertThrows(MalformedKumoTemplateException.class,
                 () -> DefinitionMerge.applyVariants(json("{'@variants': [{'@when': 'entity.sneaking', 'childScale': 0.25}]}")));
         assertTrue(e.getMessage().contains("'@variants' entry 1"), e.getMessage());
+    }
+
+    @Test
+    void theWitherSkeletonIsTheSkeletonOfItsOwnEntity() throws Exception
+    {
+        EntityModelDefinition skeleton = ModelDefinitions.INSTANCE.load(new ResourceLocation("mobends", "bends/models/skeleton.json"));
+        EntityModelDefinition wither = ModelDefinitions.INSTANCE.load(new ResourceLocation("mobends", "bends/models/wither_skeleton.json"));
+        assertEquals(skeleton.model, wither.model);
+        assertEquals(skeleton.animator, wither.animator);
+        assertEquals(skeleton.allBoneNames(), wither.allBoneNames());
+        assertEquals(skeleton.layers.keySet(), wither.layers.keySet());
+        assertEquals("net.minecraft.entity.monster.EntityWitherSkeleton", wither.entity);
+        // 1.8.9 has no class of its own for it: a skeleton of type 1 (EntityIds names it).
+        assertEquals("net.minecraft.entity.monster.EntitySkeleton", SharedAssets.entityClass(wither.entity));
+        assertTrue(wither.trusted);
     }
 
     private static JsonObject mergeOrFail(JsonObject child)

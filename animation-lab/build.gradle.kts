@@ -90,6 +90,7 @@ val modIncludes = listOf(
     "goblinbob/mobends/core/compat/ArmPose.java",
     "goblinbob/mobends/core/compat/Living.java",
     "goblinbob/mobends/core/compat/EntityIds.java",
+    "goblinbob/mobends/core/compat/SharedAssets.java",
 )
 
 val modSrcDir = layout.buildDirectory.dir("mod-src")

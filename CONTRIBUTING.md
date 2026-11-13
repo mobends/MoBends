@@ -27,7 +27,7 @@ Rules of thumb:
 
 The mod and its animators were written for 1.12.2. What 1.8.9 doesn't have is backported in
 `core/compat`, under the names the code and the animators use, so the assets are the same on every
-branch:
+branch (see *Shared assets* below):
 
 - **Hands and equipment.** `EnumHand`, `EnumHandSide`, `EntityEquipmentSlot` and `ArmPose` are the later
   versions' enums; `Living` answers what 1.12.2 asks of any living entity. The off hand is always empty,
@@ -38,9 +38,38 @@ branch:
   villager, a wither skeleton a skeleton of type 1, and the horses are told apart by type.
 - **Events and render state.** 1.8.9 posts ticks, input and config changes on FML's bus (`Events`
   registers a handler on both), and its render events don't carry partial ticks (`RenderPartialTicks`).
+- **Model definitions.** `SharedAssets` reads what the shared model definitions name as 1.8.9 has it:
+  `EntityZombieVillager` and `EntityWitherSkeleton` are `EntityZombie` and `EntitySkeleton` (the
+  variants `EntityIds` tells apart), and the `mobends:elytra` layer is left out.
 - **Gone.** The polar bear, the elytra, the tipped and spectral arrows, and GeckoLib (no 1.8.9 release).
+  The polar bear's model ships as `main` has it, but no type file of the mod's names it.
 
 The animation lab plays the scenarios 1.8.9 can; `LaterVersionsOnlyTest` names the ones it can't.
+
+## Shared assets
+
+`src/main/resources/assets/mobends/bends/` (animators, model definitions, types, extensions) and
+`misc/legacy-pack/assets/` are `main`'s files, copied as they are from the commit
+`shared_assets_ref` names in `gradle.properties`. **Never edit them on this branch**, not even to
+make one fit 1.8.9: the next copy from `main` would undo it. CI checks they're unchanged
+(`misc/shared-assets.sh check`, the *Shared assets* workflow).
+
+When a shared asset doesn't fit 1.8.9 (it names a class, a layer, a component or an id 1.8.9 doesn't
+have, or needs a key 1.8.9 can't read):
+
+1. Make the mod read it as it is, in code: `core/compat/SharedAssets.java` for what model definitions
+   name, `EntityIds` for entity ids, the other `core/compat` classes for the rest.
+2. If code can't cover it, the format has to change on `main`: open an issue there that says what
+   1.8.9 lacks and what the asset would need to say (e.g. a `@variants` entry or an `@when` that
+   holds on later versions only). Note it in TODO.md until it ships, then copy the assets again.
+
+To take newer assets from `main`, run `misc/shared-assets.sh copy <commit on main>`: it replaces the
+copies (removing what `main` removed) and sets `shared_assets_ref`. Do the steps in TODO.md,
+*Keeping up with `main`*, that come with them, then run the build and the lab, and check in the game
+what changed.
+
+Branch-only resources aren't shared: the language files (`assets/mobends/lang/`, 1.8.9's `en_US`
+names), `pack.mcmeta` and the development pack (`misc/dev-pack`) are this branch's own.
 
 ## Branches
 
@@ -57,7 +86,8 @@ forge-1.8.9              Mo' Bends 2.X for Minecraft 1.8.9
   released core with it.
 - What `main` changes that this branch has to follow is listed in TODO.md, *Keeping up with `main`*.
   A pull request on `main` that changes `core`'s API, the asset format or a shared asset comes with a
-  pull request here adding its steps there.
+  pull request here adding its steps there. Shared assets are copied, never edited (see *Shared
+  assets*).
 - `1.X/forge-1.12` holds the 1.X line (up to 1.2.2) and is no longer developed.
 
 ## Versioning and releases

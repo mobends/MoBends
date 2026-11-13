@@ -3,6 +3,7 @@ package goblinbob.mobends.core.client.definition;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.bender.DefaultEntityBender;
 import goblinbob.mobends.core.bender.EntityBender;
+import goblinbob.mobends.core.compat.SharedAssets;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.definition.ModelDefinitions;
@@ -56,7 +57,7 @@ public final class DefinedBenders
         Class<?> type;
         try
         {
-            type = Class.forName(name, false, DefinedBenders.class.getClassLoader());
+            type = Class.forName(SharedAssets.entityClass(name), false, DefinedBenders.class.getClassLoader());
         }
         catch (ClassNotFoundException | LinkageError e)
         {
