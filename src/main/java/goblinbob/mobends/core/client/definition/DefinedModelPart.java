@@ -58,7 +58,7 @@ public class DefinedModelPart {
      */
     @Nullable
     ModelPart[] vanillaChain;
-    /** The rest poses of {@link #vanillaChain}'s parts, each {x, y, z, xRot, yRot, zRot}, as the model was made. */
+    /** The rest poses of {@link #vanillaChain}'s parts, each {x, y, z, xRot, yRot, zRot, xScale, yScale, zScale}, as the model was made. */
     @Nullable
     float[][] vanillaChainRest;
     /**

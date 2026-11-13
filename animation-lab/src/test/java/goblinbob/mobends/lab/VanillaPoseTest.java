@@ -65,12 +65,13 @@ public class VanillaPoseTest
         }
 
         @Override
-        public boolean read(String bone, Quaternion rotation, Vec3f offset)
+        public boolean read(String bone, Quaternion rotation, Vec3f offset, Vec3f scale)
         {
             Quaternion r = rotations.get(bone);
             if (r == null) return false;
             rotation.set(r);
             offset.set(offsets.get(bone));
+            scale.set(1, 1, 1);
             return true;
         }
     }

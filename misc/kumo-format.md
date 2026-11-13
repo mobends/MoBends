@@ -153,7 +153,7 @@ node is in *Choosing the node*.
   ```
 
   * Each bone that takes over a vanilla part (its model definition's `vanilla`) is written
-    `override`, its rotation and its offset, so that it's drawn where vanilla draws the part,
+    `override`, its rotation, its offset and its scale, so that it's drawn where and as large as vanilla draws the part,
     through the bones above it as the vanilla pose has them: a body that bends at the hips, a head
     that doesn't turn with it and arms that hang from the body all end up where vanilla's
     (unparented) parts are. A bone keeps where its pivot sits from its part at rest, and the
@@ -166,6 +166,11 @@ node is in *Choosing the node*.
     component (`rightHeldItem`, `leftHeldItem`: how a held item turns in the hand) is written at
     rest, as vanilla holds the item. Any other bone that stands for no vanilla part (the cape, the
     wolf's tongue) isn't written: the layers below decide it.
+  * A bone's scale is its part's against the part's scale as modelled (Player Animation Library
+    scales parts), less what the bones above it scale it by already. It's taken along the bone's
+    own axes, each from the part's axis it lies nearest, so it carries exactly where a bone's boxes
+    are modelled a quarter turn from the part's (or not turned at all); a part scaled unevenly
+    under a parent turned at another angle comes out roughly.
   * The entity's own bones, `root` and `center`, are written at rest: vanilla draws its parts in
     the entity's frame, so what the layers below move it by (the wolf's sitting lowers `root`)
     would move the pose twice. The whole entity is then drawn as vanilla draws it: what Mo' Bends
@@ -182,8 +187,8 @@ node is in *Choosing the node*.
     is every bone that moves.
   * Where there is no vanilla pose to read, it writes nothing, and the layers below show through:
     in the animation lab.
-  * Not carried over: a vanilla part's scale, and what a mod draws outside the model's parts
-    (Player Animation Library's whole-body `body` bone, which turns the entity's frame, is lost).
+  * Not carried over: what a mod draws outside the model's parts (Player Animation Library's
+    whole-body `body` bone, which turns the entity's frame, is lost).
 
   The example pack `misc/examples/vanilla-pose-extension` bends Player Animation Library's poses
   while it plays something on the player.

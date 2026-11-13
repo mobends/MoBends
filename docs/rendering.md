@@ -16,7 +16,7 @@
   `extractRenderState` has run). `BendsRenderer.beforeRender` opens a `VanillaPoseReader` around
   the animation; the first read runs the model's `setupAnim` from the state (and has Player
   Animation Library sample its animation first, `PalOperations.beforeVanillaPose`), then works
-  out each bone's rotation and offset from vanilla's part tree (`DefinedModelPart.vanillaChain`).
+  out each bone's rotation, offset and scale from vanilla's part tree (`DefinedModelPart.vanillaChain`).
   When the node puts `root` and `center` at rest, the pose says how much the entity's frame is
   vanilla's (`Pose.setVanillaFrame`, blended by fades and transitions as the bones are), which
   the data gets once animated (`IKumoSubject.setEntityFrameVanilla`,
