@@ -1,6 +1,9 @@
 # OS
 .DS_Store
 
+# Personal mise overrides
+mise.local.toml
+
 # Gradle
 .gradle/
 build/

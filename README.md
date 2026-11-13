@@ -19,6 +19,8 @@ Say you came from GitHub if you decide to come by! Hope to see you there
 ## Local Development Setup
 Install a Java Development Kit (JDK) appropriate for the Minecraft version you are developing for. For Minecraft 1.12.2, use JDK 8.
 I personally use the [Eclipse Temurin JDK](https://adoptium.net/temurin/releases?version=8&os=any&arch=any).
+If you use [mise](https://mise.jdx.dev), `mise.toml` picks JDK 8 for you (Azul Zulu, which has a build for Apple Silicon).
+Put personal overrides in `mise.local.toml`, which is ignored.
 
 The animation engine is downloaded from GitHub Packages, which needs a GitHub token even to read:
 see [CONTRIBUTING.md](CONTRIBUTING.md#a-token-for-github-packages).
