@@ -89,6 +89,36 @@ the key) but uses it whatever it says, so a file meant for other versions only w
       with versions around 1.12.2 (`["<", "1.10"]` doesn't hold here).
 - [ ] Take `misc/kumo-format.md`'s passages on it from `main`.
 
+### #473: enterPose is posed as the node starts, clip modifiers reach part offsets, and an item names only bones it writes
+
+Needs the first `core` release after 2.0.0-alpha.3. On `main` three things in the engine work as the
+format says. A node's `enterPose` is posed as the node starts, on top of the layers below, before
+its `update` list and `pose`, which read what its drivers write on the entry frame (since #463 it
+was posed when used, after them, so they read it a frame late). A clip's `@smoothing`, `@snap` and
+`@vectorModes` on a part's position go to its offset (they went to the position vector, which only
+`root` and `center` have), and only to the channels the item writes: a clip of `"head.rotation"`
+with `@snap` leaves an earlier translate of the head easing. And an item's `@smoothing` or
+`@vectorModes` that names a bone the item doesn't write is a load error (they smoothed what other
+items wrote); so is an `@vectorModes` for a bone whose position it doesn't write. `core`'s API only
+grows: `INodeState.start(context, below)`, a default method, and `LayerState.start(context, below)`;
+the lab's `layer.start(context)` still works. The lab's goldens didn't move on `main`.
+
+- [ ] Right away (it changes nothing on the current `core`): move the smoothing four animators give
+      bones their items don't write onto the items that write them, as `main` does. In `player.json`
+      and the legacy pack's: the swimming node's `"body": 2` from `swim_common`'s clip to
+      `swim_surface_arms`', and in the sword's `slash_whirl`, drop `"root.position"` and the root's
+      `@smoothing` and `@vectorModes` from `slash_whirl_still`'s clip (it has no root track). In
+      `spider.json`, the jump node's `"root": 1.67` from the leg clip to the `rest.json` clip. In
+      `creeper.json`, the hunch node's `"lowerBody": 2` from the body's rotate to the lowerBody's.
+- [ ] Build with that release (`core_version` in gradle.properties), and check that every animator
+      loads.
+- [ ] Copy the passages of `misc/kumo-format.md` that say so from `main`: the `enterPose` sentences
+      under *Nodes* (they replace the ones #443, #446 and #463 copy), the `@smoothing` and
+      `@vectorModes` rows, and the paragraph after *The renderer applies*.
+- [ ] Check that the animation lab passes without re-recording anything, and in the game that the
+      player, the biped mobs and the iron golem still enter their nodes as before, and that the
+      player swims and whirls the sword, the spider jumps and the creeper hunches as before.
+
 ## Other tasks
 
 - [ ] Make `field` resolve every vanilla field in production. The generated accessors
