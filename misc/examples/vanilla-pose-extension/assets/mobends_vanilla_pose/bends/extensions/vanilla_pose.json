@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends_vanilla_pose:vanilla_pose",
+  "type": "mobends:player",
+  "animator": "mobends_vanilla_pose:bends/animators/vanilla_pose.json"
+}

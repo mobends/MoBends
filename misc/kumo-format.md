@@ -94,9 +94,10 @@ node is in *Choosing the node*.
 }
 ```
 
-* The node's one key without `@` is its type: `core:pose`, `core:fallthrough` or
-  `core:vanilla`. `core:pose` takes the pose stack and what goes with it (`pose`, `enterPose`,
-  `snapOnEnter`, `smoothing`); the other two pose nothing and take `{}`. The bones `enterPose`
+* The node's one key without `@` is its type: `core:pose`, `core:fallthrough`, `core:vanilla` or
+  `core:vanilla_pose`. `core:pose` takes the pose stack and what goes with it (`pose`, `enterPose`,
+  `snapOnEnter`, `smoothing`), and `core:vanilla_pose` takes the same and `bones`; the other two
+  pose nothing and take `{}`. The bones `enterPose`
   poses start from there when the node is entered; what it poses relatively (`pre`, `post`) builds
   on the layers below, as the node's own items do, and an axis an `override` translate or scale in it
   leaves out starts from what the layers below have, as it would in `pose`.
@@ -138,6 +139,61 @@ node is in *Choosing the node*.
   Rendering: the render puts the mutated model in place and animates as usual, then, if the
   animator asks for vanilla, puts the vanilla renderer state back before the model is drawn (the
   same swap as between entities, see *Rendering: swap per render*).
+* A `core:vanilla_pose` node is a `core:pose` node whose stack starts with the pose the entity's
+  own vanilla model has this frame: what vanilla's animation gives its parts, with whatever other
+  mods add to it (Player Animation Library, which Better Combat and emote mods animate the player
+  with, poses the vanilla model). Unlike `core:vanilla`, the entity is still drawn bent: the node's
+  own items and the layers above build on that pose (elbows, knees, the body's twist), and
+  transitions and a layer's `@fade` blend into and out of it like any pose.
+
+  ```json
+  "theirs": {"core:vanilla_pose": {"pose": [
+    {"core:rotate": {"bone": "rightForeArm", "axis": "x", "angle": -25}}
+  ]}}
+  ```
+
+  * Each bone that takes over a vanilla part (its model definition's `vanilla`) is written
+    `override`, its rotation and its offset, so that it's drawn where vanilla draws the part,
+    through the bones above it as the vanilla pose has them: a body that bends at the hips, a head
+    that doesn't turn with it and arms that hang from the body all end up where vanilla's
+    (unparented) parts are. A bone keeps where its pivot sits from its part at rest, and the
+    quarter turns its boxes are modelled by against the part's (the wolf's body lies along Z,
+    vanilla's stands up and is turned down); any other angle between them at rest is a rest pose
+    the definition doesn't share, and vanilla's angle shows (vanilla's wolf tail tilts back, the
+    definition's hangs straight). A bone vanilla draws as a piece of an ancestor's part, straight with it,
+    is written at rest: a split bone's further segments (forearms, shins), and a bone with boxes of
+    its own and no part, under one that has (the wolf's shins, nose and ears). A `core:orientation`
+    component (`rightHeldItem`, `leftHeldItem`: how a held item turns in the hand) is written at
+    rest, as vanilla holds the item. Any other bone that stands for no vanilla part (the cape, the
+    wolf's tongue) isn't written: the layers below decide it.
+  * The entity's own bones, `root` and `center`, are written at rest: vanilla draws its parts in
+    the entity's frame, so what the layers below move it by (the wolf's sitting lowers `root`)
+    would move the pose twice. The whole entity is then drawn as vanilla draws it: what Mo' Bends
+    does in place of vanilla for the animator is left out (a definition's `renderer.sneakOffset`
+    and 1.12's sneaking drop, a swimming player's drop) and vanilla's own turns stay (a player's
+    swimming tilt, an iron golem's walking rock with `renderer.undoVanillaRock`, besides dying,
+    sleeping and gliding, as under any node). Mo' Bends' sword trail fades out. It blends as the
+    bones do: while a layer's `@fade` or a transition goes into or out of the node, the swimming
+    tilt, the sneak offset, the golem's rock and the sword trail are part vanilla's, part the
+    animator's. While the node leaves `root` and `center` out (`bones`), the animator keeps the
+    entity's frame.
+  * `bones` lists the bones it takes, `root` and `center` included; by default, every bone the
+    animator names anywhere (any layer, its extensions' included), which for the shipped animators
+    is every bone that moves.
+  * Where there is no vanilla pose to read, it writes nothing, and the layers below show through:
+    in the animation lab, and on Minecraft before 26.1 for now (see below).
+  * Not carried over: a vanilla part's scale, and what a mod draws outside the model's parts
+    (Player Animation Library's whole-body `body` bone, which turns the entity's frame, is lost).
+
+  The example pack `misc/examples/vanilla-pose-extension` bends Player Animation Library's poses
+  while it plays something on the player.
+
+  Rendering (26.x): the entity is animated once its render state is filled (every renderer's
+  `extractRenderState`, and what mods add to it), and the vanilla model is posed from that state
+  with its own `setupAnim` ahead of its draw, the first time the node reads it in a frame; the
+  model is posed again before every draw, so this leaves nothing behind. Player Animation Library
+  works out its animation only as the player is submitted, after that, so it's asked to do so
+  first.
 
 ## Choosing the node
 

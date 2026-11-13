@@ -6,6 +6,7 @@ import goblinbob.mobends.core.kumo.IKumoSubject;
 import goblinbob.mobends.core.kumo.KumoSerializer;
 import goblinbob.mobends.core.kumo.bind.EntityBone;
 import goblinbob.mobends.core.kumo.bind.IBoneSink;
+import goblinbob.mobends.core.kumo.bind.IVanillaPose;
 import goblinbob.mobends.core.kumo.bind.OrientationSink;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
@@ -63,6 +64,10 @@ class TestSubject implements IKumoSubject
     final Map<String, Boolean> states = new HashMap<>();
     /** What {@code field} reads. */
     Object entity;
+    /** What a {@code core:vanilla_pose} node reads; null for none. */
+    IVanillaPose vanillaPose;
+    /** What the animator last said of the entity's frame (see {@link IKumoSubject#setEntityFrameVanilla}). */
+    float entityFrameVanilla = Float.NaN;
 
     TestSubject(String... boneNames)
     {
@@ -110,6 +115,18 @@ class TestSubject implements IKumoSubject
     public Object getEntity()
     {
         return entity;
+    }
+
+    @Override
+    public IVanillaPose getVanillaPose()
+    {
+        return vanillaPose;
+    }
+
+    @Override
+    public void setEntityFrameVanilla(float weight)
+    {
+        entityFrameVanilla = weight;
     }
 
     // The names a test sets, numbered as animators look them up. A name set after the animator

@@ -10,6 +10,7 @@ import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
 import goblinbob.mobends.core.kumo.state.template.NodeTemplate;
 import goblinbob.mobends.core.kumo.state.template.PoseNodeTemplate;
 import goblinbob.mobends.core.kumo.state.template.VanillaNodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.VanillaPoseNodeTemplate;
 
 import javax.annotation.Nullable;
 
@@ -26,6 +27,7 @@ public class NodeRegistry
         register("core:pose", PoseNode::createPose, PoseNodeTemplate.class);
         register("core:fallthrough", PoseNode::createFallthrough, FallthroughNodeTemplate.class);
         register("core:vanilla", PoseNode::createVanilla, VanillaNodeTemplate.class);
+        register("core:vanilla_pose", PoseNode::createVanillaPose, VanillaPoseNodeTemplate.class);
     }
 
     public <T extends NodeTemplate> void register(String key, INodeFactory<?, T> factory, Class<T> templateType)

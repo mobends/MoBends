@@ -42,13 +42,16 @@ public final class DefinedRenderer {
     }
 
     /**
-     * Whether vanilla's swimming tilt is kept off the bent entity ({@code mixin.PlayerRendererMixin}):
-     * a player in water, where the animator turns the root bone for its own swimming poses. Out of
-     * water (crawling) vanilla's tilt stays, as the animator has no crawling pose; and so does a
-     * swimming drowned's, which the zombie's animator has no swimming pose for.
+     * How much of vanilla's swimming tilt (and its shift) the bent entity is given
+     * ({@code mixin.PlayerRendererMixin}), 0..1. A player in water gets none, where the animator turns
+     * the root bone for its own swimming poses, except as far as its frame is left to vanilla
+     * ({@link DefinedEntityData#getEntityFrameVanilla}). Out of water (crawling) vanilla's tilt stays,
+     * as the animator has no crawling pose; and so does a swimming drowned's, which the zombie's
+     * animator has no swimming pose for.
      */
-    public static boolean replacesSwimmingTilt(LivingEntity entity) {
-        return entity instanceof Player && entity.isInWater();
+    public static float swimmingTiltShown(DefinedEntityData<?> data) {
+        LivingEntity entity = data.getEntity();
+        return entity instanceof Player && entity.isInWater() ? data.getEntityFrameVanilla() : 1F;
     }
 
     /**
@@ -59,17 +62,19 @@ public final class DefinedRenderer {
      * against the camera and the hitbox. Vanilla's own swimming translate went with the tilt it no
      * longer applies. Eased by the swim amount, as vanilla eases its tilt, so it doesn't jump.
      */
-    private static float swimmingDrop(LivingEntity entity) {
-        if (!replacesSwimmingTilt(entity)) {
+    private static float swimmingDrop(DefinedEntityData<?> data) {
+        float tiltShown = swimmingTiltShown(data);
+        if (tiltShown >= 1.0F) {
             return 0.0F;
         }
+        LivingEntity entity = data.getEntity();
         float swimAmount = entity.getSwimAmount(DataUpdateHandler.partialTicks);
         if (swimAmount <= 0.0F) {
             return 0.0F;
         }
         float drop = entity.getEyeHeight(Pose.STANDING) - entity.getEyeHeight(Pose.SWIMMING);
         // getEyeHeight includes the entity's scale, which the entity's frame already has.
-        return swimAmount * drop / entity.getScale();
+        return (1.0F - tiltShown) * swimAmount * drop / entity.getScale();
     }
 
     /**
@@ -88,7 +93,7 @@ public final class DefinedRenderer {
         VanillaDraw.rotate(poseStack, new Quaternionf().rotationY(-yaw));
 
         // 1.12's frame: the entity's feet, facing as its body does, Y up, in blocks.
-        poseStack.translate(0.0F, -swimmingDrop(entity), 0.0F);
+        poseStack.translate(0.0F, -swimmingDrop(data), 0.0F);
         float globalScale = entity.isBaby() ? definition.childScale : 1;
         float s = SCALE * globalScale;
         poseStack.translate(data.root.position.getX() * s, data.root.position.getY() * s, data.root.position.getZ() * s);
@@ -98,7 +103,9 @@ public final class DefinedRenderer {
         poseStack.translate(pivot.x, pivot.y, pivot.z);
         VanillaDraw.rotate(poseStack, DefinedModelPart.toJoml(data.center.rotation.getSmooth()));
         poseStack.translate(-pivot.x, -pivot.y, -pivot.z);
-        transformLocally(entity, definition, poseStack);
+        // What's done in vanilla's place for the animator, as far as the frame isn't left to vanilla.
+        float own = 1.0F - data.getEntityFrameVanilla();
+        transformLocally(entity, definition, poseStack, own);
 
         VanillaDraw.rotate(poseStack, new Quaternionf().rotationY(yaw));
         VanillaDraw.mulPose(poseStack, toModel);
@@ -113,24 +120,25 @@ public final class DefinedRenderer {
 
         // 1.12's ModelBiped lowered a sneaking biped's whole model, in the model's space, before
         // drawing its parts; this version's moves the parts instead, which the bent model doesn't
-        // read. The definitions' sneak offsets count on it.
+        // read. The definitions' sneak offsets count on it. A frame left to vanilla has vanilla's
+        // moved parts (a core:vanilla_pose node reads them), so neither applies, as far as it is.
         //? if >=26.1 {
         /*if (model instanceof HumanoidModel<?> && entity.isCrouching()) {
         *///?} else {
         if (model instanceof HumanoidModel<?> humanoid && humanoid.crouching) {
         //?}
-            poseStack.translate(0.0F, 0.2F, 0.0F);
+            poseStack.translate(0.0F, 0.2F * own, 0.0F);
         }
     }
 
-    /** 1.12's {@code DefinedRenderer.transformLocally}: a sneaking entity is raised by the definition's offset. */
-    private static void transformLocally(LivingEntity entity, EntityModelDefinition definition, PoseStack poseStack) {
+    /** 1.12's {@code DefinedRenderer.transformLocally}: a sneaking entity is raised by the definition's offset, times {@code own}. */
+    private static void transformLocally(LivingEntity entity, EntityModelDefinition definition, PoseStack poseStack, float own) {
         EntityModelDefinition.RendererSettings settings = definition.renderer;
         if (entity.isCrouching()) {
             boolean flying = entity instanceof Player player && RemoteFlight.isFlying(player);
             float offset = flying && settings.flyingSneakOffset != null ? settings.flyingSneakOffset : settings.sneakOffset;
             if (offset != 0) {
-                poseStack.translate(0.0F, offset * SCALE, 0.0F);
+                poseStack.translate(0.0F, offset * SCALE * own, 0.0F);
             }
         }
     }

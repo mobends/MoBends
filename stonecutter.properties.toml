@@ -50,6 +50,8 @@ deps.neo_loader = "21.1.265"
 mod.mc_releases = ["26.3"]
 # GeckoLib 5, published under com.geckolib.
 deps.geckolib = "5.5.7"
+# Player Animation Library (compile only; the Modrinth version id of its one jar for both loaders).
+deps.player_animation_library = "lQIjpkZc"
 
 [fabric."26.3"]
 mod.mc_compat = ">=26.3 <26.4"
@@ -60,6 +62,8 @@ mod.geckolib_compat = ">=5.5"
 # with -Pgeckolib, to try the armour on (Modrinth version ids).
 deps.fantasy_armor = "4VFDvfvz"
 deps.cloth_config = "fg2uyxOW"
+# Better Combat: in the development client with -PbetterCombat (a Modrinth version id).
+deps.better_combat = "8Vyq1h9a"
 
 [neoforge."26.3"]
 mod.mc_compat = "[26.3, 26.4)"

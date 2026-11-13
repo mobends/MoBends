@@ -11,6 +11,21 @@
   marks (`BendsRenderer.markBentDraw`). Layers get a bone's frame from `DefinedModel.applyVanillaFrame`
   after `DefinedRenderer.transformModel`; the bones come from the definition's `layers` block
   (`DefinedLayers`).
+- **Vanilla's pose** (`core:vanilla_pose`): on 26.x the entity is animated once its render state is
+  filled (`EntityRendererMixin`, at `createRenderState`'s return, so every subclass's
+  `extractRenderState` has run). `BendsRenderer.beforeRender` opens a `VanillaPoseReader` around
+  the animation; the first read runs the model's `setupAnim` from the state (and has Player
+  Animation Library sample its animation first, `PalOperations.beforeVanillaPose`), then works
+  out each bone's rotation and offset from vanilla's part tree (`DefinedModelPart.vanillaChain`).
+  When the node puts `root` and `center` at rest, the pose says how much the entity's frame is
+  vanilla's (`Pose.setVanillaFrame`, blended by fades and transitions as the bones are), which
+  the data gets once animated (`IKumoSubject.setEntityFrameVanilla`,
+  `DefinedEntityData.getEntityFrameVanilla`). The renderer gives vanilla's whole-entity transforms
+  by as much, and what it does in their place for the animator by the rest: the player's swimming
+  tilt, shift and drop (`DefinedRenderer.swimmingTiltShown`, `PlayerRendererMixin`), the sneak
+  offsets (`DefinedRenderer.transformModel`) and the iron golem's rock (`IronGolemRendererMixin`).
+  Before 26.1 no reader is opened: the renderers animate at `render`'s start, where calling
+  `prepareMobModel` / `setupAnim` with the arguments `captureRenderArguments` computes would do.
 
 The rest of this doc describes 1.12.2 (the `forge-1.12` branch).
 

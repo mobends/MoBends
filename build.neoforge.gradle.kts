@@ -22,7 +22,8 @@ repositories {
             includeGroup("com.geckolib")
         }
     }
-    // Fantasy Armor and Cloth Config, for trying GeckoLib's armour on in the development client.
+    // Fantasy Armor and Cloth Config, for trying GeckoLib's armour on in the development client, and
+    // Player Animation Library.
     maven("https://api.modrinth.com/maven") {
         name = "Modrinth"
         content { includeGroup("maven.modrinth") }
@@ -42,6 +43,11 @@ dependencies {
             runtimeOnly("maven.modrinth:fantasy_armor:${sc.properties["deps.fantasy_armor"]}") { isTransitive = false }
             runtimeOnly("maven.modrinth:cloth-config:${sc.properties["deps.cloth_config"]}") { isTransitive = false }
         }
+    }
+    // Player Animation Library, whose pose core:vanilla_pose can build on
+    // (standard.compat.pal); not needed. 26.x only.
+    if (sc.current.parsed >= "26.1") {
+        compileOnly("maven.modrinth:player-animation-library:${sc.properties["deps.player_animation_library"]}") { isTransitive = false }
     }
 }
 

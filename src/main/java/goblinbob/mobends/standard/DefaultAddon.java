@@ -8,6 +8,7 @@ import goblinbob.mobends.standard.client.renderer.entity.layers.PlayerAccessorie
 import goblinbob.mobends.standard.client.renderer.entity.layers.WolfMiscLayer;
 import goblinbob.mobends.standard.data.CapeWave;
 import goblinbob.mobends.standard.kumo.CapeDriver;
+import goblinbob.mobends.standard.compat.pal.PalOperations;
 import goblinbob.mobends.standard.kumo.MoBendsOperations;
 import goblinbob.mobends.standard.kumo.SwordTrailDriver;
 import goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsDriver;
@@ -46,6 +47,8 @@ public class DefaultAddon implements IAddon {
         // The operations and drivers the animators name; an animator naming one that isn't
         // registered fails to load.
         MoBendsOperations.register();
+        // Player Animation Library's (mobends:compat_pal_...).
+        PalOperations.register();
         registry.registerDriver("cape", CapeDriver::create, CapeDriver.Template.class);
         registry.registerDriver("sword_trail", SwordTrailDriver::create, SwordTrailDriver.Template.class);
         registry.registerDriver("spider_idle_legs", SpiderIdleLegsDriver::create, SpiderIdleLegsTemplate.class);

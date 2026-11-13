@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.kumo;
 
 import goblinbob.mobends.core.kumo.bind.IBoneSink;
+import goblinbob.mobends.core.kumo.bind.IVanillaPose;
 
 import javax.annotation.Nullable;
 
@@ -20,6 +21,27 @@ public interface IKumoSubject
      * @return the sink, or null if the subject has no part with that name.
      */
     IBoneSink getBone(String name);
+
+    /**
+     * The pose the subject's own model has this frame, which a {@code core:vanilla_pose} node
+     * poses its bones from; null where there is none to read (the node then poses nothing).
+     */
+    @Nullable
+    default IVanillaPose getVanillaPose()
+    {
+        return null;
+    }
+
+    /**
+     * Told, once the subject is animated, how much its frame is vanilla's this frame, 0..1: 1 where
+     * a {@code core:vanilla_pose} node put the entity's own bones ({@code root}, {@code center}) at
+     * rest, 0 where nothing did, and in between while it fades in or out (a layer's {@code @fade},
+     * a transition). Whatever the host does to the whole entity in place of vanilla, for the
+     * animator to do instead (a swimming tilt, a sneaking offset), it leaves to vanilla by as much.
+     */
+    default void setEntityFrameVanilla(float weight)
+    {
+    }
 
     /** The entity, which operations and {@code field} read, or null if there is none. */
     @Nullable

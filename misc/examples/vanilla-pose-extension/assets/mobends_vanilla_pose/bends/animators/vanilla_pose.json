@@ -1,0 +1,19 @@
+{
+  "formatVersion": 2,
+  "@comment": "One layer on top of the player's animator, while Player Animation Library (Better Combat's attacks, emotes) plays something on the player. Its node takes the pose PAL gives the vanilla model, and bends it: the elbows and the knees, which the vanilla model doesn't have. Out of PAL's animations the layer is off and Mo' Bends animates as usual.",
+  "layers": [
+    {
+      "@when": {"mobends:compat_pal_animation_playing": [], "@fallback": false},
+      "@fade": 2,
+      "defaultOnEntry": "theirs",
+      "nodes": {
+        "theirs": {"core:vanilla_pose": {"pose": [
+          {"core:rotate": {"bone": "rightForeArm", "axis": "x", "angle": -25}},
+          {"core:rotate": {"bone": "leftForeArm", "axis": "x", "angle": -25}},
+          {"core:rotate": {"bone": "rightForeLeg", "axis": "x", "angle": 12}},
+          {"core:rotate": {"bone": "leftForeLeg", "axis": "x", "angle": 12}}
+        ]}}
+      }
+    }
+  ]
+}

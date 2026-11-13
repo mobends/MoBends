@@ -172,12 +172,19 @@ public class SwordTrail implements EntityComponent {
 
     /**
      * The trail's quads as it stands, in the entity's frame: four corners each, every corner
-     * {@code x, y, z, alpha}; null if it has fewer than two parts or the config hides it.
+     * {@code x, y, z, alpha}; null if it has fewer than two parts, the config hides it or the entity's
+ * frame is vanilla's.
      */
     @Nullable
     private static float[] vertices(DefinedEntityData<?> data) {
         SwordTrail trail = data.getComponent("swordTrail", SwordTrail.class);
         if (trail == null || trail.parts.size() < 2 || !ClientConfig.INSTANCE.showSwordTrail()) {
+            return null;
+        }
+        // Mo' Bends' own, not vanilla's: it fades out as far as the entity's frame is left to vanilla
+        // (a core:vanilla_pose node, see DefinedEntityData.getEntityFrameVanilla).
+        float shown = 1.0F - data.getEntityFrameVanilla();
+        if (shown <= 0.0F) {
             return null;
         }
         float[] vertices = new float[(trail.parts.size() - 1) * 16];
@@ -187,7 +194,7 @@ public class SwordTrail implements EntityComponent {
         for (int i = 0; i < trail.parts.size(); i++) {
             TrailPart part = trail.parts.get(i);
             part.ends(near, far);
-            float alpha = part.alpha();
+            float alpha = part.alpha() * shown;
             if (i > 0) {
                 // A quad from the last part to this one, each end as faded as its part.
                 at = corner(vertices, at, lastNear, lastAlpha);
