@@ -248,6 +248,11 @@ public abstract class EntityBender<T extends EntityLivingBase>
 		return mutator.mutate(renderer);
 	}
 
+	/** Sets up an entity made for the Settings preview, before its renderer is selected. */
+	public void preparePreview(EntityLivingBase entity)
+	{
+	}
+
 	/**
 	 * Drops every mutation (the renderers go back to vanilla), so they are rebuilt from (reloaded)
 	 * resources on the next render.

@@ -254,6 +254,7 @@ public class EntityPreview
                 Core.LOG.warning("Unable to preview " + bender.getKey() + ": no entity of " + bender.entityClass.getName() + " can be made.");
                 return null;
             }
+            bender.preparePreview(made);
             world.register(made, bender);
             setUp.accept(made);
             return made;

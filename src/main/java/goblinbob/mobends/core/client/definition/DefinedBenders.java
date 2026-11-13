@@ -42,10 +42,16 @@ public final class DefinedBenders
                 return definition;
             }
         };
-        EntityBender<E> bender = new DefaultEntityBender<>(modId, definition.key, definition.unlocalizedName, entityClass,
+        EntityBender<E> bender = new DefaultEntityBender<E>(modId, definition.key, definition.unlocalizedName, entityClass,
                 entity -> DefinedEntityData.create(current.get(), entity),
                 () -> new DefinedMutator<>(current.get()),
-                new DefinedRenderer<>(current));
+                new DefinedRenderer<>(current)) {
+            @Override
+            public void preparePreview(EntityLivingBase entity)
+            {
+                SharedAssets.preparePreview(current.get().entity, entity);
+            }
+        };
         bender.setOptions(() -> current.get().options());
         return bender;
     }

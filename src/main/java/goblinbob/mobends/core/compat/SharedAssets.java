@@ -1,5 +1,9 @@
 package goblinbob.mobends.core.compat;
 
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntitySkeleton;
+import net.minecraft.entity.monster.EntityZombie;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +44,15 @@ public final class SharedAssets
     {
         String mapped = ENTITY_CLASSES.get(name);
         return mapped != null ? mapped : name;
+    }
+
+    /** Restores the variant implied by a shared definition's entity class when making its preview. */
+    public static void preparePreview(String name, EntityLivingBase entity)
+    {
+        if ("net.minecraft.entity.monster.EntityZombieVillager".equals(name) && entity instanceof EntityZombie)
+            ((EntityZombie) entity).setVillager(true);
+        else if ("net.minecraft.entity.monster.EntityWitherSkeleton".equals(name) && entity instanceof EntitySkeleton)
+            ((EntitySkeleton) entity).setSkeletonType(1);
     }
 
     /** Whether 1.8.9 has no such entity class, and no variant of another class that stands for it. */
