@@ -103,6 +103,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -112,7 +113,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import javax.annotation.Nullable;
 
 /**
- * Poses the entities Mo' Bends animates as their render starts, and asks for Mo' Bends' parts to be
+ * Poses the entities Mo' Bends animates as their render starts (with the vanilla model's pose for
+ * {@code core:vanilla_pose} to read, {@link #mobends$poseVanilla}), and asks for Mo' Bends' parts to be
  * drawn in place of the vanilla model (by the model itself, see {@link BendsRenderer#markBentDraw}).
  * Each layer of a bent entity is drawn inside {@link BendsLayers#begin}, so the layers' mixins can
  * move what they draw onto the bent parts.
@@ -147,8 +149,37 @@ public abstract class LivingEntityRendererMixin implements BendingEntityRenderer
         at = @At("HEAD")
     )
     private void mobends$pose(LivingEntity entity, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffers, int packedLight, CallbackInfo ci) {
-        mobends$bent = BendsRenderer.beforeRender(entity, ((LivingEntityRenderer<?, ?>) (Object) this).getModel(), partialTicks);
+        EntityModel<?> model = ((LivingEntityRenderer<?, ?>) (Object) this).getModel();
+        mobends$bent = BendsRenderer.beforeRender(entity, model, partialTicks, () -> mobends$poseVanilla(entity, model, partialTicks));
     }
+
+    /**
+     * Poses {@code model} as vanilla will further into this render, for {@code core:vanilla_pose}:
+     * the model's fields vanilla sets, then {@code prepareMobModel} and {@code setupAnim} (with what
+     * other mods do there) with the arguments vanilla computes. A subclass's renderer has set what
+     * it sets before calling this one's {@code render} (the player's arm poses and crouching). The
+     * model is shared by every entity the renderer draws, and posed again before it's drawn, so this
+     * leaves nothing behind.
+     */
+    @Unique
+    @SuppressWarnings("unchecked")
+    private void mobends$poseVanilla(LivingEntity entity, EntityModel<?> model, float partialTicks) {
+        EntityModel<LivingEntity> posed = (EntityModel<LivingEntity>) model;
+        posed.attackTime = getAttackAnim(entity, partialTicks);
+        posed.riding = entity.isPassenger();
+        posed.young = entity.isBaby();
+        BendsRenderer.RenderArguments arguments = BendsRenderer.RenderArguments.of(entity, partialTicks);
+        posed.prepareMobModel(entity, arguments.limbSwing(), arguments.limbSwingAmount(), partialTicks);
+        posed.setupAnim(entity, arguments.limbSwing(), arguments.limbSwingAmount(), getBob(entity, partialTicks), arguments.netHeadYaw(),
+                arguments.headPitch());
+    }
+
+    /** What vanilla passes {@code setupAnim} as the age in ticks (a renderer may pass something else: the wolf's tail angle). */
+    @Shadow
+    protected abstract float getBob(LivingEntity entity, float partialTicks);
+
+    @Shadow
+    protected abstract float getAttackAnim(LivingEntity entity, float partialTicks);
 
     /** A preview of the Mo' Bends menu has no name tag (the player's copy would show the player's name over it). */
     @Inject(method = "shouldShowName(Lnet/minecraft/world/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
