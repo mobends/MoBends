@@ -107,6 +107,9 @@ Nothing outside that package touches GeckoLib's classes but `standard.compat.gec
 
 Gradle runs on JDK 25 and builds 26.3 with it too, 1.21.1 with JDK 21, 1.20.1 with JDK 17. You don't need to install any: Gradle
 downloads them (`gradle/gradle-daemon-jvm.properties`, and the toolchains of the build scripts).
+`mise.toml` names the JDK that starts Gradle for those who use [mise](https://mise.jdx.dev). Other branches name
+theirs too (JDK 8 on `forge-1.12`), so switching branches or worktrees switches the JDK. Put personal overrides in
+`mise.local.toml`, which is ignored.
 
 | Command | What |
 |---|---|

@@ -1,0 +1,4 @@
+# The JDK that starts Gradle, for those who use mise (https://mise.jdx.dev).
+# Gradle runs itself on 25 (gradle/gradle-daemon-jvm.properties) and builds each Minecraft version with its own JDK.
+[tools]
+java = "temurin-25"
