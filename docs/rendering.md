@@ -24,8 +24,12 @@
   by as much, and what it does in their place for the animator by the rest: the player's swimming
   tilt, shift and drop (`DefinedRenderer.swimmingTiltShown`, `PlayerRendererMixin`), the sneak
   offsets (`DefinedRenderer.transformModel`) and the iron golem's rock (`IronGolemRendererMixin`).
-  Before 26.1 no reader is opened: the renderers animate at `render`'s start, where calling
-  `prepareMobModel` / `setupAnim` with the arguments `captureRenderArguments` computes would do.
+  Before 26.1 the entity is animated at `render`'s start (`LivingEntityRendererMixin`), and the
+  reader poses the vanilla model there as vanilla will further into `render`: the model's
+  `attackTime`, `riding` and `young`, then `prepareMobModel` and `setupAnim` with the renderer's
+  `getBob` and the arguments vanilla computes (`BendsRenderer.RenderArguments`, which the data's
+  head angles and limb swing are read from too). A subclass's renderer has set what it sets on the
+  model by then (the player's arm poses and crouching).
 
 The rest of this doc describes 1.12.2 (the `forge-1.12` branch).
 
