@@ -36,7 +36,8 @@ version and loader the IDE works on. The animation lab (`animation-lab/`, see it
 against recorded traces.
 [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/](docs/) explain how the project is put together.
 
-Mo' Bends for Minecraft 1.12.2 is developed on the [`forge-1.12`](https://github.com/mobends/MoBends/tree/forge-1.12) branch.
+Mo' Bends for Minecraft 1.12.2 is developed on the [`forge-1.12`](https://github.com/mobends/MoBends/tree/forge-1.12) branch,
+and for Minecraft 1.8.9 on the [`forge-1.8.9`](https://github.com/mobends/MoBends/tree/forge-1.8.9) branch.
 
 ### Troubleshooting
 - IntelliJ freaks out and can't find symbols in the project, but compiles fine.

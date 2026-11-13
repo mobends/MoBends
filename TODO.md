@@ -103,15 +103,17 @@ main                     all modern Minecraft versions × all loaders
  ├─ feature/<name>       short-lived, merged via pull request
  ├─ fix/<name>
 forge-1.12               1.12.2
+forge-1.8.9              1.8.9
 ```
 
-- `forge-1.12` does **not** merge from `main`. It shares the engine by depending on a **published,
-  pinned release of `core`** (e.g. `goblinbob.mobends:mobends-core:2.0.0`) and shading it into its
-  jar. To bring an engine fix to 1.12.2: fix it in `core/` on `main`, release a new `core` version,
-  and bump the dependency on `forge-1.12`. Nothing is cherry-picked or merged between branches;
-  what else `forge-1.12` has to follow (a shared asset, a new definition key the mod reads) is done
-  there by hand, from the steps in its TODO.md, *Keeping up with `main`* (see CONTRIBUTING.md,
-  *Branches*). An engine change goes through `core`, never by copying `core/` code.
+- `forge-1.12` and `forge-1.8.9` do **not** merge from `main`. They share the engine by depending on
+  a **published, pinned release of `core`** (e.g. `goblinbob.mobends:mobends-core:2.0.0`) and
+  shading it into their jars. To bring an engine fix to 1.12.2 and 1.8.9: fix it in `core/` on
+  `main`, release a new `core` version, and bump the dependency on each branch. Nothing is
+  cherry-picked or merged between branches; what else they have to follow (a shared asset, a new
+  definition key the mod reads) is done there by hand, from the steps in each branch's TODO.md,
+  *Keeping up with `main`* (see CONTRIBUTING.md, *Branches*). An engine change goes through
+  `core`, never by copying `core/` code.
 - A modern release ships **all targets at once**. Jars are named
   `mobends-<version>+<minecraft>-<loader>.jar`, e.g. `mobends-2.0.0+1.21.1-neoforge.jar`, tagged `v2.0.0`.
 - CI builds every version × loader combination, and uploads the jars of a tag to Modrinth and

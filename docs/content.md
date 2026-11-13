@@ -85,11 +85,13 @@ ids, no `model`, and parts by path. See *Field names* in `misc/kumo-format.md`.
 
 ### One format for every version
 
-The asset format is shared with `forge-1.12`, and so are the assets
+The asset format is shared with `forge-1.12` and `forge-1.8.9`, and so are the assets
 (`src/main/resources/assets/mobends/bends/`). Don't change what an existing key means. A new key is
-fine if 1.12.2 can ignore it (its Gson skips unknown keys), like `@variants`. When an asset only fits
-some Minecraft versions, say so in the asset, not by changing a branch's copy: `@variants` for a model
-definition that differs, `@when` on a type or extension file for a mob a version doesn't have.
+fine if 1.12.2 and 1.8.9 can ignore it (their Gson skips unknown keys), like `@variants`. When an asset
+only fits some Minecraft versions, say so in the asset, not by changing a branch's copy: `@variants`
+for a model definition that differs, `@when` on a type or extension file for a mob a version doesn't
+have. Entities are named as the later versions name them (`minecraft:zombie_villager`) on every
+branch; 1.8.9 maps its own names to them.
 
 ## What Resource Packs May Do
 

@@ -4,8 +4,8 @@ name: Release
 # (e.g. v2.0.0 or v2.0.0-alpha.2): builds every version node at once and the signed Legacy Mo' Bends
 # resource pack (misc/legacy-pack, for 1.12.2 and the modern versions alike), attaches them to the
 # tag's GitHub release, and uploads them to Modrinth and CurseForge. See CONTRIBUTING.md,
-# *Releasing the mod*. The 1.12.2 tags (v<version>-1.12.2) are released from forge-1.12, and the
-# core's (core-<version>) by publish-core.yml.
+# *Releasing the mod*. The 1.12.2 tags (v<version>-1.12.2) are released from forge-1.12, the 1.8.9
+# tags (v<version>-1.8.9) from forge-1.8.9, and the core's (core-<version>) by publish-core.yml.
 #
 # Secrets are kept to the steps that need them: the pack signing key to the signing step, which
 # runs no Gradle, the Modrinth and CurseForge tokens to the publishing jobs, which run no Gradle
@@ -200,7 +200,7 @@ jobs:
 
   # Modrinth and CurseForge, one version per node (e.g. 2.0.0+1.21.1-fabric). The project ids are
   # repository variables, the tokens repository (or `release` environment) secrets, shared with
-  # forge-1.12's release; see CONTRIBUTING.md.
+  # forge-1.12's and forge-1.8.9's releases; see CONTRIBUTING.md.
   publish:
     needs: build
     runs-on: ubuntu-latest
