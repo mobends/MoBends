@@ -26,12 +26,6 @@ on the Mo' Bends menu (`GuiBendsMenu`) and by *Open Dashboard* on the linking sc
 
 - [ ] IK for cows and sheep (feet planted on the ground), switched off while they run.
 
-## Multiple Minecraft versions and loaders
-
-The modern Minecraft versions and loaders are built on `main`, and its TODO.md tracks that plan.
-This branch shares only the engine with them: `mobends-core`, released from `core/` on `main` and
-used here at `core_version` (gradle.properties).
-
 ## Keeping up with `main`
 
 This branch doesn't merge from `main`, so whatever `main` changes that this branch has to follow
@@ -46,7 +40,7 @@ done right away. Once a group is done and merged here, delete it.
 
 Doesn't need a new `core`. On `main` the zombified piglin bends: `pig_zombie.json` (the mod's and the
 legacy pack's) got a `@variants` entry that names the piglin's model on versions after 1.12.2. Nothing
-changes in 1.12.2: the entry's `@when` doesn't hold on 1.12.2.
+changes in 1.8.9: the entry's `@when` doesn't hold on it.
 
 - [ ] Copy `assets/mobends/bends/models/pig_zombie.json` and
       `misc/legacy-pack/assets/mobends/bends/models/pig_zombie.json` from `main`.
@@ -55,25 +49,26 @@ changes in 1.12.2: the entry's `@when` doesn't hold on 1.12.2.
 
 ### #437: Wither skeletons are animated
 
-Doesn't need a new `core`. On `main` the wither skeleton bends as the skeleton does. The skeleton's
-definition names `EntitySkeleton`, which the wither skeleton isn't (both extend `AbstractSkeleton`, in
-1.12.2 too), so it was left vanilla here as well.
+Doesn't need a new `core`. On `main` the wither skeleton bends as the skeleton does. In 1.8.9 it is
+an `EntitySkeleton` of skeleton type 1 (`EntityIds` names it `minecraft:wither_skeleton`), so it may
+already take the skeleton's model here; check that before adding anything.
 
 - [ ] Copy `src/main/resources/assets/mobends/bends/models/wither_skeleton.json` from `main`. It
-      extends the skeleton's and names `net.minecraft.entity.monster.EntityWitherSkeleton`, a single
-      class name, which this branch reads as is.
+      extends the skeleton's and names `net.minecraft.entity.monster.EntityWitherSkeleton`, which
+      1.8.9 doesn't have: name `net.minecraft.entity.monster.EntitySkeleton` instead.
 - [ ] Give it a type file, as the skeleton has: copy
       `src/main/resources/assets/mobends/bends/types/wither_skeleton.json` from `main` (id
       `mobends:wither_skeleton`, selector `{"core:entity_type": ["minecraft:wither_skeleton"]}`).
       Mobs aren't registered in `DefaultAddon` any more (`registerDefinedEntity` is gone).
 - [ ] Add `"mobends:wither_skeleton"` to the lab's `DefinedModelsTest` (`theShippedTypesKeepTheirIds`'s
       expected ids, and next to the skeleton in `IDLE_MOVES` and `STAND_WHERE_THEY_STOPPED`), and
-      `DefinitionExtendsTest`'s `theWitherSkeletonIsTheSkeletonOfItsOwnEntity`, as on `main`.
+      `DefinitionExtendsTest`'s `theWitherSkeletonIsTheSkeletonOfItsOwnEntity`, as on `main` (with
+      1.8.9's class).
 - [ ] Mention it in `misc/kumo-format.md` (the list of model definitions, and `extends`) and in
       CHANGELOG.md.
-- [ ] Check in the game (`/summon wither_skeleton`): it walks, attacks with its stone sword and stands
-      on its feet as the skeleton does, at its bigger size, and the Settings menu lists it with its
-      own switch. The skeleton, the stray and the wither (the boss) are unchanged.
+- [ ] Check in the game (`/summon Skeleton ~ ~ ~ {SkeletonType:1}`): it walks, attacks with its stone
+      sword and stands on its feet as the skeleton does, at its bigger size, and the Settings menu
+      lists it with its own switch. The skeleton and the wither (the boss) are unchanged.
 
 ### #492: `@when` on type and extension files
 
