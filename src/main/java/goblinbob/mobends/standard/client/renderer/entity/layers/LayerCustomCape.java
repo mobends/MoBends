@@ -11,9 +11,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.EnumPlayerModelParts;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -43,37 +40,32 @@ public class LayerCustomCape implements LayerRenderer<AbstractClientPlayer>
 
         if (player.hasPlayerInfo() && !player.isInvisible() && player.isWearing(EnumPlayerModelParts.CAPE) && player.getLocationCape() != null)
         {
-            final ItemStack itemstack = player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            this.playerRenderer.bindTexture(player.getLocationCape());
+            GlStateManager.pushMatrix();
 
-            if (itemstack.getItem() != Items.ELYTRA)
+            if (player.isSneaking())
             {
-                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                this.playerRenderer.bindTexture(player.getLocationCape());
-                GlStateManager.pushMatrix();
-
-                if (player.isSneaking())
+                if (RemoteFlight.isFlying(player))
                 {
-                    if (RemoteFlight.isFlying(player))
-                    {
-                        GlStateManager.translate(0F, 4F * scale, 0F);
-                    }
-                    else
-                    {
-                        GlStateManager.translate(0F, 4F * scale, 0F);
-                    }
+                    GlStateManager.translate(0F, 4F * scale, 0F);
                 }
-
-                ((IModelPart) body).applyLocalTransform(0.0625F);
-                GlStateManager.translate(0.0F, -12.0F * scale, 2.2F * scale);
-                ((IModelPart) cape).applyLocalTransform(0.0625F);
-                GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
-
-                final CapeWave wave = data.getComponent("capeWave", CapeWave.class);
-                capeRenderer.applyAnimation(wave == null ? 0 : wave.getPhase());
-                capeRenderer.render(0.0625F);
-
-                GlStateManager.popMatrix();
+                else
+                {
+                    GlStateManager.translate(0F, 4F * scale, 0F);
+                }
             }
+
+            ((IModelPart) body).applyLocalTransform(0.0625F);
+            GlStateManager.translate(0.0F, -12.0F * scale, 2.2F * scale);
+            ((IModelPart) cape).applyLocalTransform(0.0625F);
+            GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
+
+            final CapeWave wave = data.getComponent("capeWave", CapeWave.class);
+            capeRenderer.applyAnimation(wave == null ? 0 : wave.getPhase());
+            capeRenderer.render(0.0625F);
+
+            GlStateManager.popMatrix();
         }
     }
 

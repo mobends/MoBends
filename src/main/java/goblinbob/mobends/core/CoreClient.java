@@ -1,5 +1,7 @@
 package goblinbob.mobends.core;
 
+import goblinbob.mobends.core.compat.Events;
+import goblinbob.mobends.core.compat.RenderPartialTicks;
 import goblinbob.mobends.core.addon.Addons;
 import goblinbob.mobends.core.asset.AssetReloadListener;
 import goblinbob.mobends.core.asset.AssetsModule;
@@ -25,7 +27,6 @@ import goblinbob.mobends.core.vanilla.VanillaEntityFields;
 import goblinbob.mobends.core.vanilla.VanillaModelParts;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IReloadableResourceManager;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -70,11 +71,12 @@ public class CoreClient extends Core<CoreClientConfig>
 
         KeyboardHandler.initKeyBindings();
 
-        MinecraftForge.EVENT_BUS.register(new EntityRenderHandler());
-        MinecraftForge.EVENT_BUS.register(new DataUpdateHandler());
-        MinecraftForge.EVENT_BUS.register(new KeyboardHandler());
-        MinecraftForge.EVENT_BUS.register(new WorldJoinHandler());
-        MinecraftForge.EVENT_BUS.register(new RayGizmoRenderer());
+        Events.register(new RenderPartialTicks.Tracker());
+        Events.register(new EntityRenderHandler());
+        Events.register(new DataUpdateHandler());
+        Events.register(new KeyboardHandler());
+        Events.register(new WorldJoinHandler());
+        Events.register(new RayGizmoRenderer());
 
         // Registering a listener to whenever resources have been reloaded.
         IReloadableResourceManager resourceManager = (IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager();

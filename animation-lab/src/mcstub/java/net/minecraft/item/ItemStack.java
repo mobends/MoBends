@@ -1,11 +1,9 @@
 package net.minecraft.item;
 
-import net.minecraft.init.Items;
-
+/** 1.8.9's stack: an empty slot holds null (there is no empty stack). */
 public class ItemStack
 {
-    public static final ItemStack EMPTY = new ItemStack(Items.AIR);
-
+    public int stackSize = 1;
     private final Item item;
     private String displayName;
 
@@ -15,9 +13,8 @@ public class ItemStack
         this.displayName = item.getName();
     }
 
-    public ItemStack setDisplayName(String name) { this.displayName = name; return this; }
+    public ItemStack setStackDisplayName(String name) { this.displayName = name; return this; }
     public Item getItem() { return item; }
-    public boolean isEmpty() { return item == Items.AIR; }
     public EnumAction getItemUseAction() { return item.getItemUseAction(this); }
     public String getDisplayName() { return displayName; }
 }

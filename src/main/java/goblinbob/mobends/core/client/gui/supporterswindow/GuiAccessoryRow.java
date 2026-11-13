@@ -112,8 +112,8 @@ public class GuiAccessoryRow implements IGuiListElement
         if (settings.isUnlocked())
         {
             final String status = I18n.format(settings.isHidden() ? "mobends.gui.supporters.hidden" : "mobends.gui.supporters.unlocked");
-            statusWidth = mc.fontRenderer.getStringWidth(status);
-            mc.fontRenderer.drawString(status, x + width - 6 - statusWidth, textY, 0x6fd35a);
+            statusWidth = mc.fontRendererObj.getStringWidth(status);
+            mc.fontRendererObj.drawString(status, x + width - 6 - statusWidth, textY, 0x6fd35a);
         }
         else
         {
@@ -122,7 +122,7 @@ public class GuiAccessoryRow implements IGuiListElement
             mc.getTextureManager().bindTexture(GuiBenderList.LIST_TEXTURE);
             Draw.texturedModalRect(lockX(), lockY(), LOCK_U, LOCK_V, LOCK_WIDTH, LOCK_HEIGHT);
         }
-        mc.fontRenderer.drawStringWithShadow(mc.fontRenderer.trimStringToWidth(name, width - 12 - statusWidth - 6),
+        mc.fontRendererObj.drawStringWithShadow(mc.fontRendererObj.trimStringToWidth(name, width - 12 - statusWidth - 6),
                 x + 6, textY, 0xffffff);
         GlStateManager.color(1F, 1F, 1F, 1F);
     }

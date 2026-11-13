@@ -6,13 +6,12 @@ import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
-import goblinbob.mobends.standard.compat.geckolib.GeckoLibCompat;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.inventory.EntityEquipmentSlot;
+import goblinbob.mobends.core.compat.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -42,7 +41,8 @@ public class ArmorWrapper extends ModelBiped
     @Nullable
     protected final IArmorGeometry geometry;
     /** The armour piece being drawn, for {@link #geometry}: set before every render. */
-    private ItemStack wornStack = ItemStack.EMPTY;
+    @Nullable
+    private ItemStack wornStack = null;
     private EntityEquipmentSlot wornSlot = EntityEquipmentSlot.CHEST;
 
     protected IPartWrapper bodyParts,
@@ -66,7 +66,8 @@ public class ArmorWrapper extends ModelBiped
     private ArmorWrapper(ModelBiped original)
     {
         this.original = original;
-        this.geometry = GeckoLibCompat.geometryFor(original);
+        // GeckoLib, the only source of armour that draws its own mesh, has no 1.8.9 release.
+        this.geometry = null;
         // Replacing our unused modelRenderer properties with the ones from
         // the original model, meaning that whenever some internal method changes
         // the visibility of a model we can get it from these.

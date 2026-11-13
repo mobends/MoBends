@@ -3,7 +3,7 @@ package goblinbob.mobends.standard.kumo.spider;
 import goblinbob.mobends.core.data.EntityComponent;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.util.GUtil;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 
 /**
  * {@code mobends:spider_legs}: where a spider's feet are planted in the world, which its leg

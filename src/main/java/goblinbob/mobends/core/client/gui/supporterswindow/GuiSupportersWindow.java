@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.client.gui.supporterswindow;
 
+import goblinbob.mobends.core.compat.Living;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
@@ -29,8 +30,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.MathHelper;
+import goblinbob.mobends.core.compat.EnumHand;
+import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 
 import javax.annotation.Nullable;
@@ -130,18 +131,18 @@ public class GuiSupportersWindow extends GuiScreen
         final int left = x + PADDING;
 
         // The container is drawn from (x, y), its content inset by the padding.
-        this.headerLines = fontRenderer.listFormattedStringToWidth(headerMessage(), INNER_WIDTH);
+        this.headerLines = fontRendererObj.listFormattedStringToWidth(headerMessage(), INNER_WIDTH);
         if (headerLines.size() > MAX_HEADER_LINES)
             headerLines = headerLines.subList(0, MAX_HEADER_LINES);
         // The frames' borders are drawn outside the body, over the gaps around it: they're a GAP wider.
-        this.bodyTop = y + PADDING + headerLines.size() * fontRenderer.FONT_HEIGHT + 2 * GAP;
+        this.bodyTop = y + PADDING + headerLines.size() * fontRendererObj.FONT_HEIGHT + 2 * GAP;
         final int buttonsY = y + editorHeight - PADDING - BUTTON_HEIGHT;
         this.bodyHeight = buttonsY - 2 * GAP - bodyTop;
 
         buttonList.clear();
         buttonList.add(new GuiButton(COMPONENT_BUTTON_BACK, 10, height - 30, 60, 20, I18n.format("mobends.gui.back")));
         final String refresh = I18n.format("mobends.gui.supporters.refresh");
-        final int refreshWidth = fontRenderer.getStringWidth(refresh) + 20;
+        final int refreshWidth = fontRendererObj.getStringWidth(refresh) + 20;
         final int supportWidth = INNER_WIDTH - refreshWidth - GAP;
         buttonList.add(new GuiButton(COMPONENT_BUTTON_SUPPORT, left, buttonsY, supportWidth, BUTTON_HEIGHT, I18n.format("mobends.gui.supporters.support")));
         buttonList.add(new GuiButton(COMPONENT_BUTTON_REFRESH, left + INNER_WIDTH - refreshWidth, buttonsY, refreshWidth, BUTTON_HEIGHT, refresh));
@@ -163,15 +164,15 @@ public class GuiSupportersWindow extends GuiScreen
         Draw.texturedModalRect(x - 4, y - 17, 101, 0, 4, 16);
         Draw.texturedModalRect(x, y - 17, EDITOR_WIDTH - 16, 16, 105, 0, 1, 16);
         Draw.texturedModalRect(x + EDITOR_WIDTH - 21, y - 17, 106, 0, 19, 16);
-        fontRenderer.drawStringWithShadow(I18n.format("mobends.gui.supporters"), x + 2, y - 13, 0xffffff);
+        fontRendererObj.drawStringWithShadow(I18n.format("mobends.gui.supporters"), x + 2, y - 13, 0xffffff);
 
         // On the light container, dark text as in the game's own windows.
         final int headerColor = isSupporter() ? 0x2e7d32 : 0x404040;
         int lineY = y + PADDING + 1;
         for (String line : headerLines)
         {
-            fontRenderer.drawString(line, x + PADDING, lineY, headerColor);
-            lineY += fontRenderer.FONT_HEIGHT;
+            fontRendererObj.drawString(line, x + PADDING, lineY, headerColor);
+            lineY += fontRendererObj.FONT_HEIGHT;
         }
 
         // drawScreen's partialTicks is the frame's length in ticks (Minecraft#getTickLength), not the
@@ -183,10 +184,10 @@ public class GuiSupportersWindow extends GuiScreen
             final String empty = I18n.format("mobends.gui.supporters.empty");
             final int listLeft = x + PADDING + PREVIEW_WIDTH + GAP;
             int emptyY = bodyTop + 10;
-            for (String line : fontRenderer.listFormattedStringToWidth(empty, accessoryList.getWidth() - 16))
+            for (String line : fontRendererObj.listFormattedStringToWidth(empty, accessoryList.getWidth() - 16))
             {
-                fontRenderer.drawString(line, listLeft + 8, emptyY, 0x9a9a9a);
-                emptyY += fontRenderer.FONT_HEIGHT;
+                fontRendererObj.drawString(line, listLeft + 8, emptyY, 0x9a9a9a);
+                emptyY += fontRendererObj.FONT_HEIGHT;
             }
         }
 
@@ -194,7 +195,7 @@ public class GuiSupportersWindow extends GuiScreen
 
         if (accessoryList.isLockHovered())
         {
-            drawHoveringText(I18n.format("mobends.gui.supporters.locked"), mouseX, mouseY);
+            drawHoveringText(Collections.singletonList(I18n.format("mobends.gui.supporters.locked")), mouseX, mouseY);
             // It leaves the item lighting on.
             RenderHelper.disableStandardItemLighting();
         }
@@ -280,7 +281,7 @@ public class GuiSupportersWindow extends GuiScreen
         final int tick = animatedTicks++ % loopTicks;
         if (swinging && tick < turnStart && tick % SWING_TICKS == 0)
         {
-            entity.swingArm(EnumHand.MAIN_HAND);
+            entity.swingItem();
         }
 
         final float turn = turnedBy(tick + 1, turnStart) - turnedBy(tick, turnStart);
@@ -295,7 +296,7 @@ public class GuiSupportersWindow extends GuiScreen
     /** Degrees the previewed player has turned {@code tick} ticks into its loop, the turn starting at {@code turnStart}. */
     private static float turnedBy(int tick, int turnStart)
     {
-        final float t = MathHelper.clamp((tick - turnStart) / (float) TURN_TICKS, 0F, 1F);
+        final float t = MathHelper.clamp_float((tick - turnStart) / (float) TURN_TICKS, 0F, 1F);
         return 180F * t * t * (3F - 2F * t);
     }
 
@@ -349,8 +350,8 @@ public class GuiSupportersWindow extends GuiScreen
                 break;
             case COMPONENT_BUTTON_REFRESH:
                 SupporterContent.fetchAccessoryDetails();
-                if (mc.player != null)
-                    SupporterContent.forgetPlayer(mc.player.getName());
+                if (mc.thePlayer != null)
+                    SupporterContent.forgetPlayer(mc.thePlayer.getName());
                 break;
             default:
                 break;
@@ -390,7 +391,7 @@ public class GuiSupportersWindow extends GuiScreen
     private static Map<String, AccessorySettings> fetchOwnSettings()
     {
         // Not this.mc: the constructor asks too, and the game only sets mc after it.
-        final EntityPlayerSP player = Minecraft.getMinecraft().player;
+        final EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
         return player == null ? Collections.emptyMap() : SupporterContent.getAccessorySettingsMapFor(player);
     }
 
@@ -416,8 +417,8 @@ public class GuiSupportersWindow extends GuiScreen
             final EntityPreview preview = previews.computeIfAbsent(key, k -> new EntityPreview(previewWorld, playerBender, made -> {
                 dress(made, key);
                 dressed.add(made);
-                if (SWORD_TRAIL_KEY.equals(key) && !(made.getHeldItemMainhand().getItem() instanceof ItemSword))
-                    made.setHeldItem(EnumHand.MAIN_HAND, new ItemStack(Items.IRON_SWORD));
+                if (SWORD_TRAIL_KEY.equals(key) && !(Living.getItem(Living.getHeldItemMainhand(made)) instanceof ItemSword))
+                    made.setCurrentItemOrArmor(0, new ItemStack(Items.iron_sword));
             }));
             if (preview.getEntity() != null)
                 dress(preview.getEntity(), key);

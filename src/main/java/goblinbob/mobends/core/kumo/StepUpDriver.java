@@ -11,7 +11,7 @@ import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.PointTemplate;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.Map;
@@ -96,7 +96,7 @@ public final class StepUpDriver
             if (entity instanceof Entity)
             {
                 Entity e = (Entity) entity;
-                result = search(e.world, e.posX, e.posY, e.posZ, directionX.get(context), directionZ.get(context),
+                result = search(e.worldObj, e.posX, e.posY, e.posZ, directionX.get(context), directionZ.get(context),
                         distance.get(context), height.get(context), solid, step);
                 if (debug)
                 {

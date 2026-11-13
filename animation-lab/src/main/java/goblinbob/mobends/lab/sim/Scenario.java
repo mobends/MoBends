@@ -40,6 +40,23 @@ public class Scenario
         return kind.id() + "/" + name;
     }
 
+    /**
+     * What the scenario asks for that 1.8.9 doesn't have (see {@link EntityInputs#laterVersionsOnly}), or null. Its
+     * golden was recorded on 1.12.2, with the feature; on 1.8.9 the scenario can't be played.
+     */
+    public String laterVersionsOnly()
+    {
+        final EntityInputs inputs = new EntityInputs();
+        for (int tick = 0; tick < ticks; tick++)
+        {
+            inputs.reset();
+            script.fill(tick, inputs);
+            final String unsupported = inputs.laterVersionsOnly(kind == EntityKind.PLAYER);
+            if (unsupported != null) return unsupported;
+        }
+        return null;
+    }
+
     public int frameCount()
     {
         return ticks * fps / 20;

@@ -148,7 +148,7 @@ public class EntityTypesTest
         assertTrue(SelectorExpression.compile(json("{'core:player_name': ['Notch']}")).isStable());
 
         World world = new World();
-        Minecraft.getMinecraft().world = world;
+        Minecraft.getMinecraft().theWorld = world;
         assertTrue(SelectorExpression.compile(json("{'core:entity_type': ['minecraft:zombie']}")).test(new EntityZombie(world)));
         assertFalse(SelectorExpression.compile(json("{'core:player_name': ['Notch']}")).test(new EntityZombie(world)));
     }

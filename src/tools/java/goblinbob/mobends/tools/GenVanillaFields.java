@@ -25,15 +25,16 @@ import java.util.zip.ZipFile;
  *     <li>goblinbob/mobends/core/vanilla/VanillaEntityFields.java: every numeric field of Entity,
  *     EntityLivingBase and the living entities, and its declared type (a double or a long is a
  *     double to an animator, the others a number),</li>
- *     <li>the generated section of META-INF/accesstransformer.cfg, making the non-public ones readable.</li>
+ *     <li>the generated section of META-INF/accesstransformer.cfg, making them readable.</li>
  * </ul>
  *
  * The accessors read the fields directly, so the compiler checks every name and reobfuscation renames
  * them for production; no SRG name is looked up at runtime. Fields added by mods are not obfuscated
  * and are found by reflection instead (see DefinedFields).
  *
- * <p>Reads the SRG-named Forge jar (the access flags before this mod's access transformer) and the
- * SRG-to-MCP mappings from ForgeGradle's cache in build/fg_cache, so run the Gradle setup first.
+ * <p>Reads the SRG-named Minecraft jar and MCP's field names that Loom downloads and prepares, so run the Gradle
+ * setup first. Loom applies this mod's access transformer to that jar, so its access flags can't tell which fields
+ * need an entry: every field read gets one.
  * Every output names the versions it was generated for (see the stamp), which checkVanillaFields
  * compares with gradle.properties before compiling. Run with {@code gradle generateVanillaFields}.
  */
@@ -90,15 +91,13 @@ public final class GenVanillaFields
         final String mcp;
         final String srg;
         final String descriptor;
-        final boolean isPublic;
 
-        Found(String owner, String mcp, String srg, String descriptor, boolean isPublic)
+        Found(String owner, String mcp, String srg, String descriptor)
         {
             this.owner = owner;
             this.mcp = mcp;
             this.srg = srg;
             this.descriptor = descriptor;
-            this.isPublic = isPublic;
         }
 
         String ownerName()
@@ -116,41 +115,30 @@ public final class GenVanillaFields
     {
     }
 
-    /** Arguments: project directory, Minecraft version, Forge version, mappings ({@code <channel>_<version>}). */
+    /**
+     * Arguments: project directory, Minecraft version, Forge version, mappings ({@code <channel>_<version>}), the
+     * SRG-named Minecraft jar and the MCP mappings zip (with fields.csv).
+     */
     public static void main(String[] args) throws IOException
     {
-        if (args.length != 4)
+        if (args.length != 6)
         {
-            System.err.println("Usage: GenVanillaFields <project dir> <minecraft version> <forge version> <mappings channel_version>");
+            System.err.println("Usage: GenVanillaFields <project dir> <minecraft version> <forge version> <mappings channel_version> <srg jar> <mcp zip>");
             System.exit(2);
         }
         String root = args[0], mc = args[1], forge = args[2], mappingsName = args[3];
-        // Keep in sync with checkVanillaFields in build.gradle.
+        // Keep in sync with checkVanillaFields in build.gradle.kts.
         String stamp = "for " + mc + "-" + forge + " with " + mappingsName;
         File project = new File(root);
-        File cache = new File(project, "build/fg_cache");
-        File jar = new File(cache, "net/minecraftforge/forge/" + mc + "-" + forge + "/forge-" + mc + "-" + forge + "-srg.jar");
-        File mappingsFile = null;
-        File[] configs = new File(cache, "de/oceanlabs/mcp/mcp_config").listFiles(f -> f.getName().startsWith(mc + "-"));
-        if (configs != null)
+        File jar = new File(args[4]);
+        File mcpZip = new File(args[5]);
+        if (!jar.isFile() || !mcpZip.isFile())
         {
-            for (File config : configs)
-            {
-                File candidate = new File(config, "srg_to_" + mappingsName + ".tsrg");
-                if (candidate.isFile())
-                {
-                    mappingsFile = candidate;
-                    break;
-                }
-            }
-        }
-        if (!jar.isFile() || mappingsFile == null)
-        {
-            System.err.println("Missing " + jar + " or the SRG-to-MCP mappings under " + cache + ": run the ForgeGradle setup (e.g. `gradle compileJava`) first.");
+            System.err.println("Missing " + jar + " or " + mcpZip + ": run the Loom setup (e.g. `./gradlew compileJava`) first.");
             System.exit(1);
         }
 
-        Map<String, Map<String, String>> mappings = readMappings(mappingsFile);
+        Map<String, String> mappings = readMappings(mcpZip);
         Map<String, ClassInfo> classes = readClasses(jar);
 
         List<Found> parts = new ArrayList<>();
@@ -178,8 +166,7 @@ public final class GenVanillaFields
         List<Found> all = new ArrayList<>(parts);
         all.addAll(numbers);
         writeAccessTransformer(new File(project, "src/main/resources/META-INF/accesstransformer.cfg"), stamp, all);
-        System.out.println(parts.size() + " model parts, " + numbers.size() + " entity fields, "
-                + all.stream().filter(f -> !f.isPublic).count() + " made public by the access transformer");
+        System.out.println(parts.size() + " model parts, " + numbers.size() + " entity fields");
     }
 
     private static boolean extendsClass(Map<String, ClassInfo> classes, String name, String root)
@@ -194,31 +181,37 @@ public final class GenVanillaFields
         return false;
     }
 
-    private static List<Found> fieldsOf(Map<String, ClassInfo> classes, Map<String, Map<String, String>> mappings, String owner, Predicate<String> accept)
+    private static List<Found> fieldsOf(Map<String, ClassInfo> classes, Map<String, String> mappings, String owner, Predicate<String> accept)
     {
         List<Found> found = new ArrayList<>();
-        Map<String, String> ownerMappings = mappings.get(owner);
         for (FieldInfo field : classes.get(owner).fields)
         {
             if ((field.access & (Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC)) != 0 || !accept.test(field.descriptor))
                 continue;
-            String mcp = ownerMappings != null && ownerMappings.containsKey(field.name) ? ownerMappings.get(field.name) : field.name;
-            found.add(new Found(owner, mcp, field.name, field.descriptor, (field.access & Opcodes.ACC_PUBLIC) != 0));
+            String mcp = mappings.getOrDefault(field.name, field.name);
+            found.add(new Found(owner, mcp, field.name, field.descriptor));
         }
         return found;
     }
 
-    /** {@code {class: {srg field: mcp field}}} from a TSRG file (methods carry a descriptor and are skipped). */
-    private static Map<String, Map<String, String>> readMappings(File file) throws IOException
+    /** {@code {srg field: mcp field}} from the fields.csv of an MCP mappings zip (SRG field names are unique). */
+    private static Map<String, String> readMappings(File zipFile) throws IOException
     {
-        Map<String, Map<String, String>> fields = new HashMap<>();
-        Map<String, String> owner = null;
-        for (String line : Files.readAllLines(file.toPath(), StandardCharsets.UTF_8))
+        Map<String, String> fields = new HashMap<>();
+        try (ZipFile zip = new ZipFile(zipFile))
         {
-            if (line.trim().isEmpty()) continue;
-            String[] parts = line.trim().split("\\s+");
-            if (!line.startsWith("\t")) owner = fields.computeIfAbsent(parts[0], k -> new HashMap<>());
-            else if (parts.length == 2 && owner != null) owner.put(parts[0], parts[1]);
+            ZipEntry entry = zip.getEntry("fields.csv");
+            if (entry == null) throw new IOException("No fields.csv in " + zipFile);
+            try (InputStream stream = zip.getInputStream(entry))
+            {
+                Scanner scanner = new Scanner(stream, "UTF-8");
+                scanner.nextLine(); // searge,name,side,desc
+                while (scanner.hasNextLine())
+                {
+                    String[] parts = scanner.nextLine().split(",", 3);
+                    if (parts.length >= 2) fields.put(parts[0], parts[1]);
+                }
+            }
         }
         return fields;
     }
@@ -238,7 +231,7 @@ public final class GenVanillaFields
                 List<FieldInfo> fields = new ArrayList<>();
                 try (InputStream stream = zip.getInputStream(entry))
                 {
-                    new ClassReader(stream).accept(new ClassVisitor(Opcodes.ASM5)
+                    new ClassReader(stream).accept(new ClassVisitor(Opcodes.ASM9)
                     {
                         @Override
                         public void visit(int version, int access, String className, String signature, String superClass, String[] interfaces)
@@ -335,7 +328,9 @@ public final class GenVanillaFields
         out.add("# --- generated by generateVanillaFields (src/tools) " + stamp + ", do not edit below ---");
         for (Found field : fields)
         {
-            if (!field.isPublic && !already.contains(field.ownerName() + " " + field.srg))
+            // Every field, public or not: Loom applies this access transformer to the SRG-named jar this reads,
+            // so a field's access there may already be this file's doing.
+            if (!already.contains(field.ownerName() + " " + field.srg))
             {
                 out.add("public " + field.ownerName() + " " + field.srg + " # " + field.mcp);
             }

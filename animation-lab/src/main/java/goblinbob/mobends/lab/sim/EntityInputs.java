@@ -46,12 +46,13 @@ public class EntityInputs
     /** A left-handed entity (the attack bits mirror on it). */
     public boolean leftHanded = false;
     /** The hand the item in use is held in. */
-    public net.minecraft.util.EnumHand activeHand = net.minecraft.util.EnumHand.MAIN_HAND;
+    public goblinbob.mobends.core.compat.EnumHand activeHand = goblinbob.mobends.core.compat.EnumHand.MAIN_HAND;
     public int itemUseCount = 0;
     public int itemUseMaxCount = 0;
 
-    public ItemStack mainHand = ItemStack.EMPTY;
-    public ItemStack offHand = ItemStack.EMPTY;
+    /** What the hands hold, null for nothing (1.8.9 has no empty stack). */
+    public ItemStack mainHand = null;
+    public ItemStack offHand = null;
 
     // Species specific.
     public boolean wolfSitting = false;
@@ -60,6 +61,19 @@ public class EntityInputs
     public boolean spiderClimbing = false;
     public float squidRotation = 0;
     public float health = 20;
+
+    /**
+     * What these inputs ask for that 1.8.9 doesn't have (an off hand, the elytra, left-handed entities, items used
+     * by anything but a player), or null if nothing.
+     */
+    public String laterVersionsOnly(boolean player)
+    {
+        if (offHand != null || activeHand != goblinbob.mobends.core.compat.EnumHand.MAIN_HAND) return "the off hand";
+        if (elytraTicks > 0) return "the elytra";
+        if (leftHanded) return "left-handed entities";
+        if (!player && (itemUseCount > 0 || itemUseMaxCount > 0)) return "items used by other entities than players";
+        return null;
+    }
 
     /** Puts every input back to its default (scripts fill them in again each tick). */
     public void reset()
@@ -86,6 +100,8 @@ public class EntityInputs
         this.ridingLiving = fresh.ridingLiving;
         this.elytraTicks = fresh.elytraTicks;
         this.attack = fresh.attack;
+        this.leftHanded = fresh.leftHanded;
+        this.activeHand = fresh.activeHand;
         this.itemUseCount = fresh.itemUseCount;
         this.itemUseMaxCount = fresh.itemUseMaxCount;
         this.mainHand = fresh.mainHand;

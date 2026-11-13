@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.kumo;
 
+import goblinbob.mobends.core.compat.Living;
 import goblinbob.mobends.core.kumo.MinecraftKumoOperations;
 import goblinbob.mobends.core.kumo.api.BooleanEvaluator;
 import goblinbob.mobends.core.kumo.api.KumoOperation;
@@ -19,7 +20,7 @@ import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.BlockPos;
 
 /**
  * The {@code mobends:} operations: Mo' Bends' own classifications and settings, and what the
@@ -47,9 +48,9 @@ public final class MoBendsOperations
                     UseActionType action = UseActionType.valueOf(args.string(0).toUpperCase());
                     return (BooleanEvaluator) (context, values) -> {
                         EntityLivingBase entity = (EntityLivingBase) context.entity();
-                        return entity != null && action == ItemActions.getItemUseAction(entity.getActiveItemStack().getItem(),
-                                ItemActions.armPoseOf(entity, entity.getHeldItemMainhand()),
-                                ItemActions.armPoseOf(entity, entity.getHeldItemOffhand()));
+                        return entity != null && action == ItemActions.getItemUseAction(Living.getItem(Living.getActiveItemStack(entity)),
+                                ItemActions.armPoseOf(entity, Living.getHeldItemMainhand(entity)),
+                                ItemActions.armPoseOf(entity, Living.getHeldItemOffhand(entity)));
                     };
                 }));
         // {"mobends:attack_action": ["sword"]}: the held item attacks as a sword.
@@ -61,7 +62,7 @@ public final class MoBendsOperations
                     AttackActionType action = AttackActionType.valueOf(args.string(0).toUpperCase());
                     return (BooleanEvaluator) (context, values) -> {
                         EntityLivingBase entity = (EntityLivingBase) context.entity();
-                        return entity != null && action == ItemActions.getItemAttackAction(entity.getHeldItemMainhand().getItem());
+                        return entity != null && action == ItemActions.getItemAttackAction(Living.getItem(Living.getHeldItemMainhand(entity)));
                     };
                 }));
 
@@ -111,9 +112,9 @@ public final class MoBendsOperations
         BlockPos position = new BlockPos(Math.floor(spider.posX), Math.floor(spider.posY), Math.floor(spider.posZ));
         for (EnumFacing wall : WALLS)
         {
-            if (spider.world.getBlockState(position.add(wall.getDirectionVec())).getBlock() != Blocks.AIR)
+            if (spider.worldObj.getBlockState(position.add(wall.getDirectionVec())).getBlock() != Blocks.air)
             {
-                return wall.getHorizontalAngle();
+                return wall.getHorizontalIndex() * 90.0F;
             }
         }
         return 0;

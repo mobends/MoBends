@@ -9,7 +9,6 @@ import goblinbob.mobends.standard.client.renderer.entity.ArrowTrailManager;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomBipedArmor;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomCape;
-import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomElytra;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomHeldItem;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerPlayerAccessories;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerWolfMisc;
@@ -28,7 +27,6 @@ import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
 import net.minecraft.client.renderer.entity.layers.LayerCape;
 import net.minecraft.client.renderer.entity.layers.LayerCreeperCharge;
 import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
-import net.minecraft.client.renderer.entity.layers.LayerElytra;
 import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.client.renderer.entity.layers.LayerSheepWool;
 
@@ -55,7 +53,6 @@ public class DefaultAddon implements IAddon
 		registry.registerLayer("custom_head", LayerCustomHead.class, context -> new LayerCustomHead(context.bones.apply(
 				context.options.has("bone") ? context.options.get("bone").getAsString() : "head")));
 		registry.registerLayer("cape", LayerCape.class, context -> new LayerCustomCape((RenderPlayer) context.renderer));
-		registry.registerLayer("elytra", LayerElytra.class, context -> new LayerCustomElytra((RenderPlayer) context.renderer));
 		registry.registerLayer("accessories", null, context -> new LayerPlayerAccessories(context.renderer));
 		registry.registerLayer("wolf_misc", null, context -> new LayerWolfMisc());
 		// Layers that draw their own copy of the model, drawn animated.

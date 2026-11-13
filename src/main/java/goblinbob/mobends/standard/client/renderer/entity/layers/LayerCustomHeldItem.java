@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.client.renderer.entity.layers;
 
+import goblinbob.mobends.core.compat.Living;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.math.SmoothOrientation;
@@ -8,11 +9,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
+import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHandSide;
+import goblinbob.mobends.core.compat.EnumHandSide;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -20,52 +26,54 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class LayerCustomHeldItem implements LayerRenderer<EntityLivingBase>
 {
 
-    protected final RenderLivingBase<?> livingEntityRenderer;
+    protected final RendererLivingEntity<?> livingEntityRenderer;
 
-    public LayerCustomHeldItem(RenderLivingBase<?> livingEntityRendererIn)
+    public LayerCustomHeldItem(RendererLivingEntity<?> livingEntityRendererIn)
     {
         this.livingEntityRenderer = livingEntityRendererIn;
     }
 
+    /** As 1.8.9's LayerHeldItem, but the item follows the animated hand (see {@link #translateToHand}). */
     public void doRenderLayer(EntityLivingBase entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
-        boolean flag = entitylivingbaseIn.getPrimaryHand() == EnumHandSide.RIGHT;
-        ItemStack itemstack = flag ? entitylivingbaseIn.getHeldItemOffhand() : entitylivingbaseIn.getHeldItemMainhand();
-        ItemStack itemstack1 = flag ? entitylivingbaseIn.getHeldItemMainhand() : entitylivingbaseIn.getHeldItemOffhand();
+        ItemStack itemstack = entitylivingbaseIn.getHeldItem();
 
-        if (!itemstack.isEmpty() || !itemstack1.isEmpty())
+        if (!Living.isEmpty(itemstack))
         {
             GlStateManager.pushMatrix();
 
             if (this.livingEntityRenderer.getMainModel().isChild)
             {
-                GlStateManager.translate(0.0F, 0.75F, 0.0F);
+                GlStateManager.translate(0.0F, 0.625F, 0.0F);
+                GlStateManager.rotate(-20.0F, -1.0F, 0.0F, 0.0F);
                 GlStateManager.scale(0.5F, 0.5F, 0.5F);
             }
 
-            this.renderHeldItem(entitylivingbaseIn, itemstack1, ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, EnumHandSide.RIGHT);
-            this.renderHeldItem(entitylivingbaseIn, itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, EnumHandSide.LEFT);
-            GlStateManager.popMatrix();
-        }
-    }
-
-    private void renderHeldItem(EntityLivingBase entity, ItemStack p_188358_2_, ItemCameraTransforms.TransformType p_188358_3_, EnumHandSide handSide)
-    {
-        if (!p_188358_2_.isEmpty())
-        {
-            GlStateManager.pushMatrix();
-
-            if (entity.isSneaking())
+            // As Forge does in later versions: before the hand, so the item follows the model's sneak offset.
+            if (entitylivingbaseIn.isSneaking())
             {
                 GlStateManager.translate(0.0F, 0.2F, 0.0F);
             }
-            // Forge: moved this call down, fixes incorrect offset while sneaking.
-            this.translateToHand(handSide, entity);
-            GlStateManager.rotate(-90.0F, 1.0F, 0.0F, 0.0F);
-            GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
-            boolean flag = handSide == EnumHandSide.LEFT;
-            GlStateManager.translate((float)(flag ? -1 : 1) / 16.0F, 0.125F, -0.625F);
-            Minecraft.getMinecraft().getItemRenderer().renderItemSide(entity, p_188358_2_, p_188358_3_, flag);
+            this.translateToHand(EnumHandSide.RIGHT, entitylivingbaseIn);
+            GlStateManager.translate(-0.0625F, 0.4375F, 0.0625F);
+
+            if (entitylivingbaseIn instanceof EntityPlayer && ((EntityPlayer) entitylivingbaseIn).fishEntity != null)
+            {
+                // The cast rod.
+                itemstack = new ItemStack(Items.fishing_rod, 0);
+            }
+
+            Item item = itemstack.getItem();
+            if (item instanceof ItemBlock && Block.getBlockFromItem(item).getRenderType() == 2)
+            {
+                GlStateManager.translate(0.0F, 0.1875F, -0.3125F);
+                GlStateManager.rotate(20.0F, 1.0F, 0.0F, 0.0F);
+                GlStateManager.rotate(45.0F, 0.0F, 1.0F, 0.0F);
+                final float blockScale = 0.375F;
+                GlStateManager.scale(-blockScale, -blockScale, blockScale);
+            }
+
+            Minecraft.getMinecraft().getItemRenderer().renderItem(entitylivingbaseIn, itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON);
             GlStateManager.popMatrix();
         }
     }
@@ -76,7 +84,7 @@ public class LayerCustomHeldItem implements LayerRenderer<EntityLivingBase>
      */
     protected void translateToHand(EnumHandSide handSide, EntityLivingBase entity)
     {
-    	((ModelBiped)this.livingEntityRenderer.getMainModel()).postRenderArm(0.0625F, handSide);
+    	((ModelBiped)this.livingEntityRenderer.getMainModel()).postRenderArm(0.0625F);
     	
     	EntityData<?> entityData = EntityDatabase.instance.get(entity);
     	// How the item turns in the hand: the entity's rightHeldItem or leftHeldItem, if it has one.

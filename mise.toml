@@ -1,4 +1,4 @@
-# The JDK that builds Mo' Bends for 1.12.2, for those who use mise (https://mise.jdx.dev).
-# Zulu, because Temurin 8 has no build for Apple Silicon.
+# The JDK that runs Gradle for the 1.8.9 port (https://mise.jdx.dev).
+# Gradle selects a separate Java 8 toolchain to compile the mod.
 [tools]
-java = "zulu-8"
+java = "temurin-17"

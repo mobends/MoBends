@@ -4,7 +4,7 @@ import goblinbob.mobends.core.kumo.BlockBelowDriver;
 import goblinbob.mobends.core.kumo.BlockGradientDriver;
 import goblinbob.mobends.lab.sim.LabWorlds;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +44,7 @@ class GroundDriversTest
     void onlySolidBlocksCountWhenItIsAskedForThem()
     {
         World world = new World();
-        world.setBlockState(new BlockPos(0, 0, 2), Blocks.WATER.getDefaultState());
+        world.setBlockState(new BlockPos(0, 0, 2), Blocks.water.getDefaultState());
         assertBlock(0, 0, 2, BlockBelowDriver.find(world, 0.5, 1, 2.3, 1, false));
         assertBlock(0, -1, 2, BlockBelowDriver.find(world, 0.5, 1, 2.3, 1, true));
     }
@@ -85,7 +85,7 @@ class GroundDriversTest
     void waterIsNoStepWhenOnlySolidBlocksCount()
     {
         World world = new World();
-        for (int x = -1; x <= 1; x++) world.setBlockState(new BlockPos(x, 0, 3), Blocks.WATER.getDefaultState());
+        for (int x = -1; x <= 1; x++) world.setBlockState(new BlockPos(x, 0, 3), Blocks.water.getDefaultState());
         assertEquals(0, gradient(world, true)[2], 1e-9, "flat, under water");
         assertTrue(gradient(world, false)[2] > 0.1, "a step, when any block counts");
     }

@@ -1,0 +1,23 @@
+name: Shared assets
+
+# The assets shared with `main` must be main's, as they are at shared_assets_ref (gradle.properties).
+# See CONTRIBUTING.md, *Shared assets*.
+
+on:
+  push:
+    branches: ["forge-1.8.9"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: The shared assets are main's
+        run: sh misc/shared-assets.sh check

@@ -17,7 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.monster.EntityIronGolem;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import org.junit.jupiter.api.Test;
 
@@ -251,8 +251,8 @@ public class StepTurnTest
             LabBootstrap.ensure();
             net.minecraft.entity.Entity.resetIds();
             World world = new World();
-            Minecraft.getMinecraft().world = world;
-            Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+            Minecraft.getMinecraft().theWorld = world;
+            Minecraft.getMinecraft().thePlayer = new EntityPlayerSP(world);
             entity = new EntityIronGolem(world);
             scripted = new ScriptedEntity(entity, world);
             data = DefinedEntityData.create(definition, entity);
@@ -282,8 +282,8 @@ public class StepTurnTest
                 float pt = clock.getPartialTicks();
                 data.update(pt);
                 modelInputs.compute(entity, pt);
-                data.headYaw = MathHelper.wrapDegrees(modelInputs.headYaw);
-                data.headPitch = MathHelper.wrapDegrees(modelInputs.headPitch);
+                data.headYaw = MathHelper.wrapAngleTo180_float(modelInputs.headYaw);
+                data.headPitch = MathHelper.wrapAngleTo180_float(modelInputs.headPitch);
                 data.limbSwing = modelInputs.limbSwing;
                 data.limbSwingAmount = modelInputs.limbSwingAmount;
                 data.swingProgress = modelInputs.swingProgress;
@@ -300,7 +300,7 @@ public class StepTurnTest
                 // Once running: how far the body turns and the hips move in one frame.
                 if (!Double.isNaN(lastShown) && clock.getTick() >= 60)
                 {
-                    maxYawRate = Math.max(maxYawRate, Math.abs(MathHelper.wrapDegrees(shownYaw - lastShown)));
+                    maxYawRate = Math.max(maxYawRate, Math.abs(MathHelper.wrapAngleTo180_double(shownYaw - lastShown)));
                     maxHipJump = Math.max(maxHipJump, Math.abs(data.center.position.getY() - lastHipY));
                 }
                 lastShown = shownYaw;

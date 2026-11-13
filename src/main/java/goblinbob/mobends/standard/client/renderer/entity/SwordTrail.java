@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.client.renderer.entity;
 
+import goblinbob.mobends.core.compat.Living;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
@@ -13,12 +14,10 @@ import goblinbob.mobends.core.util.IColorRead;
 import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.GlStateManager.DestFactor;
-import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.EnumHandSide;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import goblinbob.mobends.core.compat.EnumHandSide;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.Vec3;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Iterator;
@@ -131,18 +130,18 @@ public class SwordTrail implements EntityComponent
             if (!first)
             {
                 // Closing up the previous strand
-                GlStateManager.glVertex3f(points[1].x, points[1].y, points[1].z);
-                GlStateManager.glVertex3f(points[0].x, points[0].y, points[0].z);
+                GL11.glVertex3f(points[1].x, points[1].y, points[1].z);
+                GL11.glVertex3f(points[0].x, points[0].y, points[0].z);
             }
 
-            GlStateManager.glVertex3f(points[0].x, points[0].y, points[0].z);
-            GlStateManager.glVertex3f(points[1].x, points[1].y, points[1].z);
+            GL11.glVertex3f(points[0].x, points[0].y, points[0].z);
+            GL11.glVertex3f(points[1].x, points[1].y, points[1].z);
 
             if (last)
             {
                 // Closing the trail
-                GlStateManager.glVertex3f(points[1].x, points[1].y, points[1].z);
-                GlStateManager.glVertex3f(points[0].x, points[0].y, points[0].z);
+                GL11.glVertex3f(points[1].x, points[1].y, points[1].z);
+                GL11.glVertex3f(points[0].x, points[0].y, points[0].z);
             }
         }
     }
@@ -151,7 +150,7 @@ public class SwordTrail implements EntityComponent
     {
         GlStateManager.depthFunc(GL11.GL_LEQUAL);
         GlStateManager.enableBlend();
-        GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GlStateManager.disableCull();
         GlStateManager.disableLighting();
         GlStateManager.disableTexture2D();
@@ -159,7 +158,7 @@ public class SwordTrail implements EntityComponent
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
         GlStateManager.pushMatrix();
 
-        GlStateManager.glBegin(GL11.GL_QUADS);
+        GL11.glBegin(GL11.GL_QUADS);
 
         Iterator<TrailPart> it = trailPartList.iterator();
         boolean first = true;
@@ -169,7 +168,7 @@ public class SwordTrail implements EntityComponent
 			part.draw(first, !it.hasNext());
 			first = false;
 		}
-        GlStateManager.glEnd();
+        GL11.glEnd();
 
         GlStateManager.popMatrix();
         GlStateManager.enableTexture2D();
@@ -185,7 +184,7 @@ public class SwordTrail implements EntityComponent
     public void add(LivingEntityData<?> entityData, float velocityX, float velocityY, float velocityZ)
     {
         final EntityLivingBase entity = entityData.getEntity();
-        final EnumHandSide primaryHand = entity.getPrimaryHand();
+        final EnumHandSide primaryHand = Living.getPrimaryHand(entity);
         final String side = primaryHand == EnumHandSide.RIGHT ? "right" : "left";
         final Object body = entityData.getPartForName("body");
         final Object arm = entityData.getPartForName(side + "Arm");
@@ -217,7 +216,7 @@ public class SwordTrail implements EntityComponent
                 entityData.center.position.getY(),
                 entityData.center.position.getZ());
         inTrailFrame(entityData.center.rotation.getSmooth(), newPart.centerRotation);
-        if (entity instanceof AbstractClientPlayer && entity.isElytraFlying())
+        if (entity instanceof AbstractClientPlayer && Living.isElytraFlying(entity))
         {
             setElytraRotations((AbstractClientPlayer) entity, DataUpdateHandler.partialTicks, newPart);
         }
@@ -253,17 +252,17 @@ public class SwordTrail implements EntityComponent
      */
     private static void setElytraRotations(AbstractClientPlayer player, float partialTicks, TrailPart part)
     {
-        final float ticks = player.getTicksElytraFlying() + partialTicks;
-        final float pitch = MathHelper.clamp(ticks * ticks / 100F, 0F, 1F) * (-90F - player.rotationPitch);
+        final float ticks = Living.getTicksElytraFlying(player) + partialTicks;
+        final float pitch = MathHelper.clamp_float(ticks * ticks / 100F, 0F, 1F) * (-90F - player.rotationPitch);
         inTrailFrame(-pitch, 1, 0, 0, part.elytraPitch);
 
-        final Vec3d look = player.getLook(partialTicks);
+        final Vec3 look = player.getLook(partialTicks);
         final double motion = player.motionX * player.motionX + player.motionZ * player.motionZ;
-        final double lookXZ = look.x * look.x + look.z * look.z;
+        final double lookXZ = look.xCoord * look.xCoord + look.zCoord * look.zCoord;
         if (motion > 0 && lookXZ > 0)
         {
-            final double cos = (player.motionX * look.x + player.motionZ * look.z) / (Math.sqrt(motion) * Math.sqrt(lookXZ));
-            final double cross = player.motionX * look.z - player.motionZ * look.x;
+            final double cos = (player.motionX * look.xCoord + player.motionZ * look.zCoord) / (Math.sqrt(motion) * Math.sqrt(lookXZ));
+            final double cross = player.motionX * look.zCoord - player.motionZ * look.xCoord;
             inTrailFrame((float) (Math.signum(cross) * Math.acos(cos) * 180 / Math.PI), 0, 1, 0, part.elytraTurn);
         }
     }

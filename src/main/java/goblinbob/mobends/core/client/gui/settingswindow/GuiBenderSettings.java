@@ -11,7 +11,7 @@ import goblinbob.mobends.core.util.UIScissorHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.EntityList;
+import goblinbob.mobends.core.compat.EntityIds;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Loader;
@@ -79,7 +79,7 @@ public class GuiBenderSettings implements IGuiListElement
     private GuiCustomButton compactButton(String text)
     {
         // An even width, so the button's halves meet.
-        final int textWidth = Minecraft.getMinecraft().fontRenderer.getStringWidth(text);
+        final int textWidth = Minecraft.getMinecraft().fontRendererObj.getStringWidth(text);
         return new GuiCustomButton((textWidth + 11) & ~1, BUTTON_HEIGHT, text);
     }
 
@@ -158,9 +158,9 @@ public class GuiBenderSettings implements IGuiListElement
         final int textWidth = width - 34 - 4 - TEXT_X;
         final boolean hasButtons = orderButton != null || extensionsButton != null || optionsButton != null;
         final int nameY = y + (hasButtons ? 4 : 10);
-        mc.fontRenderer.drawStringWithShadow(mc.fontRenderer.trimStringToWidth(bender.getLocalizedName(), textWidth),
+        mc.fontRendererObj.drawStringWithShadow(mc.fontRendererObj.trimStringToWidth(bender.getLocalizedName(), textWidth),
                 x + TEXT_X, nameY, animated ? 0xffffff : 0x8a8a8a);
-        mc.fontRenderer.drawString(mc.fontRenderer.trimStringToWidth(source, textWidth),
+        mc.fontRendererObj.drawString(mc.fontRendererObj.trimStringToWidth(source, textWidth),
                 x + TEXT_X, nameY + 11, animated ? 0x9a9a9a : 0x626262);
 
         toggleButton.draw();
@@ -206,7 +206,7 @@ public class GuiBenderSettings implements IGuiListElement
     private static String sourceOf(EntityBender<?> bender)
     {
         final Class<? extends EntityLivingBase> entityClass = EntityPreview.concreteClassOf(bender.entityClass);
-        final ResourceLocation entityId = entityClass == null ? null : EntityList.getKey(entityClass);
+        final ResourceLocation entityId = entityClass == null ? null : EntityIds.ofClass(entityClass);
         final String entityMod = entityId == null ? "minecraft" : entityId.getResourceDomain();
         if (bender.getResourcePack() != null)
         {

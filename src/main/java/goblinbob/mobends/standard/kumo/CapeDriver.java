@@ -14,7 +14,7 @@ import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.data.LivingEntityData;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 
 /**
  * The player's cape ({@code {"mobends:cape": {...}}}): the vanilla chasing-position physics,
@@ -63,7 +63,7 @@ public class CapeDriver implements IPoseItem
         double d3 = Math.sin(f * 0.017453292);
         double d4 = -Math.cos(f * 0.017453292);
         double f1 = d1 * 10.0;
-        f1 = MathHelper.clamp(f1, -6.0F, 32.0F);
+        f1 = MathHelper.clamp_double(f1, -6.0F, 32.0F);
         float f2 = (float) (d0 * d3 + d2 * d4) * 100.0F;
         float f3 = (float) (d0 * d4 - d2 * d3) * 100.0F;
 

@@ -83,6 +83,14 @@ val modIncludes = listOf(
     "goblinbob/mobends/standard/ItemActions.java",
     "goblinbob/mobends/standard/AttackActionType.java",
     "goblinbob/mobends/core/ModStatics.java",
+    // What 1.8.9 lacks, backported where the mod names it (the rest of compat/ needs Forge).
+    "goblinbob/mobends/core/compat/EnumHand.java",
+    "goblinbob/mobends/core/compat/EnumHandSide.java",
+    "goblinbob/mobends/core/compat/EntityEquipmentSlot.java",
+    "goblinbob/mobends/core/compat/ArmPose.java",
+    "goblinbob/mobends/core/compat/Living.java",
+    "goblinbob/mobends/core/compat/EntityIds.java",
+    "goblinbob/mobends/core/compat/SharedAssets.java",
 )
 
 val modSrcDir = layout.buildDirectory.dir("mod-src")

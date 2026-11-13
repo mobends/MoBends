@@ -65,11 +65,12 @@ hat stays on the head.
 An armour model that doesn't draw its parts' boxes can't be posed that way. An `IArmorGeometry`
 draws it instead, into the part wrappers' frames (`IPartWrapper.applyTransform`,
 `applyLowerTransform` below the cut plane), with its faces as `ArmorMesh`es cut at the same
-planes. GeckoLib's armour (`standard/compat/geckolib`) is one: its faces are put where they are on
-a vanilla model at rest, each armour bone (and the bones below it) in its part, and GeckoLib's own
-animation of the armour still runs. GeckoLib is optional: only `GeckoLibCompat` is reached
-without it, and it reaches the rest when GeckoLib's classes are there. The build compiles against
-it (`compileOnly`); `-Pwith_geckolib` adds it, with its example armour, to the development client.
+planes. On 1.12.2 GeckoLib's armour is one; GeckoLib has no 1.8.9 release, so on 1.8.9 no armour
+uses it yet.
+
+The armour wrapper takes the renderer's model attributes from the model the armour layer prepared
+(`LayerCustomBipedArmor`): a 1.8.9 model is a child until told otherwise, and a child's is drawn smaller
+and lower.
 
 ## Skeleton / Model Parts
 

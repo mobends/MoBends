@@ -19,21 +19,22 @@ public class MoBendsGuiFactory implements IModGuiFactory
     {
     }
 
+    /** Forge makes it with the Mods list as its only argument. */
     @Override
-    public boolean hasConfigGui()
+    public Class<? extends GuiScreen> mainConfigGuiClass()
     {
-        return true;
-    }
-
-    @Override
-    public GuiScreen createConfigGui(GuiScreen parent)
-    {
-        return new GuiBendsMenu(parent);
+        return GuiBendsMenu.class;
     }
 
     @Override
     public Set<RuntimeOptionCategoryElement> runtimeGuiCategories()
     {
         return Collections.emptySet();
+    }
+
+    @Override
+    public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element)
+    {
+        return null;
     }
 }

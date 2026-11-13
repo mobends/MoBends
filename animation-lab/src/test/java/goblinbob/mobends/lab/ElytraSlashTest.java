@@ -5,12 +5,14 @@ import goblinbob.mobends.lab.sim.Scenario;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static goblinbob.mobends.lab.PlayerRuns.run;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** Attacking while flying with an elytra (#89). */
+@Disabled("1.8.9 has no elytra")
 class ElytraSlashTest
 {
 
@@ -34,7 +36,7 @@ class ElytraSlashTest
     /** Five attacks of the sword combo, with either hand. */
     private static void assertTheComboKeepsTheHeadAhead(boolean leftHanded) throws Exception
     {
-        Scenario.InputScript flying = flying(leftHanded, Items.IRON_SWORD);
+        Scenario.InputScript flying = flying(leftHanded, Items.iron_sword);
         Run still = run(120, flying);
         Run slashing = run(120, (tick, in) -> {
             flying.fill(tick, in);
@@ -75,7 +77,7 @@ class ElytraSlashTest
     @Test
     void aToolSwingWhileFlyingWithAnElytraKeepsTheHeadAhead() throws Exception
     {
-        Scenario.InputScript flying = flying(false, Items.IRON_PICKAXE);
+        Scenario.InputScript flying = flying(false, Items.iron_pickaxe);
         Run still = run(60, flying);
         Run swinging = run(60, (tick, in) -> {
             flying.fill(tick, in);

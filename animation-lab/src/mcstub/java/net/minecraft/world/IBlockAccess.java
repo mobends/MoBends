@@ -1,7 +1,7 @@
 package net.minecraft.world;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.BlockPos;
 
 /** What a block's shape is read from: the world, as in the game. */
 public interface IBlockAccess

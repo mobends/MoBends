@@ -20,8 +20,8 @@ class EntityBuiltInsTest
     {
         LabBootstrap.ensure();
         World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        Minecraft.getMinecraft().theWorld = world;
+        Minecraft.getMinecraft().thePlayer = new EntityPlayerSP(world);
         for (EntityKind kind : EntityKind.values())
         {
             LivingEntityData<?> data = kind.createData(kind.createEntity(world), 0);

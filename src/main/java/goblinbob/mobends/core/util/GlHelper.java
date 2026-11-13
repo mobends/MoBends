@@ -15,7 +15,7 @@ public class GlHelper
 	
 	public static void vertex(IVec3fRead vector)
 	{
-		GlStateManager.glVertex3f(vector.getX(), vector.getY(), vector.getZ());
+		GL11.glVertex3f(vector.getX(), vector.getY(), vector.getZ());
 	}
 	
 	public static void rotate(Quaternion quaternionIn)

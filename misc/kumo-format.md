@@ -1130,7 +1130,7 @@ settings and entity values their animators and layers use (the zombie's animatio
 walking style, the squid's tentacle phase, the spider's crawl). The squid's tentacles are cut
 into nine sections; the spider's legs are boxes it declares, longer than vanilla's, and so are the
 wolf's body, mane, nose, mouth and ears.
-The other shipped definitions (`cow`, `mooshroom`, `polar_bear`, `pig`, `sheep`, `creeper`,
+The other shipped definitions (`cow`, `mooshroom`, `pig`, `sheep`, `creeper`,
 `chicken`, `villager`, `witch`, `iron_golem`) give every leg a knee but the creeper's (and the golem's arms an
 elbow) and share three generated animators (`quadruped`, `chicken`, `villager`: stand / walk /
 jump with a smooth look, made by the lab's `tools/gen_animators.ts`). The golem's (`iron_golem`:

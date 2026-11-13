@@ -46,8 +46,8 @@ class GolemClimbDirectionsTest
             if (tick == jumpAt) in.jump = true;
         }, data -> {
             int a0 = sign > 0 ? near : -far, a1 = sign > 0 ? far : -near;
-            if (fx != 0) LabWorlds.placeStone(data.getEntity().world, a0, 0, -8, a1, 0, 8);
-            else LabWorlds.placeStone(data.getEntity().world, -8, 0, a0, 8, 0, a1);
+            if (fx != 0) LabWorlds.placeStone(data.getEntity().worldObj, a0, 0, -8, a1, 0, 8);
+            else LabWorlds.placeStone(data.getEntity().worldObj, -8, 0, a0, 8, 0, a1);
         });
 
         KumoSession session = new KumoSession(scenario, KumoSession.loadAnimator(Animators.forKind(scenario.kind)));

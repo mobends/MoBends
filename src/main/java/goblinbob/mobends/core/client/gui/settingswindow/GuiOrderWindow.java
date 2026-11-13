@@ -167,8 +167,8 @@ public class GuiOrderWindow<T extends TypeOrder.Ranked> extends GuiScreen
 
         entryList.draw(DataUpdateHandler.partialTicks);
 
-        fontRenderer.drawStringWithShadow(source.getTitle(), this.x + 6, this.y - 9, 0xffffff);
-        fontRenderer.drawStringWithShadow(fontRenderer.trimStringToWidth(source.getHint(), GuiSettingsWindow.EDITOR_WIDTH - 12), this.x + 9, this.y + GuiSettingsWindow.EDITOR_HEIGHT + 12, 0xcccccc);
+        fontRendererObj.drawStringWithShadow(source.getTitle(), this.x + 6, this.y - 9, 0xffffff);
+        fontRendererObj.drawStringWithShadow(fontRendererObj.trimStringToWidth(source.getHint(), GuiSettingsWindow.EDITOR_WIDTH - 12), this.x + 9, this.y + GuiSettingsWindow.EDITOR_HEIGHT + 12, 0xcccccc);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
     }

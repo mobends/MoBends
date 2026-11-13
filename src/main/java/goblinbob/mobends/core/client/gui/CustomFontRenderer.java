@@ -1,7 +1,7 @@
 package goblinbob.mobends.core.client.gui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
@@ -16,7 +16,7 @@ public class CustomFontRenderer
         this.font = font;
     }
 
-    protected void drawSymbol(CustomFont.Symbol symbol, BufferBuilder vertexBuffer, int x, int y)
+    protected void drawSymbol(CustomFont.Symbol symbol, WorldRenderer vertexBuffer, int x, int y)
     {
         x += symbol.offsetX;
         y += symbol.offsetY;
@@ -57,7 +57,7 @@ public class CustomFontRenderer
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(this.font.resourceLocation);
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder vertexbuffer = tessellator.getBuffer();
+        WorldRenderer vertexbuffer = tessellator.getWorldRenderer();
         vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
         int nextCharX = x;
         for (int i = 0; i < textToDraw.length(); ++i)

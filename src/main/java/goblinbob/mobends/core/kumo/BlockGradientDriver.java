@@ -8,7 +8,7 @@ import goblinbob.mobends.core.kumo.api.StateHandle;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.PointTemplate;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.Arrays;

@@ -84,8 +84,8 @@ public class BoxFactory
 		{
 			return 0;
 		}
-		float inflation1 = Math.abs((float) (box.posX1 - quadList[1].vertexPositions[0].vector3D.x));
-		float inflation2 = Math.abs((float) (box.posX2 - quadList[1].vertexPositions[0].vector3D.x));
+		float inflation1 = Math.abs((float) (box.posX1 - quadList[1].vertexPositions[0].vector3D.xCoord));
+		float inflation2 = Math.abs((float) (box.posX2 - quadList[1].vertexPositions[0].vector3D.xCoord));
 		return Math.min(inflation1, inflation2);
 	}
 

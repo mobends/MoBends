@@ -1,7 +1,7 @@
 package goblinbob.mobends.standard.client.model.armor;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.inventory.EntityEquipmentSlot;
+import goblinbob.mobends.core.compat.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 
 /**

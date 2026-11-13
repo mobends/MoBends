@@ -62,11 +62,11 @@ public class EntityDatabase
     {
         // A preview (see PreviewWorld) is in its own world, for as long as that is open. Out of a
         // world (the menu opened from Forge's Mods list), only previews are left.
-        if (entityInData.world instanceof PreviewWorld)
+        if (entityInData.worldObj instanceof PreviewWorld)
         {
-            return entityInData.world.getEntityByID(entityId);
+            return entityInData.worldObj.getEntityByID(entityId);
         }
-        final World world = Minecraft.getMinecraft().world;
+        final World world = Minecraft.getMinecraft().theWorld;
         return world != null ? world.getEntityByID(entityId) : null;
     }
 

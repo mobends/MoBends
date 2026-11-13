@@ -32,7 +32,7 @@ class ClimbDirectionTest
             net.minecraft.entity.EntityLivingBase entity = (net.minecraft.entity.EntityLivingBase) data.getEntity();
             entity.renderYawOffset = entity.prevRenderYawOffset = yaw;
             entity.rotationYaw = entity.prevRotationYaw = entity.rotationYawHead = entity.prevRotationYawHead = yaw;
-            LabWorlds.placeStone(entity.world, x0, 0, z0, x1, 0, z1);
+            LabWorlds.placeStone(entity.worldObj, x0, 0, z0, x1, 0, z1);
         });
         return new KumoSession(scenario, KumoSession.loadAnimator(Animators.forKind(EntityKind.IRON_GOLEM))).run().frames;
     }

@@ -4,10 +4,10 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.Vec3;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,15 +42,15 @@ public class World implements IBlockAccess
     {
         IBlockState state = blocks.get(key(pos.getX(), pos.getY(), pos.getZ()));
         if (state != null) return state;
-        return pos.getY() < floorY ? Blocks.STONE.getDefaultState() : Blocks.AIR.getDefaultState();
+        return pos.getY() < floorY ? Blocks.stone.getDefaultState() : Blocks.air.getDefaultState();
     }
 
     public boolean isAirBlock(BlockPos pos)
     {
-        return getBlockState(pos).getBlock() == Blocks.AIR;
+        return getBlockState(pos).getBlock() == Blocks.air;
     }
 
-    public List<AxisAlignedBB> getCollisionBoxes(Entity entity, AxisAlignedBB box)
+    public List<AxisAlignedBB> getCollidingBoundingBoxes(Entity entity, AxisAlignedBB box)
     {
         List<AxisAlignedBB> result = new ArrayList<>();
         if (box.minY < floorY)
@@ -67,7 +67,7 @@ public class World implements IBlockAccess
         List<AxisAlignedBB> result = new ArrayList<>();
         for (Map.Entry<Long, IBlockState> block : blocks.entrySet())
         {
-            if (block.getValue().getBlock() != Blocks.STONE) continue;
+            if (block.getValue().getBlock() != Blocks.stone) continue;
             long k = block.getKey();
             int x = (int) (k >> 38), z = (int) (k << 26 >> 38), y = (int) (k & 0xFFF);
             if (y >= 0x800) y -= 0x1000;
@@ -93,26 +93,26 @@ public class World implements IBlockAccess
      * and the top of the floor), or null; the flags are vanilla's, and every solid block here has
      * a box, so they change nothing.
      */
-    public RayTraceResult rayTraceBlocks(Vec3d start, Vec3d end, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox, boolean returnLastUncollidableBlock)
+    public MovingObjectPosition rayTraceBlocks(Vec3 start, Vec3 end, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox, boolean returnLastUncollidableBlock)
     {
-        double dx = end.x - start.x, dy = end.y - start.y, dz = end.z - start.z;
+        double dx = end.xCoord - start.xCoord, dy = end.yCoord - start.yCoord, dz = end.zCoord - start.zCoord;
         double best = Double.POSITIVE_INFINITY;
         EnumFacing side = null;
         // The floor: everything below floorY is solid, so a ray going down meets its top.
-        if (dy < 0 && start.y >= floorY && end.y < floorY)
+        if (dy < 0 && start.yCoord >= floorY && end.yCoord < floorY)
         {
-            best = (floorY - start.y) / dy;
+            best = (floorY - start.yCoord) / dy;
             side = EnumFacing.UP;
         }
         // A hair larger, so a ray along a face still finds the cube.
-        AxisAlignedBB around = new AxisAlignedBB(Math.min(start.x, end.x) - 1e-7, Math.min(start.y, end.y) - 1e-7, Math.min(start.z, end.z) - 1e-7,
-                Math.max(start.x, end.x) + 1e-7, Math.max(start.y, end.y) + 1e-7, Math.max(start.z, end.z) + 1e-7);
+        AxisAlignedBB around = new AxisAlignedBB(Math.min(start.xCoord, end.xCoord) - 1e-7, Math.min(start.yCoord, end.yCoord) - 1e-7, Math.min(start.zCoord, end.zCoord) - 1e-7,
+                Math.max(start.xCoord, end.xCoord) + 1e-7, Math.max(start.yCoord, end.yCoord) + 1e-7, Math.max(start.zCoord, end.zCoord) + 1e-7);
         for (AxisAlignedBB cube : stoneIn(around))
         {
             // Slabs: where the ray enters the cube, and through which face.
             double enter = 0, leave = 1;
             EnumFacing face = null;
-            double[] from = {start.x, start.y, start.z}, along = {dx, dy, dz};
+            double[] from = {start.xCoord, start.yCoord, start.zCoord}, along = {dx, dy, dz};
             double[] min = {cube.minX, cube.minY, cube.minZ}, max = {cube.maxX, cube.maxY, cube.maxZ};
             EnumFacing[][] faces = {{EnumFacing.WEST, EnumFacing.EAST}, {EnumFacing.DOWN, EnumFacing.UP}, {EnumFacing.NORTH, EnumFacing.SOUTH}};
             boolean misses = false;
@@ -137,7 +137,7 @@ public class World implements IBlockAccess
             }
         }
         if (side == null) return null;
-        return new RayTraceResult(new Vec3d(start.x + dx * best, start.y + dy * best, start.z + dz * best), side);
+        return new MovingObjectPosition(new Vec3(start.xCoord + dx * best, start.yCoord + dy * best, start.zCoord + dz * best), side);
     }
 
     public void addEntity(Entity entity) { entities.add(entity); }

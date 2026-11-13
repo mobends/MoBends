@@ -3,6 +3,7 @@ package goblinbob.mobends.core.client.definition;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.bender.DefaultEntityBender;
 import goblinbob.mobends.core.bender.EntityBender;
+import goblinbob.mobends.core.compat.SharedAssets;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.definition.ModelDefinitions;
@@ -41,10 +42,16 @@ public final class DefinedBenders
                 return definition;
             }
         };
-        EntityBender<E> bender = new DefaultEntityBender<>(modId, definition.key, definition.unlocalizedName, entityClass,
+        EntityBender<E> bender = new DefaultEntityBender<E>(modId, definition.key, definition.unlocalizedName, entityClass,
                 entity -> DefinedEntityData.create(current.get(), entity),
                 () -> new DefinedMutator<>(current.get()),
-                new DefinedRenderer<>(current));
+                new DefinedRenderer<>(current)) {
+            @Override
+            public void preparePreview(EntityLivingBase entity)
+            {
+                SharedAssets.preparePreview(current.get().entity, entity);
+            }
+        };
         bender.setOptions(() -> current.get().options());
         return bender;
     }
@@ -56,7 +63,7 @@ public final class DefinedBenders
         Class<?> type;
         try
         {
-            type = Class.forName(name, false, DefinedBenders.class.getClassLoader());
+            type = Class.forName(SharedAssets.entityClass(name), false, DefinedBenders.class.getClassLoader());
         }
         catch (ClassNotFoundException | LinkageError e)
         {

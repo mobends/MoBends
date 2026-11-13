@@ -7,9 +7,9 @@ import goblinbob.mobends.standard.client.model.armor.ArmorWrapper;
 import goblinbob.mobends.standard.client.model.armor.MalformedArmorModelException;
 import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.entity.layers.LayerArmorBase;
-import net.minecraft.inventory.EntityEquipmentSlot;
+import goblinbob.mobends.core.compat.EntityEquipmentSlot;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -17,7 +17,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
 {
 	
-    public LayerCustomBipedArmor(RenderLivingBase<?> rendererIn)
+    public LayerCustomBipedArmor(RendererLivingEntity<?> rendererIn)
     {
         super(rendererIn);
     }
@@ -29,13 +29,13 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
         this.modelArmor = new ModelBiped(1.0F);
     }
 
-    @SuppressWarnings("incomplete-switch")
+    /** {@code armorSlot}: as LayerArmorBase numbers them, 1 the feet up to 4 the head. */
     @Override
-    protected void setModelSlotVisible(ModelBiped model, EntityEquipmentSlot slotIn)
+    protected void setModelPartVisible(ModelBiped model, int armorSlot)
     {
         this.hideModelParts(model);
 
-        switch (slotIn)
+        switch (EntityEquipmentSlot.fromArmorIndex(armorSlot - 1))
         {
             case HEAD:
                 model.bipedHead.showModel = true;
@@ -62,24 +62,27 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
 
     protected void hideModelParts(ModelBiped model)
     {
-        model.setVisible(false);
+        model.setInvisible(false);
     }
 
     @Override
-    protected ModelBiped getArmorModelHook(net.minecraft.entity.EntityLivingBase entity, net.minecraft.item.ItemStack itemStack, EntityEquipmentSlot slot, ModelBiped model)
+    protected ModelBiped getArmorModelHook(net.minecraft.entity.EntityLivingBase entity, net.minecraft.item.ItemStack itemStack, int armorSlot, ModelBiped model)
     {
     	EntityData<?> entityData = EntityDatabase.instance.get(entity);
     	
-    	final ModelBiped suggestedModel = net.minecraftforge.client.ForgeHooksClient.getArmorModel(entity, itemStack, slot, model);
+    	final ModelBiped suggestedModel = net.minecraftforge.client.ForgeHooksClient.getArmorModel(entity, itemStack, armorSlot, model);
 
         boolean shouldBeMutated = !ModConfig.shouldKeepArmorAsVanilla(itemStack.getItem()) && ArmorWrapper.fits(entityData);
 
         try
         {
             final ModelBiped armorModel = ArmorModelFactory.getArmorModel(suggestedModel, shouldBeMutated);
+            // LayerArmorBase gave the model it made the renderer's attributes (swing, riding, child), not this
+            // one; a model is a child until told otherwise in 1.8.9, and drawn half its size if left so.
+            armorModel.setModelAttributes(model);
             if (armorModel instanceof ArmorWrapper)
             {
-                ((ArmorWrapper) armorModel).setWorn(itemStack, slot);
+                ((ArmorWrapper) armorModel).setWorn(itemStack, EntityEquipmentSlot.fromArmorIndex(armorSlot - 1));
             }
             return armorModel;
         }

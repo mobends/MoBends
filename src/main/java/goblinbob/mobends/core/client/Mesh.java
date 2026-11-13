@@ -1,7 +1,8 @@
 package goblinbob.mobends.core.client;
 
+import org.lwjgl.opengl.GL11;
 import goblinbob.mobends.core.util.IColorRead;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -14,13 +15,13 @@ public class Mesh
 {
 	
 	private VertexFormat vertexFormat;
-	private BufferBuilder bufferBuilder;
+	private WorldRenderer bufferBuilder;
 	private VertexBuffer buffer;
 	
 	public Mesh(VertexFormat vertexFormat, int maxVertices)
 	{
 		this.vertexFormat = vertexFormat;
-		this.bufferBuilder = new BufferBuilder(vertexFormat.getNextOffset() * maxVertices);
+		this.bufferBuilder = new WorldRenderer(vertexFormat.getNextOffset() * maxVertices);
 	}
 	
 	public void beginDrawing(int drawMode)
@@ -82,7 +83,7 @@ public class Mesh
                 usage.preDraw(this.vertexFormat, j, i, bytebuffer);
             }
 
-            GlStateManager.glDrawArrays(this.bufferBuilder.getDrawMode(), 0, this.bufferBuilder.getVertexCount());
+            GL11.glDrawArrays(this.bufferBuilder.getDrawMode(), 0, this.bufferBuilder.getVertexCount());
             int i1 = 0;
 
             for (int j1 = list.size(); i1 < j1; ++i1)
@@ -95,7 +96,7 @@ public class Mesh
         }
 	}
 
-	public BufferBuilder getBufferBuilder()
+	public WorldRenderer getBufferBuilder()
 	{
 		return this.bufferBuilder;
 	}

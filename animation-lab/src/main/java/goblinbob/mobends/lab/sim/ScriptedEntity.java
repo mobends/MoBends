@@ -5,8 +5,8 @@ import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 /**
@@ -44,6 +44,11 @@ public class ScriptedEntity
     /** Runs one vanilla-style tick with the given inputs. */
     public void tick(EntityInputs in)
     {
+        final String unsupported = in.laterVersionsOnly(entity instanceof EntityPlayer);
+        if (unsupported != null)
+        {
+            throw new IllegalStateException("1.8.9 has no " + unsupported + " (see Scenario#laterVersionsOnly)");
+        }
         final EntityLivingBase e = entity;
 
         // Shift current -> previous.
@@ -119,7 +124,7 @@ public class ScriptedEntity
         e.motionZ = dz;
 
         // Limb swing, as in EntityLivingBase.onUpdate.
-        float dist = MathHelper.sqrt(dx * dx + dz * dz);
+        float dist = MathHelper.sqrt_double(dx * dx + dz * dz);
         float target = Math.min(dist * 4.0F, 1.0F);
         e.limbSwingAmount += (target - e.limbSwingAmount) * 0.4F;
         e.limbSwing += e.limbSwingAmount;
@@ -162,15 +167,11 @@ public class ScriptedEntity
         // Flags and items.
         e.sprinting = in.sprinting;
         e.sneaking = in.sneaking;
-        e.primaryHand = in.leftHanded ? net.minecraft.util.EnumHandSide.LEFT : net.minecraft.util.EnumHandSide.RIGHT;
         e.inWater = in.inWater;
         e.onLadder = in.onLadder;
         e.playerSleeping = in.sleeping;
-        e.mainHand = in.mainHand;
-        e.offHand = in.offHand;
-        e.activeHand = in.activeHand;
-        e.itemInUseCount = in.itemUseCount;
-        e.itemInUseMaxCount = in.itemUseMaxCount;
+        // 1.8.9 has one hand, and only players use items (see EntityInputs#laterVersionsOnly).
+        e.setCurrentItemOrArmor(0, in.mainHand);
         e.health = in.health;
         e.ridingEntity = in.riding ? (in.ridingLiving ? mount : vehicle) : null;
         if (in.riding)
@@ -183,7 +184,11 @@ public class ScriptedEntity
         {
             EntityPlayer player = (EntityPlayer) e;
             player.capabilities.isFlying = in.flying;
-            player.ticksElytraFlying = in.elytraTicks;
+            // Use ends when the count runs out (the game clears the item in use).
+            final boolean using = in.itemUseCount > 0;
+            player.itemInUse = using ? in.mainHand : null;
+            player.itemInUseCount = in.itemUseCount;
+            player.itemInUseDuration = in.itemUseMaxCount;
             player.prevChasingPosX = player.chasingPosX;
             player.prevChasingPosY = player.chasingPosY;
             player.prevChasingPosZ = player.chasingPosZ;

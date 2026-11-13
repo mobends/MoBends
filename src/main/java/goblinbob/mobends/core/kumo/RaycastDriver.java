@@ -11,9 +11,9 @@ import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.PointTemplate;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.Vec3;
+import net.minecraft.util.Vec3i;
 import net.minecraft.world.World;
 
 import java.util.Map;
@@ -87,7 +87,7 @@ public final class RaycastDriver
             double reach = Math.max(0, distance.get(context));
             double scale = length > 1e-9 ? reach / length : 0;
             double endX = x + dx * scale, endY = y + dy * scale, endZ = z + dz * scale;
-            RayTraceResult hit = scale > 0 ? cast(world(context), x, y, z, endX, endY, endZ, liquids) : null;
+            MovingObjectPosition hit = scale > 0 ? cast(world(context), x, y, z, endX, endY, endZ, liquids) : null;
             if (debug && scale > 0)
             {
                 gizmo(hit == null ? RayGizmos.Kind.MISS : RayGizmos.Kind.KEPT, x, y, z, hit, endX, endY, endZ);
@@ -100,22 +100,22 @@ public final class RaycastDriver
     static World world(goblinbob.mobends.core.kumo.api.EvalContext context)
     {
         Object entity = context.entity();
-        return entity instanceof Entity ? ((Entity) entity).world : null;
+        return entity instanceof Entity ? ((Entity) entity).worldObj : null;
     }
 
     /** The block face the segment crosses first, as vanilla traces it; null where it crosses none. */
-    static RayTraceResult cast(World world, double x, double y, double z, double endX, double endY, double endZ, boolean liquids)
+    static MovingObjectPosition cast(World world, double x, double y, double z, double endX, double endY, double endZ, boolean liquids)
     {
         if (world == null)
         {
             return null;
         }
-        RayTraceResult hit = world.rayTraceBlocks(new Vec3d(x, y, z), new Vec3d(endX, endY, endZ), liquids, true, false);
-        return hit != null && hit.typeOfHit == RayTraceResult.Type.BLOCK && hit.sideHit != null ? hit : null;
+        MovingObjectPosition hit = world.rayTraceBlocks(new Vec3(x, y, z), new Vec3(endX, endY, endZ), liquids, true, false);
+        return hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && hit.sideHit != null ? hit : null;
     }
 
     /** Records the ray for {@link RayGizmos}: up to {@code hit}, or, where it is null, to {@code end}. */
-    static void gizmo(RayGizmos.Kind kind, double x, double y, double z, RayTraceResult hit, double endX, double endY, double endZ)
+    static void gizmo(RayGizmos.Kind kind, double x, double y, double z, MovingObjectPosition hit, double endX, double endY, double endZ)
     {
         if (hit == null)
         {
@@ -123,7 +123,7 @@ public final class RaycastDriver
             return;
         }
         Vec3i normal = hit.sideHit.getDirectionVec();
-        RayGizmos.add(kind, x, y, z, hit.hitVec.x, hit.hitVec.y, hit.hitVec.z, normal.getX(), normal.getY(), normal.getZ());
+        RayGizmos.add(kind, x, y, z, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, normal.getX(), normal.getY(), normal.getZ());
     }
 
     /** The outputs of a ray, mapped to states: where it hit and which way the surface faces. */
@@ -144,14 +144,14 @@ public final class RaycastDriver
         }
 
         /** {@code hit}, or, where it is null, a miss ending at {@code end}. */
-        void publish(goblinbob.mobends.core.kumo.api.EvalContext context, RayTraceResult hit, double endX, double endY, double endZ)
+        void publish(goblinbob.mobends.core.kumo.api.EvalContext context, MovingObjectPosition hit, double endX, double endY, double endZ)
         {
             Vec3i normal = null;
             if (hit != null)
             {
-                endX = hit.hitVec.x;
-                endY = hit.hitVec.y;
-                endZ = hit.hitVec.z;
+                endX = hit.hitVec.xCoord;
+                endY = hit.hitVec.yCoord;
+                endZ = hit.hitVec.zCoord;
                 normal = hit.sideHit.getDirectionVec();
             }
             if (hitX != null) hitX.set(context, endX);

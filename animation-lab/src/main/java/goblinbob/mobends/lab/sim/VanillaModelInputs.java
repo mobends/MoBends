@@ -2,7 +2,7 @@ package goblinbob.mobends.lab.sim;
 
 import goblinbob.mobends.core.util.GUtil;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 
 /**
  * A verbatim port of the interpolation in {@code Mutator.updateModel}, which mirrors what
@@ -15,17 +15,17 @@ public class VanillaModelInputs
     public void compute(EntityLivingBase entity, float partialTicks)
     {
         boolean shouldSit = entity.isRiding()
-                && (entity.getRidingEntity() != null && entity.getRidingEntity().shouldRiderSit());
+                && (entity.ridingEntity != null && entity.ridingEntity.shouldRiderSit());
         float f = GUtil.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
         float f1 = GUtil.interpolateRotation(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
         float yaw = f1 - f;
 
-        if (shouldSit && entity.getRidingEntity() instanceof EntityLivingBase)
+        if (shouldSit && entity.ridingEntity instanceof EntityLivingBase)
         {
-            EntityLivingBase entitylivingbase = (EntityLivingBase) entity.getRidingEntity();
+            EntityLivingBase entitylivingbase = (EntityLivingBase) entity.ridingEntity;
             f = GUtil.interpolateRotation(entitylivingbase.prevRenderYawOffset, entitylivingbase.renderYawOffset, partialTicks);
             yaw = f1 - f;
-            float f3 = MathHelper.wrapDegrees(yaw);
+            float f3 = MathHelper.wrapAngleTo180_float(yaw);
 
             if (f3 < -85.0F) f3 = -85.0F;
             if (f3 >= 85.0F) f3 = 85.0F;

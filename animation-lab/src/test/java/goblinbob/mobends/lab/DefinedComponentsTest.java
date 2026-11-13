@@ -41,8 +41,8 @@ public class DefinedComponentsTest
         // The mod's default addon registers the components (here LabBootstrap).
         LabBootstrap.ensure();
         World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        Minecraft.getMinecraft().theWorld = world;
+        Minecraft.getMinecraft().thePlayer = new EntityPlayerSP(world);
         AbstractClientPlayer player = new AbstractClientPlayer(world);
         DefinedEntityData<AbstractClientPlayer> data = DefinedEntityData.create(player(), player);
 
@@ -76,8 +76,8 @@ public class DefinedComponentsTest
         EntityModelDefinition copy = ModelDefinitions.parse(json);
         LabBootstrap.ensure();
         World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        Minecraft.getMinecraft().theWorld = world;
+        Minecraft.getMinecraft().thePlayer = new EntityPlayerSP(world);
         DefinedEntityData<AbstractClientPlayer> data = DefinedEntityData.create(copy, new AbstractClientPlayer(world));
 
         assertEquals(2, data.root.rotation.getBaseSmoothing(), 0);
@@ -100,8 +100,8 @@ public class DefinedComponentsTest
         EntityModelDefinition copy = ModelDefinitions.parse(json);
         LabBootstrap.ensure();
         World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        Minecraft.getMinecraft().theWorld = world;
+        Minecraft.getMinecraft().thePlayer = new EntityPlayerSP(world);
         DefinedEntityData<AbstractClientPlayer> data = DefinedEntityData.create(copy, new AbstractClientPlayer(world));
         assertNull(data.getPartForName("wings"));
     }

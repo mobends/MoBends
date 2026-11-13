@@ -9,14 +9,17 @@ import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.kumo.option.OptionSet;
 import goblinbob.mobends.core.mutators.IMutatorFactory;
 import goblinbob.mobends.core.mutators.Mutator;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.EntityList;
+import goblinbob.mobends.core.compat.EntityIds;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
+import net.minecraft.client.model.ModelBase;
+
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -39,7 +42,8 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	 * Per renderer: this bender's mutator and the renderer's state with the mutation in place, or
 	 * {@link #NOT_MUTABLE} if the renderer's model can't be mutated by this bender.
 	 */
-	private final Map<RenderLivingBase<?>, Mutation> mutations = new HashMap<>();
+	/** By renderer, then by the renderer's main model (a renderer may swap models, see {@link RendererState}). */
+	private final Map<RendererLivingEntity<?>, Map<ModelBase, Mutation>> mutations = new HashMap<>();
 	private static final Mutation NOT_MUTABLE = new Mutation(null, null);
 
 	private IEntityDataFactory<T> dataFactory;
@@ -74,14 +78,14 @@ public abstract class EntityBender<T extends EntityLivingBase>
 		String name = key;
 		if (key == null)
 		{
-			ResourceLocation resourceLocation = EntityList.getKey(entityClass);
+			ResourceLocation resourceLocation = EntityIds.ofClass(entityClass);
 			if (resourceLocation == null)
 				throw new RuntimeException("Unable to find a key for " + entityClass.getName());
 			key = resourceLocation.toString();
 			name = "minecraft".equals(resourceLocation.getResourceDomain())
 					? resourceLocation.getResourcePath()
 					: resourceLocation.getResourceDomain() + "/" + resourceLocation.getResourcePath();
-			unlocalizedName = "entity." + EntityList.getTranslationName(resourceLocation) + ".name";
+			unlocalizedName = EntityIds.translationKey(entityClass);
 		}
 
 		this.key = new ResourceLocation(modId, name).toString();
@@ -179,7 +183,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	 *         animating, so the animator's graph keeps running).
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public boolean applyMutation(RenderLivingBase<? extends T> renderer, T entity, IEntityDataFactory<T> dataFactory, float partialTicks)
+	public boolean applyMutation(RendererLivingEntity<? extends T> renderer, T entity, IEntityDataFactory<T> dataFactory, float partialTicks)
 	{
 		Mutator mutator = this.attachMutation(renderer);
 		if (mutator == null)
@@ -206,9 +210,12 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	 * @return The mutator, or null if the renderer's model can't be mutated by this bender.
 	 */
 	@Nullable
-	public Mutator<?, ?, ?> attachMutation(RenderLivingBase<? extends T> renderer)
+	public Mutator<?, ?, ?> attachMutation(RendererLivingEntity<? extends T> renderer)
 	{
-		Mutation mutation = mutations.get(renderer);
+		final Map<ModelBase, Mutation> byModel = mutations.computeIfAbsent(renderer, r -> new IdentityHashMap<>());
+		// The vanilla model the renderer draws this entity with (it swaps back to it before every draw).
+		final ModelBase model = renderer.getMainModel();
+		Mutation mutation = byModel.get(model);
 		if (mutation == null)
 		{
 			// Mutating starts from the vanilla renderer, whatever another bender left in place.
@@ -226,7 +233,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 				RendererState.restoreVanilla(renderer);
 				mutation = NOT_MUTABLE;
 			}
-			mutations.put(renderer, mutation);
+			byModel.put(model, mutation);
 		}
 		else if (mutation != NOT_MUTABLE)
 		{
@@ -236,9 +243,14 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static boolean mutateWith(Mutator mutator, RenderLivingBase<?> renderer)
+	private static boolean mutateWith(Mutator mutator, RendererLivingEntity<?> renderer)
 	{
 		return mutator.mutate(renderer);
+	}
+
+	/** Sets up an entity made for the Settings preview, before its renderer is selected. */
+	public void preparePreview(EntityLivingBase entity)
+	{
 	}
 
 	/**
@@ -247,17 +259,19 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	 */
 	public void refreshMutation()
 	{
-		for (RenderLivingBase<?> renderer : mutations.keySet())
+		for (RendererLivingEntity<?> renderer : mutations.keySet())
 		{
+			// Only the model the renderer holds now: the others are restored as they come back (see RendererState).
 			RendererState.restoreVanilla(renderer);
 		}
 		mutations.clear();
 	}
 
 	@Nullable
-	public Mutator<?, ?, ?> getMutator(RenderLivingBase<? extends EntityLivingBase> renderer)
+	public Mutator<?, ?, ?> getMutator(RendererLivingEntity<? extends EntityLivingBase> renderer)
 	{
-		Mutation mutation = this.mutations.get(renderer);
+		Map<ModelBase, Mutation> byModel = this.mutations.get(renderer);
+		Mutation mutation = byModel == null ? null : byModel.get(renderer.getMainModel());
 		return mutation == null ? null : mutation.mutator;
 	}
 }

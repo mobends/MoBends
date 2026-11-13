@@ -1,9 +1,9 @@
 package goblinbob.mobends.standard;
 
+import goblinbob.mobends.core.compat.ArmPose;
+import goblinbob.mobends.core.compat.Living;
 import goblinbob.mobends.standard.main.ModConfig;
-import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Items;
 import net.minecraft.item.*;
 
 /**
@@ -17,45 +17,45 @@ public final class ItemActions
     {
     }
 
-    /** The vanilla arm pose an item in hand implies. */
-    public static ModelBiped.ArmPose armPoseOf(EntityLivingBase entity, ItemStack heldItem)
+    /** The vanilla arm pose an item in hand implies (a sword blocks in 1.8.9, as a shield does later). */
+    public static ArmPose armPoseOf(EntityLivingBase entity, ItemStack heldItem)
     {
-        if (!heldItem.isEmpty())
+        if (!Living.isEmpty(heldItem))
         {
-            if (entity.getItemInUseCount() > 0)
+            if (Living.getItemInUseCount(entity) > 0)
             {
                 EnumAction enumaction = heldItem.getItemUseAction();
 
                 if (enumaction == EnumAction.BLOCK)
-                    return ModelBiped.ArmPose.BLOCK;
+                    return ArmPose.BLOCK;
                 else if (enumaction == EnumAction.BOW)
-                    return ModelBiped.ArmPose.BOW_AND_ARROW;
+                    return ArmPose.BOW_AND_ARROW;
             }
 
-            return ModelBiped.ArmPose.ITEM;
+            return ArmPose.ITEM;
         }
 
-        return ModelBiped.ArmPose.EMPTY;
+        return ArmPose.EMPTY;
     }
 
-    public static UseActionType getBuiltInItemUseAction(Item item, ModelBiped.ArmPose armPoseMain, ModelBiped.ArmPose armPoseOff)
+    public static UseActionType getBuiltInItemUseAction(Item item, ArmPose armPoseMain, ArmPose armPoseOff)
     {
-        if (item == Items.AIR)
+        if (item == null)
             return null;
 
         if (item instanceof ItemFood)
             return UseActionType.FOOD;
 
-        if (item instanceof ItemBow || armPoseMain == ModelBiped.ArmPose.BOW_AND_ARROW || armPoseOff == ModelBiped.ArmPose.BOW_AND_ARROW)
+        if (item instanceof ItemBow || armPoseMain == ArmPose.BOW_AND_ARROW || armPoseOff == ArmPose.BOW_AND_ARROW)
             return UseActionType.BOW;
 
-        if (armPoseMain == ModelBiped.ArmPose.BLOCK || armPoseOff == ModelBiped.ArmPose.BLOCK)
+        if (armPoseMain == ArmPose.BLOCK || armPoseOff == ArmPose.BLOCK)
             return UseActionType.SHIELD;
 
         return UseActionType.FOOD;
     }
 
-    public static UseActionType getItemUseAction(Item item, ModelBiped.ArmPose armPoseMain, ModelBiped.ArmPose armPoseOff)
+    public static UseActionType getItemUseAction(Item item, ArmPose armPoseMain, ArmPose armPoseOff)
     {
         UseActionType useActionType = ModConfig.getItemUseAction(item);
 
@@ -67,7 +67,7 @@ public final class ItemActions
         if (item instanceof ItemSword)
             return AttackActionType.SWORD;
 
-        if (item == Items.AIR)
+        if (item == null)
             return AttackActionType.FISTS;
 
         return AttackActionType.TOOL;

@@ -2,7 +2,7 @@ name: Build Mod
 
 on:
   push:
-    branches: ["forge-1.12"]
+    branches: ["forge-1.8.9"]
   pull_request:
   workflow_dispatch:
 
@@ -22,10 +22,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 8
+      # The mod is compiled for Java 8 (the toolchain); Gradle runs on 17, the last JDK set up.
+      - name: Set up JDK 8 and 17
         uses: actions/setup-java@v4
         with:
-          java-version: "8"
+          java-version: |
+            8
+            17
           distribution: "temurin"
 
       - name: Grant execute permission for gradlew
@@ -42,7 +45,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build with Gradle
-        run: ./gradlew build shadowJar
+        run: ./gradlew build
         env:
           # Reads mobends-core from GitHub Packages.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -52,7 +55,10 @@ jobs:
         if: success()
         with:
           name: mobends-ci-build
-          path: build/libs/*-all.jar
+          # The remapped jar, the one players install (not the sources).
+          path: |
+            build/libs/MoBends_1.8.9-*.jar
+            !build/libs/*-sources.jar
           retention-days: 30
 
       - name: Comment PR with artifact URLs

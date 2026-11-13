@@ -10,7 +10,7 @@ import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.Map;
@@ -60,7 +60,7 @@ public final class BlockBelowDriver
             if (entity instanceof Entity)
             {
                 Entity e = (Entity) entity;
-                block = find(e.world, e.posX, e.posY, e.posZ, Math.max(0, distance.get(context)), solid);
+                block = find(e.worldObj, e.posX, e.posY, e.posZ, Math.max(0, distance.get(context)), solid);
                 at = block != null ? block : feetBlock(e.posX, e.posY, e.posZ);
             }
             if (blockX != null) blockX.set(context, at != null ? at.getX() : 0);
@@ -103,7 +103,7 @@ public final class BlockBelowDriver
     {
         if (solid)
         {
-            return world.getBlockState(pos).getCollisionBoundingBox(world, pos) != null;
+            return world.getBlockState(pos).getBlock().getCollisionBoundingBox(world, pos, world.getBlockState(pos)) != null;
         }
         return !world.isAirBlock(pos);
     }

@@ -41,8 +41,8 @@ public class DetachedEntityTest
         LabBootstrap.ensure();
         DataUpdateHandler.reset();
         world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        Minecraft.getMinecraft().theWorld = world;
+        Minecraft.getMinecraft().thePlayer = new EntityPlayerSP(world);
         // Made in a world of its own, as a mod that shows a mob makes it: never in the game's.
         trophy = EntityKind.ZOMBIE.createEntity(new World());
     }
@@ -148,7 +148,7 @@ public class DetachedEntityTest
     void anEntityThatLeavesTheWorldLosesItsDataOnTheNextTick()
     {
         World other = new World();
-        Minecraft.getMinecraft().world = other;
+        Minecraft.getMinecraft().theWorld = other;
         EntityLivingBase mob = EntityKind.ZOMBIE.createEntity(other);
         other.addEntity(mob);
         database.updateClient();
@@ -156,7 +156,7 @@ public class DetachedEntityTest
         database.getOrMake(factory, mob).animate();
 
         // The player went to another dimension: the mob's world is gone.
-        Minecraft.getMinecraft().world = world;
+        Minecraft.getMinecraft().theWorld = world;
         database.updateClient();
         assertNull(database.get(mob));
     }

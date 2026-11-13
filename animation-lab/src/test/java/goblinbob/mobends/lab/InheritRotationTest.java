@@ -81,8 +81,8 @@ public class InheritRotationTest
     {
         LabBootstrap.ensure();
         World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        Minecraft.getMinecraft().theWorld = world;
+        Minecraft.getMinecraft().thePlayer = new EntityPlayerSP(world);
         for (String name : new String[] { "player", "zombie", "zombie_villager", "pig_zombie", "skeleton" })
         {
             EntityModelDefinition definition = ModelDefinitions.INSTANCE.load(new ResourceLocation("mobends", "bends/models/" + name + ".json"));

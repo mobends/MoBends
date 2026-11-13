@@ -1,6 +1,7 @@
 package goblinbob.mobends.lab;
 
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
+import goblinbob.mobends.core.compat.SharedAssets;
 import goblinbob.mobends.core.definition.BoneDefinition;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
@@ -21,7 +22,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
@@ -59,7 +60,7 @@ public class DefinedModelsTest
 
     static
     {
-        for (String name : new String[] { "chicken", "cow", "mooshroom", "pig", "polar_bear", "sheep" })
+        for (String name : new String[] { "chicken", "cow", "mooshroom", "pig", "sheep" })
         {
             UNRELEASED_MODELS.put("mobends:" + name, new ResourceLocation("mobends", "bends/models/" + name + ".json"));
         }
@@ -78,14 +79,14 @@ public class DefinedModelsTest
     private static final Map<String, Set<String>> VANILLA_BONES = Collections.singletonMap("mobends:witch", Collections.singleton("nose"));
 
     /** The models whose animator moves the limbs while standing. */
-    private static final Set<String> IDLE_MOVES = new TreeSet<>(java.util.Arrays.asList("mobends:player", "mobends:skeleton", "mobends:zombie_pigman"));
+    private static final Set<String> IDLE_MOVES = new TreeSet<>(java.util.Arrays.asList("mobends:player", "mobends:skeleton", "mobends:wither_skeleton", "mobends:zombie_pigman"));
 
     /**
      * The models that stand on their feet where the walk left them (core:step_turn's
      * placeFromPose), their legs bent as far as the feet are apart: VillagerStepTurnTest and
      * ZombieStepTurnTest check where the feet end up.
      */
-    private static final Set<String> STAND_WHERE_THEY_STOPPED = new TreeSet<>(java.util.Arrays.asList("mobends:villager", "mobends:witch", "mobends:skeleton",
+    private static final Set<String> STAND_WHERE_THEY_STOPPED = new TreeSet<>(java.util.Arrays.asList("mobends:villager", "mobends:witch", "mobends:skeleton", "mobends:wither_skeleton",
             "mobends:zombie", "mobends:zombie_villager"));
 
     /** The model definitions the shipped type files name, by type id, and the unreleased ones. */
@@ -114,7 +115,7 @@ public class DefinedModelsTest
     {
         try
         {
-            return (EntityLivingBase) Class.forName(definition.entity).getConstructor(World.class).newInstance(world);
+            return (EntityLivingBase) Class.forName(SharedAssets.entityClass(definition.entity)).getConstructor(World.class).newInstance(world);
         }
         catch (ClassNotFoundException e)
         {
@@ -134,7 +135,13 @@ public class DefinedModelsTest
         {
             for (Path file : files.collect(Collectors.toList()))
             {
-                assertTrue(named.contains("bends/models/" + file.getFileName()), file.getFileName() + " is named by no type file, so no mob uses it");
+                String path = "bends/models/" + file.getFileName();
+                if (SharedAssets.isMissingEntityClass(ModelDefinitions.INSTANCE.load(new ResourceLocation("mobends", path)).entity))
+                {
+                    // A mob 1.8.9 doesn't have (the polar bear), shipped as main has it.
+                    continue;
+                }
+                assertTrue(named.contains(path), file.getFileName() + " is named by no type file, so no mob uses it");
             }
         }
     }
@@ -157,7 +164,7 @@ public class DefinedModelsTest
             }
         }
         Map<String, String> expected = new TreeMap<>();
-        for (String name : new String[] { "player", "zombie", "skeleton", "zombie_villager", "squid", "spider", "wolf" })
+        for (String name : new String[] { "player", "zombie", "skeleton", "wither_skeleton", "zombie_villager", "squid", "spider", "wolf" })
         {
             expected.put("mobends:" + name, "mobends:bends/models/" + name + ".json");
         }
@@ -183,8 +190,8 @@ public class DefinedModelsTest
         LabBootstrap.ensure();
         net.minecraft.entity.Entity.resetIds();
         World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        Minecraft.getMinecraft().theWorld = world;
+        Minecraft.getMinecraft().thePlayer = new EntityPlayerSP(world);
         EntityLivingBase entity = entityOf(definition, world);
         ScriptedEntity scripted = new ScriptedEntity(entity, world);
         DefinedEntityData<EntityLivingBase> data = DefinedEntityData.create(definition, entity);
@@ -232,8 +239,8 @@ public class DefinedModelsTest
             }
             data.update(clock.getPartialTicks());
             modelInputs.compute(entity, clock.getPartialTicks());
-            data.headYaw = MathHelper.wrapDegrees(modelInputs.headYaw);
-            data.headPitch = MathHelper.wrapDegrees(modelInputs.headPitch);
+            data.headYaw = MathHelper.wrapAngleTo180_float(modelInputs.headYaw);
+            data.headPitch = MathHelper.wrapAngleTo180_float(modelInputs.headPitch);
             data.limbSwing = modelInputs.limbSwing;
             data.limbSwingAmount = modelInputs.limbSwingAmount;
             data.swingProgress = modelInputs.swingProgress;

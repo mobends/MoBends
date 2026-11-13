@@ -3,7 +3,7 @@ package goblinbob.mobends.core.util;
 import goblinbob.mobends.core.Core;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.util.ResourceLocation;
 
 import java.net.URI;
 
@@ -12,7 +12,7 @@ public class GuiHelper
 
     public static void playButtonSound(SoundHandler soundHandler)
     {
-        soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        soundHandler.playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
     }
 
     public static boolean openUrlInBrowser(String url)

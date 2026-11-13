@@ -35,7 +35,7 @@ public final class AnimationPolicy
     public ResourcePackPolicy current()
     {
         Minecraft mc = Minecraft.getMinecraft();
-        if (mc == null || mc.world == null || mc.isSingleplayer())
+        if (mc == null || mc.theWorld == null || mc.isSingleplayer())
         {
             return ResourcePackPolicy.ALLOW;
         }

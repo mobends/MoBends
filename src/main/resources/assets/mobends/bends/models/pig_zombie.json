@@ -3,5 +3,28 @@
   "@comment": "The zombie pigman: the zombie's biped, with its own animator.",
   "extends": "mobends:bends/models/zombie.json",
   "entity": "net.minecraft.entity.monster.EntityPigZombie",
-  "animator": "mobends:bends/animators/pig_zombie.json"
+  "animator": "mobends:bends/animators/pig_zombie.json",
+  "@variants": [
+    {
+      "@comment": "After 1.12.2 it's the zombified piglin, drawn with the piglin's model: the player's (wide arms), with a piglin's head (its ears hang from it) and the player's overlays, which the piglin's texture draws a jacket, sleeves and trousers with. They ride the parts they lie over, as the player's do. Mo' Bends 1.12.2 ignores this key and keeps the zombie's model.",
+      "@when": {"core:minecraft_version": [">", "1.12.2"]},
+      "model": "net.minecraft.client.model.ModelPlayer",
+      "bones": [
+        {"name": "bodywear", "vanilla": {"field": "bipedBodyWear"}, "overlay": "body"},
+        {"name": "rightArmwear", "vanilla": {"field": "bipedRightArmwear"}, "overlay": "rightArm", "inflate": [[0.0025, 0, 0.0025], [0.005, 0, 0.005]]},
+        {"name": "leftArmwear", "vanilla": {"field": "bipedLeftArmwear"}, "overlay": "leftArm", "inflate": [[0.0025, 0, 0.0025], [0.005, 0, 0.005]]},
+        {"name": "rightLegwear", "vanilla": {"field": "bipedRightLegwear"}, "overlay": "rightLeg", "inflate": [[0, 0, 0], [0.005, 0, 0.005]]},
+        {"name": "leftLegwear", "vanilla": {"field": "bipedLeftLegwear"}, "overlay": "leftLeg", "inflate": [[0, 0, 0], [0.005, 0, 0.005]]}
+      ]
+    },
+    {
+      "@comment": "On 26.x the zombified piglin's model is no PlayerModel: a HumanoidModel on the player's mesh, whose body is replaced (it has no jacket) and whose head has no hat. The sleeves and trousers are where the player's are.",
+      "@when": {"core:minecraft_version": [">=", "26.1"]},
+      "model": "net.minecraft.client.model.monster.piglin.ZombifiedPiglinModel",
+      "bones": [
+        {"name": "headwear", "parent": "head"},
+        {"name": "bodywear", "overlay": "body"}
+      ]
+    }
+  ]
 }

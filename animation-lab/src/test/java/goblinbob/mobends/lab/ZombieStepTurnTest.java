@@ -1,7 +1,6 @@
 package goblinbob.mobends.lab;
 
 import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.entity.monster.EntityZombieVillager;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -13,6 +12,15 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class ZombieStepTurnTest
 {
+
+    /** A zombie that is a villager, as 1.8.9 has them. */
+    private static EntityZombie zombieVillager(net.minecraft.world.World world)
+    {
+        EntityZombie zombie = new EntityZombie(world);
+        zombie.setVillager(true);
+        return zombie;
+    }
+
 
     private static final float GROUND = PlantedFeetRig.GROUND;
     /** Zombies wander and chase at about 0.114 blocks a tick (attribute 0.23); babies at 0.257 (half again). */
@@ -120,7 +128,7 @@ public class ZombieStepTurnTest
         boolean villager = kind.equals("zombie villager");
         float side = villager ? 2 : 1.9F;
         return new PlantedFeetRig(villager ? "bends/models/zombie_villager.json" : "bends/models/zombie.json",
-                villager ? EntityZombieVillager::new : EntityZombie::new, kind.startsWith("baby"), set, 1,
+                villager ? ZombieStepTurnTest::zombieVillager : EntityZombie::new, kind.startsWith("baby"), set, 1,
                 new PlantedFeetRig.Leg("rightLeg", "rightForeLeg", new float[] {0, 12, 0}, new float[] {0, 6, -2}, new float[] {-side, 6, 2}),
                 new PlantedFeetRig.Leg("leftLeg", "leftForeLeg", new float[] {0, 12, 0}, new float[] {0, 6, -2}, new float[] {side, 6, 2}));
     }
