@@ -51,6 +51,12 @@ public class ClipBinding
         List<Map.Entry<String, Bone>> entries = new ArrayList<>();
         for (Map.Entry<String, Bone> entry : animation.bones.entrySet())
         {
+            // A bone with no keyframes writes nothing, so the item's effects don't go to it either.
+            List<?> keyframes = entry.getValue().keyframes;
+            if (keyframes == null || keyframes.isEmpty())
+            {
+                continue;
+            }
             if (selects(onlyBones, entry.getKey(), ROTATION) || selects(onlyBones, entry.getKey(), POSITION))
             {
                 entries.add(entry);

@@ -348,7 +348,8 @@ bones (below).
 Clip files (`animations/...json`) hold their `formatVersion` (2), `bones` with keyframes (`position`, `rotation` as a
 quaternion `[x, y, z, w]`; each may be left out for no offset, no rotation),
 and optionally `duration`, `interpolation: "step"` and explicit keyframe `times` (in the clip's
-units). Keyframes straddling the ±180° wrap interpolate the short way.
+units). Keyframes straddling the ±180° wrap interpolate the short way. A bone with no keyframes
+writes nothing, so a clip item's `@snap` and `@smoothing` leave it alone.
 
 Bone names are the subject's named parts, plus the entity's own two bones, which the whole model
 hangs from:

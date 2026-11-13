@@ -72,6 +72,8 @@ model of their own. Every mob is now a type file, which resource packs and addon
   straight away from the target. `core:two_bone_ik` and `core:three_bone_ik` follow the scale of
   the bones in `parents`, and their `stretch` is how far the end really is from the target, in
   blocks.
+- A clip's bone with no keyframes doesn't count as written, so the clip item's `@snap` and
+  `@smoothing` leave it alone.
 - A mob in the Settings window settles back into its idle pose when its row is no longer hovered,
   as on 1.12.2, instead of snapping straight to it.
 
