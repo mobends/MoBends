@@ -15,6 +15,7 @@ animates them as usual.
 Compare `misc/examples/vanilla-swim-extension`, whose `core:vanilla` node hands the player to the
 vanilla model altogether: no bends, and no blending.
 
-PAL is read on Minecraft 26.x, where the vanilla pose is read too; elsewhere the layer never holds.
+PAL is read on Minecraft 26.x; elsewhere the layer never holds (the vanilla pose itself is read on
+every version).
 To try it, copy this folder into the game's `resourcepacks` folder and enable it. With
 `./gradlew :26.3-fabric:runClient -PbetterCombat`, Better Combat and PAL are in the game.
