@@ -26,6 +26,12 @@ on the Mo' Bends menu (`GuiBendsMenu`) and by *Open Dashboard* on the linking sc
 
 - [ ] IK for cows and sheep (feet planted on the ground), switched off while they run.
 
+## Multiple Minecraft versions and loaders
+
+The modern Minecraft versions and loaders are built on `main`, and its TODO.md tracks that plan.
+This branch shares only the engine with them: `mobends-core`, released from `core/` on `main` and
+used here at `core_version` (gradle.properties).
+
 ## Keeping up with `main`
 
 This branch doesn't merge from `main`, so whatever `main` changes that this branch has to follow
