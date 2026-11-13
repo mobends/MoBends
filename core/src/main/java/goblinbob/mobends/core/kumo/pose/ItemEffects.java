@@ -268,7 +268,8 @@ public class ItemEffects
         int channels = positions ? POSITION : channels(slot);
         if (channels == BOTH) applySmoothing(target, value);
         else if (channels == ROTATION) applyRotationSmoothing(target, value);
-        else applyVectorSmoothing(target, value);
+        else if (channels == POSITION) applyVectorSmoothing(target, value);
+        // No channel (a clip filtered to one it doesn't key): it wrote nothing to smooth.
     }
 
     /** As {@link #smooth(Pose, int, float[])}, with one smoothing for every channel; NaN changes nothing. */
