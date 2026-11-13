@@ -87,7 +87,9 @@ ids, no `model`, and parts by path. See *Field names* in `misc/kumo-format.md`.
 
 The asset format is shared with `forge-1.12`, and so are the assets
 (`src/main/resources/assets/mobends/bends/`). Don't change what an existing key means. A new key is
-fine if 1.12.2 can ignore it (its Gson skips unknown keys), like `@variants`.
+fine if 1.12.2 can ignore it (its Gson skips unknown keys), like `@variants`. When an asset only fits
+some Minecraft versions, say so in the asset, not by changing a branch's copy: `@variants` for a model
+definition that differs, `@when` on a type or extension file for a mob a version doesn't have.
 
 ## What Resource Packs May Do
 

@@ -3,6 +3,8 @@ package goblinbob.mobends.core.types;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import com.google.gson.annotations.SerializedName;
+import goblinbob.mobends.core.definition.LoadCondition;
 import goblinbob.mobends.core.kumo.option.OptionTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.types.selector.SelectorExpression;
@@ -54,6 +56,17 @@ public class EntityTypeDefinition {
      */
     public Map<String, OptionTemplate> options;
 
+    /**
+     * Optional: a condition known when the file loads (constant operations only, such as
+     * {@code {"core:minecraft_version": [">=", "1.10"]}}); while it doesn't hold, the type is left
+     * out, as if the file weren't there. For a mob some Minecraft versions don't have.
+     */
+    @SerializedName("@when")
+    public JsonElement when;
+
+    /** Whether its {@link #when} holds; computed by {@link #validate}. */
+    private transient boolean applies = true;
+
     public static EntityTypeDefinition parse(JsonElement json) throws MalformedKumoTemplateException {
         EntityTypeDefinition definition;
         try {
@@ -73,6 +86,12 @@ public class EntityTypeDefinition {
             throw new MalformedKumoTemplateException("The type '" + id + "' needs a 'model': a model's key (mobends:player), a model definition (yourmod:bends/models/beast.json) or 'vanilla'.");
         }
         OptionTemplate.validate(options, "the type '" + id + "'");
+        applies = when == null || LoadCondition.holds(when, "The type '" + id + "'");
+    }
+
+    /** Whether the type applies on this Minecraft version: its {@code @when} holds, or it has none. */
+    public boolean applies() {
+        return applies;
     }
 
     public boolean isModelDefinition() {

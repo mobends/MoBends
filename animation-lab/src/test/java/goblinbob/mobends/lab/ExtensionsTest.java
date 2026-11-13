@@ -13,6 +13,7 @@ import goblinbob.mobends.lab.scenarios.Scenarios;
 import goblinbob.mobends.lab.scenarios.Scripts;
 import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.KumoSession;
+import goblinbob.mobends.lab.sim.LabBootstrap;
 import goblinbob.mobends.lab.sim.Scenario;
 import goblinbob.mobends.lab.trace.FramePose;
 import net.minecraft.resources.ResourceLocation;
@@ -29,6 +30,7 @@ import java.util.List;
 import static goblinbob.mobends.lab.PlayerRuns.angleBetween;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -85,6 +87,17 @@ public class ExtensionsTest
         {
             ClientConfig.INSTANCE.setExtensionRank("b:late", 0);
         }
+    }
+
+    @Test
+    void anExtensionWhoseWhenDoesntHoldIsLeftOut() throws Exception
+    {
+        LabBootstrap.ensure(); // The lab is 1.21.1.
+        String extension = "{\"formatVersion\": 2, \"id\": \"x:wave\", \"type\": \"mobends:player\", \"animator\": \"x:bends/animators/wave.json\"";
+        assertTrue(ExtensionDefinition.parse(JsonParser.parseString(extension + "}")).applies(), "an extension without an @when applies");
+        assertTrue(ExtensionDefinition.parse(JsonParser.parseString(extension + ", \"@when\": {\"core:minecraft_version\": [\">\", \"1.12.2\"]}}")).applies());
+        assertFalse(ExtensionDefinition.parse(JsonParser.parseString(extension + ", \"@when\": {\"core:minecraft_version\": [\"<=\", \"1.12.2\"]}}")).applies());
+        assertMalformed("has to be known when the file loads", extension + ", \"@when\": \"entityIsOnGround\"}");
     }
 
     private static void assertMalformed(String message, String json)
