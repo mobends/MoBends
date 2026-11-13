@@ -5,6 +5,7 @@
 !/.github
 !/build\.gradle
 !/gradle\.properties
+!/mise\.toml
 !/src
 !/misc
 !/gradle
