@@ -23,3 +23,6 @@ run/
 # Stonecutter version nodes (their build scripts are build.<loader>.gradle.kts at the root)
 /versions/
 .kotlin/
+
+# Personal mise overrides (mise.toml is committed)
+mise.local.toml
