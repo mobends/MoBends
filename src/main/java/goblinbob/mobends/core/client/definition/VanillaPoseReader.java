@@ -1,12 +1,15 @@
 package goblinbob.mobends.core.client.definition;
 
 import goblinbob.mobends.MoBends;
+import goblinbob.mobends.core.client.BendsRenderer;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.OrientationComponent;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.kumo.bind.IVanillaPose;
 import goblinbob.mobends.core.math.Quaternion;
+import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.math.vector.Vec3f;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -42,6 +45,10 @@ import java.util.Map;
  * axes its boxes are modelled by against the part's, and its parent's along the nearest axes to
  * its own, so a scale is carried exactly where the two frames are a quarter turn apart.
  * <p>
+ * The entity's own bones: {@code root} is given what vanilla turns the whole entity by that the
+ * bent draw leaves out, less what it adds in its place ({@link DefinedRenderer#vanillaFrameAsRoot},
+ * from the renderer's turns worked out both ways), and {@code center} is at rest.
+ * <p>
  * Not carried: the root part's own pose (the model's space is its frame, as for the bent model),
  * and a baby's offset scale.
  */
@@ -49,12 +56,20 @@ public final class VanillaPoseReader implements IVanillaPose {
     private static boolean warned;
 
     private final DefinedEntityData<?> data;
-    /** What's open: the bent parts, and what poses the vanilla model; null while closed. */
+    /** What's open: the bent parts, the vanilla model, and what the renderer does with it; null while closed. */
     @Nullable
     private DefinedModel parts;
     @Nullable
-    private Runnable poseVanilla;
+    private EntityModel<?> model;
+    @Nullable
+    private BendsRenderer.VanillaModel vanilla;
     private boolean solved;
+
+    /** The root bone's pose, giving the entity vanilla's frame. */
+    private final Quaternion rootRotation = new Quaternion();
+    private final Vec3f rootPosition = new Vec3f();
+    private final Matrix4f vanillaToModel = new Matrix4f();
+    private final Matrix4f bentToModel = new Matrix4f();
 
     /** Per part of the bent model, what it's worked out to; by name, the bones a read can ask for. */
     private final Map<DefinedModelPart, Solved> byPart = new IdentityHashMap<>();
@@ -94,20 +109,22 @@ public final class VanillaPoseReader implements IVanillaPose {
     }
 
     /**
-     * Opens the reader for this frame's animation of the entity, drawn with {@code parts}.
-     * {@code poseVanilla} poses the vanilla model for the entity, as it is about to be drawn; it
-     * runs once, at the first read, if any.
+     * Opens the reader for this frame's animation of the entity, drawn with {@code parts} in place
+     * of {@code model}. {@code vanilla} poses the model and turns the entity's frame as the renderer
+     * is about to; it runs once, at the first read, if any.
      */
-    public void open(DefinedModel parts, Runnable poseVanilla) {
+    public void open(DefinedModel parts, EntityModel<?> model, BendsRenderer.VanillaModel vanilla) {
         this.parts = parts;
-        this.poseVanilla = poseVanilla;
+        this.model = model;
+        this.vanilla = vanilla;
         this.solved = false;
     }
 
     /** Closes it: nothing is read until it's opened again. */
     public void close() {
         this.parts = null;
-        this.poseVanilla = null;
+        this.model = null;
+        this.vanilla = null;
     }
 
     @Override
@@ -119,8 +136,9 @@ public final class VanillaPoseReader implements IVanillaPose {
         if (!solved) {
             solved = true;
             try {
-                poseVanilla.run();
+                vanilla.pose().run();
                 solve(model);
+                solveFrame();
             } catch (RuntimeException e) {
                 // Another mod's setupAnim failing: the node poses nothing, rather than the entity not drawing.
                 if (!warned) {
@@ -130,7 +148,16 @@ public final class VanillaPoseReader implements IVanillaPose {
                 byName.clear();
                 byPart.clear();
                 solvedFor = null;
+                rootRotation.setIdentity();
+                rootPosition.set(0, 0, 0);
             }
+        }
+        if (Skeleton.isEntityBone(bone)) {
+            boolean root = Skeleton.ROOT.equals(bone);
+            rotation.set(root ? rootRotation : IDENTITY);
+            offset.set(root ? rootPosition.x : 0, root ? rootPosition.y : 0, root ? rootPosition.z : 0);
+            scale.set(1, 1, 1);
+            return true;
         }
         Solved solved = byName.get(bone);
         if (solved == null && data.getComponent(bone, OrientationComponent.class) != null) {
@@ -147,6 +174,19 @@ public final class VanillaPoseReader implements IVanillaPose {
         offset.set(solved.offset);
         scale.set(solved.scale);
         return true;
+    }
+
+    private static final Quaternion IDENTITY = new Quaternion();
+
+    /**
+     * Works out the root's pose: the renderer's turns of the entity, as vanilla makes them and as
+     * it makes them for the bent draw, and what the bent draw does in their place.
+     */
+    private void solveFrame() {
+        BendsRenderer.VanillaModel vanilla = this.vanilla;
+        DefinedRenderer.framedAs(null, () -> vanilla.toModel(vanillaToModel));
+        DefinedRenderer.framedAs(data, () -> vanilla.toModel(bentToModel));
+        DefinedRenderer.vanillaFrameAsRoot(data, model, vanillaToModel, bentToModel, vanilla.bodyYaw(), rootRotation, rootPosition);
     }
 
     private void solve(DefinedModel model) {

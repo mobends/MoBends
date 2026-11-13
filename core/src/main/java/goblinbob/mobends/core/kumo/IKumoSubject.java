@@ -34,10 +34,10 @@ public interface IKumoSubject
 
     /**
      * Told, once the subject is animated, how much its frame is vanilla's this frame, 0..1: 1 where
-     * a {@code core:vanilla_pose} node put the entity's own bones ({@code root}, {@code center}) at
-     * rest, 0 where nothing did, and in between while it fades in or out (a layer's {@code @fade},
-     * a transition). Whatever the host does to the whole entity in place of vanilla, for the
-     * animator to do instead (a swimming tilt, a sneaking offset), it leaves to vanilla by as much.
+     * a {@code core:vanilla_pose} node gave the entity's own bones ({@code root}, {@code center})
+     * vanilla's frame, 0 where nothing did, and in between while it fades in or out (a layer's
+     * {@code @fade}, a transition). The bones carry the frame itself; whatever else the host draws
+     * of its own for the animator, which vanilla doesn't (a sword trail), it fades out by as much.
      */
     default void setEntityFrameVanilla(float weight)
     {

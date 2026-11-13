@@ -220,19 +220,55 @@ public class VanillaPoseNodeTest
     }
 
     @Test
-    public void putsTheEntitysOwnBonesAtRest() throws MalformedKumoTemplateException
+    public void givesTheEntitysOwnBonesTheVanillaFrame() throws MalformedKumoTemplateException
+    {
+        // Vanilla's turns of the whole entity, as the host gives them: the root the layers below moved is replaced.
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'root', 'x': 3}, '@space': 'override'}", "",
+                "{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 0}}");
+        TestSubject subject = new TestSubject("arm");
+        subject.vanillaPose = new FakeVanillaPose().put("arm", pitch(-60), 0, 0, 0).put("root", pitch(90), 0, -4, 2);
+
+        animator.update(subject, 1F);
+
+        assertVector(0, -4, 2, subject.root.position.end);
+        assertRotation(pitch(90), subject.root.getRotationTarget());
+        assertEquals(1F, subject.entityFrameVanilla, 1e-6F);
+    }
+
+    @Test
+    public void putsTheEntitysOwnBonesAtRestWhereTheVanillaPoseHasNoFrame() throws MalformedKumoTemplateException
     {
         // Vanilla's parts are drawn in the entity's frame: the root the layers below moved goes back.
         KumoAnimatorState animator = animator("{'core:translate': {'bone': 'root', 'x': 3}, '@space': 'override'}", "",
                 "{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 0}}");
         TestSubject subject = new TestSubject("arm");
-        // A pose the vanilla model can't have, which isn't read.
-        subject.vanillaPose = new FakeVanillaPose().put("arm", pitch(-60), 0, 0, 0).put("root", pitch(90), 7, 7, 7);
+        subject.vanillaPose = new FakeVanillaPose().put("arm", pitch(-60), 0, 0, 0);
 
         animator.update(subject, 1F);
 
         assertVector(0, 0, 0, subject.root.position.end);
         assertEquals(1F, subject.entityFrameVanilla, 1e-6F);
+    }
+
+    @Test
+    public void theVanillaFrameBlendsAsABone() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance(("{'formatVersion': 2, 'layers': ["
+                + "{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:translate': {'bone': 'root', 'x': 4}, '@space': 'override'}, "
+                + "{'core:rotate': {'bone': 'root', 'axis': 'x', 'angle': -80}}, {'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 0}}]}}}}, "
+                + "{'@when': 'GO', '@fade': 4, 'defaultOnEntry': 'b', 'nodes': {'b': {'core:vanilla_pose': {}}}}]}").replace('\'', '"'));
+        TestSubject subject = new TestSubject("arm");
+        subject.vanillaPose = new FakeVanillaPose().put("arm", pitch(-60), 0, 0, 0).put("root", pitch(-100), 0, -8, 0);
+        subject.states.put("GO", false);
+
+        animator.update(subject, 1F);
+        subject.states.put("GO", true);
+        animator.update(subject, 1F);
+        animator.update(subject, 1F);
+
+        // Half way in, the animator's lying down and vanilla's tilt make one turn half way between them.
+        assertRotation(pitch(-90), subject.root.getRotationTarget());
+        assertVector(2, -4, 0, subject.root.position.end);
     }
 
     @Test

@@ -181,7 +181,7 @@ public class SwordTrail implements EntityComponent {
         if (trail == null || trail.parts.size() < 2 || !ClientConfig.INSTANCE.showSwordTrail()) {
             return null;
         }
-        // Mo' Bends' own, not vanilla's: it fades out as far as the entity's frame is left to vanilla
+        // Mo' Bends' own, not vanilla's: it fades out as far as the entity is given vanilla's frame
         // (a core:vanilla_pose node, see DefinedEntityData.getEntityFrameVanilla).
         float shown = 1.0F - data.getEntityFrameVanilla();
         if (shown <= 0.0F) {

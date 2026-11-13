@@ -150,7 +150,26 @@ public abstract class LivingEntityRendererMixin implements BendingEntityRenderer
     )
     private void mobends$pose(LivingEntity entity, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffers, int packedLight, CallbackInfo ci) {
         EntityModel<?> model = ((LivingEntityRenderer<?, ?>) (Object) this).getModel();
-        mobends$bent = BendsRenderer.beforeRender(entity, model, partialTicks, () -> mobends$poseVanilla(entity, model, partialTicks));
+        BendsRenderer.RenderArguments arguments = BendsRenderer.RenderArguments.of(entity, partialTicks);
+        BendsRenderer.VanillaModel vanilla = new BendsRenderer.VanillaModel(() -> mobends$poseVanilla(entity, model, partialTicks),
+                turned -> mobends$turn(entity, partialTicks, arguments.bodyYaw(), turned), arguments.bodyYaw());
+        mobends$bent = BendsRenderer.beforeRender(entity, model, partialTicks, vanilla);
+    }
+
+    /**
+     * Turns {@code poseStack} as this render will turn the entity's frame further on: the renderer's
+     * {@code setupRotations}, the flip, its {@code scale} and the shift down to the model's origin.
+     */
+    @Unique
+    private void mobends$turn(LivingEntity entity, float partialTicks, float bodyYaw, PoseStack poseStack) {
+        //? if >=1.21 {
+        setupRotations(entity, poseStack, getBob(entity, partialTicks), bodyYaw, partialTicks, entity.getScale());
+        //?} else {
+        /*setupRotations(entity, poseStack, getBob(entity, partialTicks), bodyYaw, partialTicks);
+        *///?}
+        poseStack.scale(-1.0F, -1.0F, 1.0F);
+        scale(entity, poseStack, partialTicks);
+        poseStack.translate(0.0F, -1.501F, 0.0F);
     }
 
     /**
@@ -180,6 +199,17 @@ public abstract class LivingEntityRendererMixin implements BendingEntityRenderer
 
     @Shadow
     protected abstract float getAttackAnim(LivingEntity entity, float partialTicks);
+
+    //? if >=1.21 {
+    @Shadow
+    protected abstract void setupRotations(LivingEntity entity, PoseStack poseStack, float bob, float bodyYaw, float partialTicks, float scale);
+    //?} else {
+    /*@Shadow
+    protected abstract void setupRotations(LivingEntity entity, PoseStack poseStack, float bob, float bodyYaw, float partialTicks);
+    *///?}
+
+    @Shadow
+    protected abstract void scale(LivingEntity entity, PoseStack poseStack, float partialTicks);
 
     /** A preview of the Mo' Bends menu has no name tag (the player's copy would show the player's name over it). */
     @Inject(method = "shouldShowName(Lnet/minecraft/world/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)

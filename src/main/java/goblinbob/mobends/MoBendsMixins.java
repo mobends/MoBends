@@ -43,6 +43,7 @@ public final class MoBendsMixins implements IMixinConfigPlugin {
         "LayerDefinitionMixin",
         "LevelExtractorMixin",
         "LivingEntityAccessor",
+        "LivingEntityRendererInvoker",
         "LivingEntityRendererMixin",
         "MinecraftMixin",
         "ModelFeatureRendererMixin",

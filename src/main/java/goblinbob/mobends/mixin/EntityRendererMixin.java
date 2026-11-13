@@ -1,7 +1,8 @@
 package goblinbob.mobends.mixin;
 
 //? if >=26.1 {
-/*import goblinbob.mobends.core.client.BendsRenderer;
+/*import com.mojang.blaze3d.vertex.PoseStack;
+import goblinbob.mobends.core.client.BendsRenderer;
 import goblinbob.mobends.core.client.BentRenderState;
 import goblinbob.mobends.standard.compat.pal.PalOperations;
 import net.minecraft.client.model.EntityModel;
@@ -48,8 +49,21 @@ public abstract class EntityRendererMixin {
             model = adult;
         }
         EntityModel<?> posed = model;
-        ((BentRenderState) state).mobends$setBent(
-                BendsRenderer.beforeRender(living, model, partialTicks, () -> mobends$poseVanilla(living, posed, state)), model);
+        BendsRenderer.VanillaModel vanilla = new BendsRenderer.VanillaModel(() -> mobends$poseVanilla(living, posed, state),
+                poseStack -> mobends$turn((LivingEntityRendererInvoker) renderer, state, poseStack), state.bodyRot);
+        ((BentRenderState) state).mobends$setBent(BendsRenderer.beforeRender(living, model, partialTicks, vanilla), model);
+    }
+
+    /^*
+     * Turns {@code poseStack} as the renderer's {@code submit} will turn the entity's frame: its
+     * {@code setupRotations}, the flip, its {@code scale} and the shift down to the model's origin.
+     ^/
+    @Unique
+    private static void mobends$turn(LivingEntityRendererInvoker renderer, LivingEntityRenderState state, PoseStack poseStack) {
+        renderer.mobends$setupRotations(state, poseStack, state.bodyRot, state.scale);
+        poseStack.scale(-1.0F, -1.0F, 1.0F);
+        renderer.mobends$scale(state, poseStack);
+        poseStack.translate(0.0F, -1.501F, 0.0F);
     }
 
     /^*
