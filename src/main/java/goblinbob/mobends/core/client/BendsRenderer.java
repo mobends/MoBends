@@ -20,9 +20,11 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
 /**
  * Where a living entity's render meets Mo' Bends ({@code LivingEntityRendererMixin}): picks the
@@ -147,15 +149,36 @@ public final class BendsRenderer {
     }
 
     /**
+     * What a renderer is about to do with the vanilla model and the entity's frame for this render,
+     * for a {@code core:vanilla_pose} node to read ahead of their time ({@link VanillaPoseReader}).
+     * Each is run only if the animator reads the pose.
+     *
+     * @param pose    poses the model as vanilla is about to, {@code setupAnim} and all (with what
+     *                other mods do there)
+     * @param turns   turns a pose stack, from the entity's frame, as the renderer is about to turn
+     *                the entity's: its {@code setupRotations}, the flip, its {@code scale} and the
+     *                1.501 shift down (run within {@link DefinedRenderer#framedAs})
+     * @param bodyYaw the body yaw (degrees) the renderer turns the entity by
+     */
+    public record VanillaModel(Runnable pose, Consumer<PoseStack> turns, float bodyYaw) {
+        /** Sets {@code dest} to the transform {@link #turns} makes. */
+        public void toModel(Matrix4f dest) {
+            PoseStack poseStack = new PoseStack();
+            turns.accept(poseStack);
+            dest.set(poseStack.last().pose());
+        }
+    }
+
+    /**
      * As {@link #beforeRender(LivingEntity, EntityModel, float)}, with the vanilla model's pose for
      * the animator to read ({@code core:vanilla_pose}).
      *
-     * @param poseVanilla poses {@code model} as vanilla is about to for this render, setupAnim and
-     *                    all; run only if the animator reads the pose. Null if the model can't be
-     *                    posed ahead of its time: the animator has no vanilla pose to read.
+     * @param vanilla what the renderer is about to do with {@code model} and the entity's frame.
+     *                Null if the model can't be posed ahead of its time: the animator has no vanilla
+     *                pose to read.
      */
     @Nullable
-    public static DefinedEntityData<?> beforeRender(LivingEntity entity, EntityModel<?> model, float partialTicks, @Nullable Runnable poseVanilla) {
+    public static DefinedEntityData<?> beforeRender(LivingEntity entity, EntityModel<?> model, float partialTicks, @Nullable VanillaModel vanilla) {
         // A preview of the Mo' Bends menu shows its mob, whatever type would win for it in the game.
         boolean preview = PreviewWorld.isPreview(entity);
         EntityTypeRegistry.Selection selection = preview ? PreviewWorld.getSelection(entity) : EntityTypeRegistry.INSTANCE.select(entity);
@@ -180,7 +203,7 @@ public final class BendsRenderer {
             return null;
         }
         captureRenderArguments(entity, partialTicks, definedData);
-        VanillaPoseReader vanillaPose = poseVanilla == null ? null : openVanillaPose(definedData, model, poseVanilla);
+        VanillaPoseReader vanillaPose = vanilla == null ? null : openVanillaPose(definedData, model, vanilla);
         try {
             definedData.animate();
         } finally {
@@ -194,7 +217,7 @@ public final class BendsRenderer {
 
     /** Lets the data's animator read {@code model}'s vanilla pose while it animates; null if the model isn't drawn bent. */
     @Nullable
-    private static VanillaPoseReader openVanillaPose(DefinedEntityData<?> data, EntityModel<?> model, Runnable poseVanilla) {
+    private static VanillaPoseReader openVanillaPose(DefinedEntityData<?> data, EntityModel<?> model, VanillaModel vanilla) {
         DefinedModel parts = partsFor(data, model);
         if (parts == null) {
             return null;
@@ -206,7 +229,7 @@ public final class BendsRenderer {
             reader = new VanillaPoseReader(data);
             data.setVanillaPoseSource(reader);
         }
-        reader.open(parts, poseVanilla);
+        reader.open(parts, model, vanilla);
         data.setVanillaPose(reader);
         return reader;
     }
@@ -263,9 +286,10 @@ public final class BendsRenderer {
     /**
      * What {@code LivingEntityRenderer.render} passes the model's {@code prepareMobModel} and
      * {@code setupAnim}, as it computes them for this render: the limb swing and its amount, and the
-     * head's yaw and pitch against the body (as vanilla passes them, unwrapped where it doesn't wrap).
+     * head's yaw and pitch against the body (as vanilla passes them, unwrapped where it doesn't wrap);
+     * and the body yaw it turns the entity by.
      */
-    public record RenderArguments(float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch) {
+    public record RenderArguments(float bodyYaw, float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch) {
         public static RenderArguments of(LivingEntity entity, float partialTicks) {
             // Vanilla's test (NeoForge also asks the vehicle, which hardly any does differently).
             boolean shouldSit = entity.isPassenger();
@@ -306,7 +330,7 @@ public final class BendsRenderer {
                     limbSwing *= 3.0F;
                 }
             }
-            return new RenderArguments(limbSwing, limbSwingAmount, netHeadYaw, headPitch);
+            return new RenderArguments(bodyYaw, limbSwing, limbSwingAmount, netHeadYaw, headPitch);
         }
     }
 

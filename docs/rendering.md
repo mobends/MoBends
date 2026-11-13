@@ -17,13 +17,18 @@
   the animation; the first read runs the model's `setupAnim` from the state (and has Player
   Animation Library sample its animation first, `PalOperations.beforeVanillaPose`), then works
   out each bone's rotation, offset and scale from vanilla's part tree (`DefinedModelPart.vanillaChain`).
-  When the node puts `root` and `center` at rest, the pose says how much the entity's frame is
-  vanilla's (`Pose.setVanillaFrame`, blended by fades and transitions as the bones are), which
-  the data gets once animated (`IKumoSubject.setEntityFrameVanilla`,
-  `DefinedEntityData.getEntityFrameVanilla`). The renderer gives vanilla's whole-entity transforms
-  by as much, and what it does in their place for the animator by the rest: the player's swimming
-  tilt, shift and drop (`DefinedRenderer.swimmingTiltShown`, `PlayerRendererMixin`), the sneak
-  offsets (`DefinedRenderer.transformModel`) and the iron golem's rock (`IronGolemRendererMixin`).
+  The entity's frame is read as the `root` bone's pose: the reader has the renderer's own turns of
+  the entity (`setupRotations`, the flip, its `scale`, the 1.501 shift; `BendsRenderer.VanillaModel`)
+  worked out twice ahead of the draw, as vanilla makes them and as they're made for the bent
+  entity (`DefinedRenderer.framedAs`, which the mixins that leave vanilla's turns out ask through
+  `DefinedRenderer.drawnBentBy`: the player's swimming tilt, `PlayerRendererMixin`, and the iron
+  golem's rock, `IronGolemRendererMixin`). `DefinedRenderer.vanillaFrameAsRoot` solves for the root
+  that makes `transformModel`'s matrix, with the swimming drop and the sneak offsets it adds,
+  vanilla's. The renderer itself always draws a bent entity its own way; the root blends into and
+  out of vanilla's frame like any bone. The pose also says how much the entity's frame is vanilla's
+  (`Pose.setVanillaFrame`, blended by fades and transitions), which the data gets once animated
+  (`IKumoSubject.setEntityFrameVanilla`, `DefinedEntityData.getEntityFrameVanilla`): the sword
+  trail fades out by it.
   Before 26.1 the entity is animated at `render`'s start (`LivingEntityRendererMixin`), and the
   reader poses the vanilla model there as vanilla will further into `render`: the model's
   `attackTime`, `riding` and `young`, then `prepareMobModel` and `setupAnim` with the renderer's

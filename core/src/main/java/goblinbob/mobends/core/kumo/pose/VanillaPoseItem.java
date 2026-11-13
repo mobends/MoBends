@@ -11,9 +11,11 @@ import javax.annotation.Nullable;
  * The first item of a {@code core:vanilla_pose} node: writes each bone the subject's vanilla pose
  * has ({@link IVanillaPose}) as that pose has it, its rotation, offset and scale replacing what
  * lies beneath. A bone it has no pose for is left alone. The entity's own bones ({@code root},
- * {@code center}), which the vanilla model draws nothing of (its parts are drawn in the entity's
- * frame), are put at rest, once any bone has a pose, and the entity's frame is left to vanilla
- * (the pose's {@link Pose#setVanillaFrame}, see {@link goblinbob.mobends.core.kumo.IKumoSubject#setEntityFrameVanilla}).
+ * {@code center}), once any bone has a pose, are given the entity's frame as vanilla draws it:
+ * as the vanilla pose has them (the host gives vanilla's turns of the whole entity as the root's
+ * pose), else at rest, as vanilla's parts are drawn in the entity's frame. They're then blended
+ * like any bone, and the entity's frame is vanilla's (the pose's {@link Pose#setVanillaFrame},
+ * see {@link goblinbob.mobends.core.kumo.IKumoSubject#setEntityFrameVanilla}).
  */
 public class VanillaPoseItem implements IPoseItem
 {
@@ -61,20 +63,25 @@ public class VanillaPoseItem implements IPoseItem
         {
             return;
         }
-        // Vanilla's parts are drawn in the entity's frame: nothing of the animator's own moves it.
-        rotation.setIdentity();
-        boolean atRest = false;
+        // Vanilla's parts are drawn in the entity's frame: nothing of the animator's own moves it,
+        // only what vanilla turns the whole entity by.
+        boolean framed = false;
         for (int i = 0; i < count; i++)
         {
             int slot = bones != null ? bones[i] : i;
             if (skeleton.isEntityBone(slot))
             {
+                if (!vanilla.read(skeleton.nameOf(slot), rotation, offset, scale))
+                {
+                    rotation.setIdentity();
+                    offset.set(0, 0, 0);
+                }
                 pose.composeRotation(slot, rotation, Pose.Space.OVERRIDE);
-                pose.composeVector(slot, 0, 0, 0, Pose.Space.OVERRIDE);
-                atRest = true;
+                pose.composeVector(slot, offset.x, offset.y, offset.z, Pose.Space.OVERRIDE);
+                framed = true;
             }
         }
-        if (atRest)
+        if (framed)
         {
             pose.setVanillaFrame(1F);
         }

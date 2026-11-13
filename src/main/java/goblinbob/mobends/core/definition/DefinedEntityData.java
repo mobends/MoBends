@@ -43,7 +43,7 @@ public class DefinedEntityData<E extends LivingEntity> extends LivingEntityData<
     /** Whatever the renderer keeps to read it with, from one frame to the next (see {@link #getVanillaPoseSource}). */
     @Nullable
     private Object vanillaPoseSource;
-    /** How much this frame's animation leaves the entity's frame to vanilla (see {@link #getEntityFrameVanilla}). */
+    /** How much this frame's animation gives the entity vanilla's frame (see {@link #getEntityFrameVanilla}). */
     private float entityFrameVanilla;
 
     public DefinedEntityData(EntityModelDefinition definition, E entity) {
@@ -193,11 +193,11 @@ public class DefinedEntityData<E extends LivingEntity> extends LivingEntityData<
     }
 
     /**
-     * How much this frame's animation leaves the entity's frame to vanilla, 0..1: 1 where a
-     * {@code core:vanilla_pose} node put {@code root} and {@code center} at rest, in between while it
-     * fades in or out. The renderer draws the whole entity as vanilla does by as much (its swimming
-     * tilt, its rock), and does what it does in their place for the animator by the rest (the
-     * definition's sneak offset, the drop of a swimming player).
+     * How much this frame's animation gives the entity vanilla's frame, 0..1: 1 where a
+     * {@code core:vanilla_pose} node gave {@code root} and {@code center} vanilla's frame, in between
+     * while it fades in or out. The bones carry the frame itself
+     * ({@code DefinedRenderer.vanillaFrameAsRoot}); what Mo' Bends draws of its own that vanilla
+     * doesn't (the sword trail) fades out by as much.
      */
     public float getEntityFrameVanilla() {
         return entityFrameVanilla;

@@ -16,8 +16,13 @@ public interface IVanillaPose
      * Reads bone {@code bone}'s pose: the rotation, the offset and the scale that, written as they
      * are ({@code override}), draw the bone where and as large as the vanilla model draws its part.
      *
+     * <p>
+     * The entity's own bones ({@code root}, {@code center}) may be read too: vanilla's turns of the
+     * whole entity (a swimming tilt), as the bone's rotation and its position (its vector, which
+     * {@code offset} is set to). Where they aren't, the node puts them at rest.
+     *
      * @param rotation set to the bone's rotation (after its rest rotation, as a clip's)
-     * @param offset   set to the bone's offset from where it sits, in model units
+     * @param offset   set to the bone's offset from where it sits, in model units (an entity bone's vector)
      * @param scale    set to the bone's scale, on its own axes (1 for the part as modelled)
      * @return false where there is no pose to read for the bone (it stands for no part of the
      *         model, or the model isn't posed this frame), and nothing was set

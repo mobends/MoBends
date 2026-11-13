@@ -171,17 +171,19 @@ node is in *Choosing the node*.
     own axes, each from the part's axis it lies nearest, so it carries exactly where a bone's boxes
     are modelled a quarter turn from the part's (or not turned at all); a part scaled unevenly
     under a parent turned at another angle comes out roughly.
-  * The entity's own bones, `root` and `center`, are written at rest: vanilla draws its parts in
-    the entity's frame, so what the layers below move it by (the wolf's sitting lowers `root`)
-    would move the pose twice. The whole entity is then drawn as vanilla draws it: what Mo' Bends
-    does in place of vanilla for the animator is left out (a definition's `renderer.sneakOffset`
-    and 1.12's sneaking drop, a swimming player's drop) and vanilla's own turns stay (a player's
-    swimming tilt, an iron golem's walking rock with `renderer.undoVanillaRock`, besides dying,
-    sleeping and gliding, as under any node). Mo' Bends' sword trail fades out. It blends as the
-    bones do: while a layer's `@fade` or a transition goes into or out of the node, the swimming
-    tilt, the sneak offset, the golem's rock and the sword trail are part vanilla's, part the
-    animator's. While the node leaves `root` and `center` out (`bones`), the animator keeps the
-    entity's frame.
+  * The entity's own bones, `root` and `center`, are given the entity's frame as vanilla draws it,
+    replacing what the layers below move it by (the wolf's sitting lowers `root`, which would move
+    the pose twice): `center` is written at rest, and `root` turns and moves the entity as vanilla
+    does where Mo' Bends draws it otherwise for the animator. That is vanilla's own turns, which
+    the bent entity leaves out (a player's swimming tilt and its shift, an iron golem's walking rock
+    with `renderer.undoVanillaRock`), less what Mo' Bends does in their place (a definition's
+    `renderer.sneakOffset` and 1.12's sneaking drop, a swimming player's drop); dying, sleeping and
+    gliding are vanilla's under any node. Mo' Bends' sword trail fades out. As `root` carries the
+    frame, it blends as any bone does: while a layer's `@fade` or a transition goes into or out of
+    the node, a swimming player turns from the animator's swimming pose to vanilla's tilt about one
+    pivot, by the same weight as its arms. It's smoothed as `root` is (its base smoothing, unless
+    the node's `smoothing` says otherwise: `{"root": 0}` follows vanilla's frame as it is). While
+    the node leaves `root` and `center` out (`bones`), the animator keeps the entity's frame.
   * `bones` lists the bones it takes, `root` and `center` included; by default, every bone the
     animator names anywhere (any layer, its extensions' included), which for the shipped animators
     is every bone that moves.
