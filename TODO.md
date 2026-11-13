@@ -75,6 +75,20 @@ definition names `EntitySkeleton`, which the wither skeleton isn't (both extend 
       on its feet as the skeleton does, at its bigger size, and the Settings menu lists it with its
       own switch. The skeleton, the stray and the wither (the boss) are unchanged.
 
+### #492: `@when` on type and extension files
+
+Doesn't need a new `core`. On `main` a type or extension file can say which Minecraft versions it's
+for (`"@when": {"core:minecraft_version": [">=", "1.10"]}`): on the others it's left out as if it
+weren't there, and a type's model isn't read. 1.12.2 reads a file with an `@when` already (Gson skips
+the key) but uses it whatever it says, so a file meant for other versions only would load here too.
+
+- [ ] Port it from `main`: `LoadCondition` (shared with `DefinitionMerge.applyVariants`), the `@when`
+      field and `applies()` of `EntityTypeDefinition` and `ExtensionDefinition`, and leaving out what
+      doesn't apply in `TypeFiles.read` and `loadExtension` (and its caller in the registry).
+- [ ] Port the lab's `aTypeWhoseWhenDoesntHoldIsLeftOut` and `anExtensionWhoseWhenDoesntHoldIsLeftOut`,
+      with versions around 1.12.2 (`["<", "1.10"]` doesn't hold here).
+- [ ] Take `misc/kumo-format.md`'s passages on it from `main`.
+
 ## Other tasks
 
 - [ ] Make `field` resolve every vanilla field in production. The generated accessors
