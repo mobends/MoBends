@@ -1,0 +1,4 @@
+# The JDK that builds Mo' Bends for 1.12.2, for those who use mise (https://mise.jdx.dev).
+# Zulu, because Temurin 8 has no build for Apple Silicon.
+[tools]
+java = "zulu-8"
