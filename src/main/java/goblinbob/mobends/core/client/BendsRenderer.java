@@ -261,52 +261,66 @@ public final class BendsRenderer {
     }
 
     /**
+     * What {@code LivingEntityRenderer.render} passes the model's {@code prepareMobModel} and
+     * {@code setupAnim}, as it computes them for this render: the limb swing and its amount, and the
+     * head's yaw and pitch against the body (as vanilla passes them, unwrapped where it doesn't wrap).
+     */
+    public record RenderArguments(float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch) {
+        public static RenderArguments of(LivingEntity entity, float partialTicks) {
+            // Vanilla's test (NeoForge also asks the vehicle, which hardly any does differently).
+            boolean shouldSit = entity.isPassenger();
+            float bodyYaw = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
+            float headYaw = Mth.rotLerp(partialTicks, entity.yHeadRotO, entity.yHeadRot);
+            float netHeadYaw = headYaw - bodyYaw;
+            if (shouldSit && entity.getVehicle() instanceof LivingEntity mount) {
+                // Riding, the body turns with the mount and the head is kept within 85 degrees of it.
+                bodyYaw = Mth.rotLerp(partialTicks, mount.yBodyRotO, mount.yBodyRot);
+                netHeadYaw = headYaw - bodyYaw;
+                float clamped = Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85.0F, 85.0F);
+                bodyYaw = headYaw - clamped;
+                if (clamped * clamped > 2500.0F) {
+                    bodyYaw += clamped * 0.2F;
+                }
+                netHeadYaw = headYaw - bodyYaw;
+            }
+
+            float headPitch = Mth.lerp(partialTicks, entity.xRotO, entity.getXRot());
+            //? if >=26.1 {
+            /*if (isUpsideDown(entity)) {
+            *///?} else {
+            if (LivingEntityRenderer.isEntityUpsideDown(entity)) {
+            //?}
+                headPitch *= -1.0F;
+                netHeadYaw *= -1.0F;
+            }
+            //? if >=1.21 {
+            netHeadYaw = Mth.wrapDegrees(netHeadYaw);
+            //?}
+
+            float limbSwingAmount = 0.0F;
+            float limbSwing = 0.0F;
+            if (!shouldSit && entity.isAlive()) {
+                limbSwingAmount = Math.min(entity.walkAnimation.speed(partialTicks), 1.0F);
+                limbSwing = entity.walkAnimation.position(partialTicks);
+                if (entity.isBaby()) {
+                    limbSwing *= 3.0F;
+                }
+            }
+            return new RenderArguments(limbSwing, limbSwingAmount, netHeadYaw, headPitch);
+        }
+    }
+
+    /**
      * Reads what {@code LivingEntityRenderer.render} passes the model's {@code setupAnim} (the head's
-     * yaw and pitch, the limb swing and its amount) and the swing progress, as it computes them,
-     * into the data the animator reads.
+     * yaw and pitch, the limb swing and its amount, {@link RenderArguments}) and the swing progress,
+     * as it computes them, into the data the animator reads.
      */
     private static void captureRenderArguments(LivingEntity entity, float partialTicks, LivingEntityData<?> data) {
-        // Vanilla's test (NeoForge also asks the vehicle, which hardly any does differently).
-        boolean shouldSit = entity.isPassenger();
-        float bodyYaw = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
-        float headYaw = Mth.rotLerp(partialTicks, entity.yHeadRotO, entity.yHeadRot);
-        float netHeadYaw = headYaw - bodyYaw;
-        if (shouldSit && entity.getVehicle() instanceof LivingEntity mount) {
-            // Riding, the body turns with the mount and the head is kept within 85 degrees of it.
-            bodyYaw = Mth.rotLerp(partialTicks, mount.yBodyRotO, mount.yBodyRot);
-            netHeadYaw = headYaw - bodyYaw;
-            float clamped = Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85.0F, 85.0F);
-            bodyYaw = headYaw - clamped;
-            if (clamped * clamped > 2500.0F) {
-                bodyYaw += clamped * 0.2F;
-            }
-            netHeadYaw = headYaw - bodyYaw;
-        }
-
-        float headPitch = Mth.lerp(partialTicks, entity.xRotO, entity.getXRot());
-        //? if >=26.1 {
-        /*if (isUpsideDown(entity)) {
-        *///?} else {
-        if (LivingEntityRenderer.isEntityUpsideDown(entity)) {
-        //?}
-            headPitch *= -1.0F;
-            netHeadYaw *= -1.0F;
-        }
-
-        float limbSwingAmount = 0.0F;
-        float limbSwing = 0.0F;
-        if (!shouldSit && entity.isAlive()) {
-            limbSwingAmount = Math.min(entity.walkAnimation.speed(partialTicks), 1.0F);
-            limbSwing = entity.walkAnimation.position(partialTicks);
-            if (entity.isBaby()) {
-                limbSwing *= 3.0F;
-            }
-        }
-
-        data.headYaw = Mth.wrapDegrees(netHeadYaw);
-        data.headPitch = Mth.wrapDegrees(headPitch);
-        data.limbSwing = limbSwing;
-        data.limbSwingAmount = limbSwingAmount;
+        RenderArguments arguments = RenderArguments.of(entity, partialTicks);
+        data.headYaw = Mth.wrapDegrees(arguments.netHeadYaw());
+        data.headPitch = Mth.wrapDegrees(arguments.headPitch());
+        data.limbSwing = arguments.limbSwing();
+        data.limbSwingAmount = arguments.limbSwingAmount();
         //? if >=26.1 {
         /*data.swingProgress = entity.getSwingAnimation(partialTicks);
         *///?} else {

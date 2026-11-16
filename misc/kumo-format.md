@@ -181,7 +181,7 @@ node is in *Choosing the node*.
     animator names anywhere (any layer, its extensions' included), which for the shipped animators
     is every bone that moves.
   * Where there is no vanilla pose to read, it writes nothing, and the layers below show through:
-    in the animation lab, and on Minecraft before 26.1 for now (see below).
+    in the animation lab.
   * Not carried over: a vanilla part's scale, and what a mod draws outside the model's parts
     (Player Animation Library's whole-body `body` bone, which turns the entity's frame, is lost).
 
@@ -193,7 +193,9 @@ node is in *Choosing the node*.
   with its own `setupAnim` ahead of its draw, the first time the node reads it in a frame; the
   model is posed again before every draw, so this leaves nothing behind. Player Animation Library
   works out its animation only as the player is submitted, after that, so it's asked to do so
-  first.
+  first. Before 26.1 the entity is animated as its render starts, and the vanilla model is posed
+  there, the same way: vanilla's `prepareMobModel` and `setupAnim`, with the arguments vanilla is
+  about to pass them.
 
 ## Choosing the node
 

@@ -67,6 +67,7 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
 *///?} else {
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.blaze3d.vertex.PoseStack;
 import goblinbob.mobends.core.client.BendingEntityRenderer;
 import goblinbob.mobends.core.client.definition.DefinedRenderer;
 import goblinbob.mobends.core.definition.DefinedEntityData;
@@ -92,7 +93,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * swimming poses (1.12 had no swimming pose), and the bent model is drawn inside vanilla's turn, so
  * both would apply and a player sprint-swimming underwater would end up nearly upside down.
  * Out of water (crawling through a one-block gap) vanilla's tilt stays: the animator has no
- * crawling pose, and the tilt keeps the player inside the gap.
+ * crawling pose, and the tilt keeps the player inside the gap. As far as the animation leaves the
+ * entity's frame to vanilla ({@link DefinedRenderer#swimmingTiltShown}), the tilt and its shift show.
  */
 @Mixin(PlayerRenderer.class)
 public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
@@ -116,11 +118,25 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
     private float mobends$noSwimTiltWhenBent(AbstractClientPlayer player, float partialTicks, Operation<Float> original) {
         DefinedEntityData<?> bent = ((BendingEntityRenderer) this).mobends$bentData();
         if (bent != null) {
-            // Vanilla tilts by its swim amount, so it tilts by as much less. (Before 26.1 nothing
-            // leaves the frame to vanilla yet: no tilt, or all of it, and vanilla's shift with it.)
+            // Vanilla tilts by its swim amount, so it tilts by as much less.
             return original.call(player, partialTicks) * DefinedRenderer.swimmingTiltShown(bent);
         }
         return original.call(player, partialTicks);
+    }
+
+    /** Vanilla's swimming shift, which goes with the tilt: as far as the tilt is shown, as vanilla's own shift isn't eased. */
+    @WrapOperation(
+        //? if >=1.21 {
+        method = "setupRotations(Lnet/minecraft/client/player/AbstractClientPlayer;Lcom/mojang/blaze3d/vertex/PoseStack;FFFF)V",
+        //?} else {
+        /*method = "setupRotations(Lnet/minecraft/client/player/AbstractClientPlayer;Lcom/mojang/blaze3d/vertex/PoseStack;FFF)V",
+        *///?}
+        at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V")
+    )
+    private void mobends$swimShiftAsTilted(PoseStack poseStack, float x, float y, float z, Operation<Void> original) {
+        DefinedEntityData<?> bent = ((BendingEntityRenderer) this).mobends$bentData();
+        float shown = bent != null ? DefinedRenderer.swimmingTiltShown(bent) : 1.0F;
+        original.call(poseStack, x * shown, y * shown, z * shown);
     }
 }
 //?}
