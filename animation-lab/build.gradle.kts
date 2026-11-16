@@ -58,6 +58,7 @@ val modIncludes = listOf(
     "goblinbob/mobends/core/vanilla/VanillaEntityFields.java",
     "goblinbob/mobends/standard/data/**",
     "goblinbob/mobends/standard/kumo/**",
+    "goblinbob/mobends/standard/compat/pal/PalOperations.java",
     "goblinbob/mobends/standard/UseActionType.java",
     "goblinbob/mobends/standard/ItemActions.java",
     "goblinbob/mobends/standard/AttackActionType.java",

@@ -3,6 +3,8 @@ package goblinbob.mobends.mixin;
 //? if >=26.1 {
 /*import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.blaze3d.vertex.PoseStack;
 import goblinbob.mobends.core.client.BentRenderState;
 import goblinbob.mobends.core.client.definition.DefinedRenderer;
 import goblinbob.mobends.core.definition.DefinedEntityData;
@@ -24,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * (It extends the renderer's superclass to reach {@code addLayer}, which isn't public.)
  * <p>
  * A bent player who swims or crawls isn't tilted by its renderer: its definition lays the body down
- * itself ({@link DefinedRenderer#replacesSwimmingTilt}).
+ * itself, except as far as its frame is left to vanilla ({@link DefinedRenderer#swimmingTiltShown}).
  ^/
 @Mixin(AvatarRenderer.class)
 public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractClientPlayer, AvatarRenderState, PlayerModel> {
@@ -43,10 +45,23 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
     )
     private float mobends$noSwimTiltWhenBent(AvatarRenderState state, Operation<Float> original) {
         DefinedEntityData<?> bent = ((BentRenderState) state).mobends$bent();
-        if (bent != null && DefinedRenderer.replacesSwimmingTilt(bent.getEntity())) {
-            return 0.0F;
+        if (bent != null) {
+            // Vanilla tilts by its swim amount, so it tilts by as much less.
+            return original.call(state) * DefinedRenderer.swimmingTiltShown(bent);
         }
         return original.call(state);
+    }
+
+    /^* Vanilla's swimming shift, which goes with the tilt: as far as the tilt is shown, as vanilla's own shift isn't eased. ^/
+    @WrapOperation(
+        method = "setupRotations(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V",
+        at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V")
+    )
+    private void mobends$swimShiftAsTilted(PoseStack poseStack, float x, float y, float z, Operation<Void> original,
+                                          @Local(argsOnly = true) AvatarRenderState state) {
+        DefinedEntityData<?> bent = ((BentRenderState) state).mobends$bent();
+        float shown = bent != null ? DefinedRenderer.swimmingTiltShown(bent) : 1.0F;
+        original.call(poseStack, x * shown, y * shown, z * shown);
     }
 }
 *///?} else {
@@ -54,6 +69,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import goblinbob.mobends.core.client.BendingEntityRenderer;
 import goblinbob.mobends.core.client.definition.DefinedRenderer;
+import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.standard.client.renderer.entity.layers.PlayerAccessoriesLayer;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -98,8 +114,11 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;getSwimAmount(F)F")
     )
     private float mobends$noSwimTiltWhenBent(AbstractClientPlayer player, float partialTicks, Operation<Float> original) {
-        if (DefinedRenderer.replacesSwimmingTilt(player) && ((BendingEntityRenderer) this).mobends$bentData() != null) {
-            return 0.0F;
+        DefinedEntityData<?> bent = ((BendingEntityRenderer) this).mobends$bentData();
+        if (bent != null) {
+            // Vanilla tilts by its swim amount, so it tilts by as much less. (Before 26.1 nothing
+            // leaves the frame to vanilla yet: no tilt, or all of it, and vanilla's shift with it.)
+            return original.call(player, partialTicks) * DefinedRenderer.swimmingTiltShown(bent);
         }
         return original.call(player, partialTicks);
     }

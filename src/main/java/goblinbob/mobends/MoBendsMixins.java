@@ -31,6 +31,7 @@ public final class MoBendsMixins implements IMixinConfigPlugin {
         "ClientPacketListenerMixin",
         "CustomHeadLayerMixin",
         "ElytraLayerMixin",
+        "EntityRendererMixin",
         "EntityRenderStateMixin",
         "GameRendererMixin",
         "GuiGraphicsExtractorAccessor",

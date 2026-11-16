@@ -21,7 +21,8 @@ import java.util.*;
 
 /**
  * A node of a layer: an ordered stack of pose items (clips, drivers), a smoothing table, a list of
- * bones to snap on entry. Fallthrough and vanilla nodes are pose nodes without items. (Its
+ * bones to snap on entry. Fallthrough and vanilla nodes are pose nodes without items; a vanilla
+ * pose node one whose first item is the entity's vanilla pose. (Its
  * connections belong to the layer, see {@code LayerState}.)
  */
 public class PoseNode implements INodeState
@@ -142,9 +143,38 @@ public class PoseNode implements INodeState
 
     public static PoseNode createPose(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, PoseNodeTemplate template) throws MalformedKumoTemplateException
     {
+        return createPose(context, skeleton, layer, template, null);
+    }
+
+    /**
+     * A {@code core:vanilla_pose} node: a pose node whose stack starts with the entity's vanilla
+     * pose ({@link VanillaPoseItem}), which its own items build on.
+     */
+    public static PoseNode createVanillaPose(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, VanillaPoseNodeTemplate template) throws MalformedKumoTemplateException
+    {
+        template.validate();
+        int[] bones = null;
+        if (template.bones != null)
+        {
+            bones = new int[template.bones.size()];
+            for (int i = 0; i < bones.length; i++)
+            {
+                bones[i] = skeleton.indexOf(template.bones.get(i));
+            }
+        }
+        return createPose(context, skeleton, layer, template, new VanillaPoseItem(skeleton, bones));
+    }
+
+    /** A pose node of {@code template}'s items, after {@code first} if it isn't null. */
+    private static PoseNode createPose(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, PoseNodeTemplate template, IPoseItem first) throws MalformedKumoTemplateException
+    {
         // What the node's items remember starts over when the node starts.
         List<Expression> held = new ArrayList<>();
         List<IPoseItem> items = new ArrayList<>();
+        if (first != null)
+        {
+            items.add(first);
+        }
         List<IPoseItem> enterItems = new ArrayList<>();
         context.getExpressionScope().beginHolding(held);
         try

@@ -5,18 +5,15 @@ package goblinbob.mobends.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import goblinbob.mobends.core.client.BendsLayers;
-import goblinbob.mobends.core.client.BendsRenderer;
 import goblinbob.mobends.core.client.BentRenderState;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,34 +21,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /^*
  * Bends living entities, on 26.x, where a renderer fills a render state from the entity, then submits
- * the state, and the models it submitted are drawn later in the frame: the entity's animation runs as
- * its state is filled, which carries the data it's bent by ({@link BentRenderState}); the entity's
- * frame is kept as it's submitted, and its layers run in the bent body's frames, its sword trail
- * after them. The models are drawn bent by {@code ModelFeatureRendererMixin}.
+ * the state, and the models it submitted are drawn later in the frame: the entity's animation runs
+ * once its state is filled ({@code EntityRendererMixin}), which carries the data it's bent by
+ * ({@link BentRenderState}); the entity's frame is kept as it's submitted, and its layers run in
+ * the bent body's frames, its sword trail after them. The models are drawn bent by {@code ModelFeatureRendererMixin}.
  ^/
 @Mixin(LivingEntityRenderer.class)
 public abstract class LivingEntityRendererMixin {
-    @Inject(
-        method = "extractRenderState(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;F)V",
-        at = @At("TAIL")
-    )
-    private void mobends$pose(LivingEntity entity, LivingEntityRenderState state, float partialTicks, CallbackInfo ci) {
-        EntityModel<?> model = ((LivingEntityRenderer<?, ?, ?>) (Object) this).getModel();
-        // A renderer with a baby model of its own picks the model only as it submits the entity: the
-        // one it will draw is the adult's or the baby's, whichever drew last. A baby drawn with a model
-        // of its own (26.x's, shaped and textured as its own) isn't the model a definition bends, made
-        // for the adult: it's drawn as vanilla, until definitions of the baby models exist.
-        if ((Object) this instanceof AgeableMobRendererAccessor ageable) {
-            EntityModel<?> adult = ageable.mobends$adultModel();
-            if (entity.isBaby() && ageable.mobends$babyModel() != adult) {
-                ((BentRenderState) state).mobends$setBent(null, null);
-                return;
-            }
-            model = adult;
-        }
-        ((BentRenderState) state).mobends$setBent(BendsRenderer.beforeRender(entity, model, partialTicks), model);
-    }
-
     /^* The pose as vanilla's {@code setupRotations} starts: the entity's frame, which the bent model is drawn in. ^/
     @WrapOperation(
         method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
